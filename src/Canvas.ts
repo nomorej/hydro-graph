@@ -69,6 +69,11 @@ export class Canvas {
     this.maxSize = Math.max(this.size.x, this.size.y)
     this.canvasElement.width = this.size.x * this.pixelRatio
     this.canvasElement.height = this.size.y * this.pixelRatio
+
+    this.canvasElement.style.width = this.size.x + 'px'
+    this.canvasElement.style.height = this.size.y + 'px'
+
+    this.context.scale(this.pixelRatio, this.pixelRatio)
   }
 
   private handleResize = (entries: Array<ResizeObserverEntry>) => {
