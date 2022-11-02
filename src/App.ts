@@ -6,11 +6,10 @@ import { UtilsMath } from './UtilsMath'
 import Timeline from './Timeline'
 import { Scrollbar } from './Scrollbar'
 import TestGraph from './TestGraph'
-import { DeepPartial } from './UtilsTS'
 
 export interface AppGlobals {
   data: {
-    months: Array<string>
+    months: Array<string> | undefined
   }
   colors: {
     timeline: string
@@ -34,7 +33,7 @@ export interface AppSettings {
 
 export interface AppParameters extends Pick<CanvasParameters, 'container'> {
   settings?: Partial<AppSettings>
-  globals?: DeepPartial<AppGlobals>
+  globals: AppGlobals
 }
 
 export let appGlobals: AppGlobals = null!
@@ -54,23 +53,13 @@ export class App {
     scaleButtonPressed: boolean
   }
 
-  constructor({ container, settings = {}, globals = {} }: AppParameters) {
+  constructor({ container, settings = {}, globals }: AppParameters) {
     appGlobals = {
       data: {
-        months: (globals.data?.months as []) || [],
+        months: globals.data?.months || [],
       },
-      colors: {
-        timeline: '#000000',
-        timelineSegment: '#6B849A',
-        ...globals.colors,
-      },
-      sizes: {
-        minXOffset: 0.005,
-        minYOffset: 0.005,
-        timelineYOffset: 0.025,
-        timelineAxisThickness: 0.003,
-        ...globals.sizes,
-      },
+      colors: globals.colors,
+      sizes: globals.sizes,
     }
 
     this.container = container

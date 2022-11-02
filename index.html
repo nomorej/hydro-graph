@@ -9,31 +9,60 @@
 
   <style>
     #graph {
-
       position: fixed;
 
       top: 50%;
       left: 50%;
 
-      width: 80%;
-      height: 80%;
+      width: 70%;
+      height: 70%;
 
 
       transform: translate(-50%, -50%);
 
       box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+    }
 
+    .hint {
+      position: fixed;
+      bottom: 1vmin;
+      left: 50%;
+
+      width: 11vmin;
+      object-fit: contain;
+
+      transform: translateX(-50%);
+
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .hint.shown {
+      opacity: 1;
+    }
+
+
+    .lil-gui.root {
+      opacity: 0.2;
+      transition: opacity 0.5s;
+    }
+
+
+    .lil-gui:hover {
+      opacity: 1;
     }
   </style>
 
 </head>
 
 <body>
-  <div id="app">
 
-    <div id="graph"></div>
+  <div id="graph"></div>
 
-  </div>
+
+  <img src="/lpw.svg" class="hint shown" id="hint-l">
+  <img src="/rpw.svg" class="hint" id="hint-r">
+
   <script type="module" src="/src/main.ts"></script>
 </body>
 

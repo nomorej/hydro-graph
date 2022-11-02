@@ -11,11 +11,18 @@ export default class Timeline extends SceneObject {
     const xOffset = renderer.size.x * appGlobals.sizes.minXOffset
 
     renderer.context.save()
+
     renderer.context.beginPath()
     renderer.context.moveTo(xOffset, renderer.size.y - yOffset)
     renderer.context.lineTo(scene.size.pointer.current - xOffset * 2, renderer.size.y - yOffset)
     renderer.context.lineWidth = appGlobals.sizes.timelineAxisThickness * renderer.minSize
+    renderer.context.strokeStyle = appGlobals.colors.timeline
     renderer.context.stroke()
+
+    if (appGlobals.data.months) {
+      appGlobals.data.months.forEach((month) => {})
+    }
+
     renderer.context.restore()
   }
 }
