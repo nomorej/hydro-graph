@@ -1,6 +1,5 @@
 import { App, AppGlobals, AppSettings } from './App'
 import GUI from 'lil-gui'
-import { DeepPartial } from './UtilsTS'
 
 // --- TEST
 

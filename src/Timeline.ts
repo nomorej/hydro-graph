@@ -20,7 +20,7 @@ export default class Timeline extends SceneObject {
     renderer.context.stroke()
 
     if (appGlobals.data.months) {
-      appGlobals.data.months.forEach((month) => {})
+      appGlobals.data.months.forEach(() => {})
     }
 
     renderer.context.restore()
