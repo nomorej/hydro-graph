@@ -63,10 +63,13 @@ export class Canvas {
 
   protected resize(entry: ResizeObserverEntry) {
     this.pixelRatio = UtilsMath.clamp(devicePixelRatio, 1, 2)
+
     this.size.x = entry.contentRect.width
     this.size.y = entry.contentRect.height
+
     this.minSize = Math.min(this.size.x, this.size.y)
     this.maxSize = Math.max(this.size.x, this.size.y)
+
     this.canvasElement.width = this.size.x * this.pixelRatio
     this.canvasElement.height = this.size.y * this.pixelRatio
 

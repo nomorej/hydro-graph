@@ -26,18 +26,21 @@ export class Scrollbar extends SceneObject {
     this.knob = document.createElement('div')
 
     this.bar.style.cssText = `
-      position: fixed;
+      position: absolute;
       left: 0;
       top: 0;
       z-index: 1;
       width: 100%;
-      height: 0.8vh;
+      height: 1%;
       pointer-events: none;
       transition: opacity 1s, color 0.5s;
       opacity: 0;
     `
 
     this.knob.style.cssText = `
+      position: absolute;
+      left: 0;
+      top: 0;
       height: 100%;
       background-color: black;
       transform-origin: left;
@@ -73,19 +76,19 @@ export class Scrollbar extends SceneObject {
   }
 
   public override resize({ renderer, scene }: SceneCallbackData) {
-    this.knobSize = renderer.size.x / scene.maxZoom
+    this.knobSize = Math.floor(renderer.size.x / scene.maxZoom)
     this.knob.style.width = this.knobSize + 'px'
     this.track.slipperiness = scene.position.slipperiness
     this.track.distance = renderer.size.x - this.knobSize
   }
 
   public render({ scene }: SceneRenderData) {
-    const max = scene.size.pointer.current - scene.viewportSize
+    let max = scene.size.pointer.current - scene.viewportSize
 
     const scale = max / scene.viewportSize
     const scaleR = scene.maxZoom - scale
-    const scaleWidthoutButtonSize = max / (scene.viewportSize - this.knobSize * scaleR) || 0
-    const x = scene.position.pointer.current / Math.max(1, scaleWidthoutButtonSize)
+    const scaleWithoutButtonSize = max / (scene.viewportSize - this.knobSize * scaleR) || 0
+    const x = scene.position.pointer.current / Math.max(1, scaleWithoutButtonSize)
     this.knob.style.transform = `translateX(${x}px) scaleX(${scaleR})`
 
     if (scene.zoom === 1) {
