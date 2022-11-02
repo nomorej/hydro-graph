@@ -1,0 +1,8 @@
+.gitignore
+.vscode
+.prettierignore
+.prettierrc
+node_modules
+package-lock.json
+tsconfig.json
+dist
