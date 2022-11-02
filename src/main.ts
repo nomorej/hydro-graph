@@ -24,13 +24,17 @@ const settings: Partial<AppSettings> = {
 const colors: AppGlobals['colors'] = {
   timeline: '#000000',
   timelineSegment: '#6B849A',
+  content: '#ccfcff',
 }
 
 const sizes: AppGlobals['sizes'] = {
-  minXOffset: 0.005,
-  minYOffset: 0.005,
-  timelineYOffset: 0.025,
+  font: 0.02,
+  paddingX: 0.005,
+  paddingY: 0.005,
+  contentPaddingX: 0.1,
+  timelineYOffset: 0.04,
   timelineAxisThickness: 0.003,
+  timelineDashSize: 0.02,
 }
 
 const data: AppGlobals['data'] = {
@@ -50,10 +54,26 @@ const data: AppGlobals['data'] = {
   ],
 }
 
+const calculations: AppGlobals['calculations'] = {
+  timeline: [],
+  paddingX: 0,
+  paddingY: 0,
+  sceneWidthMinusPadding: 0,
+  timelineYOffset: 0,
+  timelineY: 0,
+  contentX: 0,
+  contentY: 0,
+  contentWidth: 0,
+  contentHeight: 0,
+  timelineDashSize: 0,
+}
+
 const globals: AppGlobals = {
   colors,
   sizes,
   data,
+  calculations,
+  font: 'sans-serif',
 }
 
 let app = new App({
@@ -124,14 +144,17 @@ controlsFolder
 const colorsFolder = gui.addFolder('Цвета').close()
 
 colorsFolder.addColor(colors, 'timeline').name('Таймлайн')
-colorsFolder.addColor(colors, 'timelineSegment').name('Таймлайн сегмент')
+colorsFolder.addColor(colors, 'timelineSegment').name('Таймлайн сегмент(not ready)')
+colorsFolder.addColor(colors, 'content').name('Фон контента')
 
 // ---
 
 const sizesFolder = gui.addFolder('Размеры').close()
 
-sizesFolder.add(sizes, 'minXOffset').step(0.001).min(0).max(0.02).name('Минимальный отступ ↔')
-sizesFolder.add(sizes, 'minYOffset').step(0.001).min(0).max(0.02).name('Минимальный отступ ↕')
+sizesFolder.add(sizes, 'font').step(0.001).min(0.01).max(0.04).name('Размер шрифта')
+sizesFolder.add(sizes, 'paddingX').step(0.001).min(0).max(0.02).name('Минимальный отступ ↔')
+sizesFolder.add(sizes, 'paddingY').step(0.001).min(0).max(0.02).name('Минимальный отступ ↕')
+sizesFolder.add(sizes, 'contentPaddingX').step(0.001).min(0).max(0.15).name('Отступ от контента ↔')
 sizesFolder.add(sizes, 'timelineYOffset').step(0.001).min(0).max(0.1).name('Отступ от таймлайна ↓')
 sizesFolder
   .add(sizes, 'timelineAxisThickness')
@@ -139,3 +162,10 @@ sizesFolder
   .min(0)
   .max(0.015)
   .name('Толщина таймлайна')
+
+sizesFolder
+  .add(sizes, 'timelineDashSize')
+  .step(0.0001)
+  .min(0.001)
+  .max(0.05)
+  .name('Размер черточек на таймлайне')

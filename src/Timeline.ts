@@ -6,21 +6,51 @@ export default class Timeline extends SceneObject {
     super()
   }
 
-  public render({ renderer, scene }: SceneRenderData) {
-    const yOffset = renderer.size.y * appGlobals.sizes.timelineYOffset
-    const xOffset = renderer.size.x * appGlobals.sizes.minXOffset
+  public render({ renderer }: SceneRenderData) {
+    const {
+      paddingX,
+      paddingY,
+      sceneWidthMinusPadding,
+      timelineY,
+      contentX,
+      contentWidth,
+      timelineDashSize,
+    } = appGlobals.calculations
 
     renderer.context.save()
 
     renderer.context.beginPath()
-    renderer.context.moveTo(xOffset, renderer.size.y - yOffset)
-    renderer.context.lineTo(scene.size.pointer.current - xOffset * 2, renderer.size.y - yOffset)
+    renderer.context.moveTo(paddingX, timelineY)
+    renderer.context.lineTo(sceneWidthMinusPadding, timelineY)
     renderer.context.lineWidth = appGlobals.sizes.timelineAxisThickness * renderer.minSize
     renderer.context.strokeStyle = appGlobals.colors.timeline
     renderer.context.stroke()
 
     if (appGlobals.data.months) {
-      appGlobals.data.months.forEach(() => {})
+      const fontSize = appGlobals.sizes.font * renderer.minSize
+      renderer.context.font = `${fontSize}px ${appGlobals.font}`
+      renderer.context.textAlign = 'center'
+      renderer.context.textBaseline = 'bottom'
+
+      const dashYOffset = timelineDashSize / 2
+      const length = appGlobals.data.months.length - 1
+      const segmentWidth = contentWidth / (length + 2)
+
+      appGlobals.data.months.forEach((month, i) => {
+        const x = contentX + segmentWidth + segmentWidth * i
+        const y = renderer.size.y - paddingY
+        appGlobals.calculations.timeline[i] = {
+          x,
+          y,
+        }
+
+        renderer.context.beginPath()
+        renderer.context.moveTo(x, timelineY - dashYOffset)
+        renderer.context.lineTo(x, timelineY + dashYOffset)
+        renderer.context.stroke()
+
+        renderer.context.fillText(month, x, y)
+      })
     }
 
     renderer.context.restore()

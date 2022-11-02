@@ -6,6 +6,8 @@ import { UtilsMath } from './UtilsMath'
 import Timeline from './Timeline'
 import { Scrollbar } from './Scrollbar'
 import TestGraph from './TestGraph'
+import { XY } from './UtilsTS'
+import PreCalc from './PreCalc'
 
 export interface AppGlobals {
   data: {
@@ -14,12 +16,30 @@ export interface AppGlobals {
   colors: {
     timeline: string
     timelineSegment: string
+    content: string
   }
   sizes: {
-    minXOffset: number
-    minYOffset: number
+    font: number
+    paddingX: number
+    paddingY: number
+    contentPaddingX: number
     timelineYOffset: number
     timelineAxisThickness: number
+    timelineDashSize: number
+  }
+  font: string
+  calculations: {
+    timeline: Array<XY>
+    paddingX: number
+    paddingY: number
+    sceneWidthMinusPadding: number
+    timelineYOffset: number
+    timelineY: number
+    timelineDashSize: number
+    contentX: number
+    contentY: number
+    contentWidth: number
+    contentHeight: number
   }
 }
 
@@ -54,13 +74,7 @@ export class App {
   }
 
   constructor({ container, settings = {}, globals }: AppParameters) {
-    appGlobals = {
-      data: {
-        months: globals.data?.months || [],
-      },
-      colors: globals.colors,
-      sizes: globals.sizes,
-    }
+    appGlobals = globals
 
     this.container = container
 
@@ -90,8 +104,9 @@ export class App {
       scaleButtonPressed: false,
     }
 
-    this.renderer.scene.addObject(new TestGraph())
+    this.renderer.scene.addObject(new PreCalc())
     this.renderer.scene.addObject(new Timeline())
+    this.renderer.scene.addObject(new TestGraph())
 
     this.container.addEventListener('wheel', this.handleWheel)
     this.container.addEventListener('pointerdown', this.handlePointerDown)

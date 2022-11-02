@@ -1,14 +1,14 @@
 import { XY } from './UtilsTS'
 
 export abstract class UtilsGraph {
-  public static points(data: Array<number>, graphSize: XY, yOffset = 0) {
+  public static points(data: Array<number>, graphSize: XY, padding = { x: 0, y: 0 }) {
     const max = Math.max(...data)
     const norm = data.map((val) => val / max)
 
     const points = norm.map((val, i) => {
       return {
-        x: (graphSize.x / (data.length - 1)) * i,
-        y: graphSize.y - (graphSize.y - yOffset * 2) * val - yOffset,
+        x: padding.x + ((graphSize.x - padding.x * 2) / (data.length - 1)) * i,
+        y: graphSize.y - (graphSize.y - padding.y * 2) * val - padding.y,
       }
     })
 

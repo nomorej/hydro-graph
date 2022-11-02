@@ -28,7 +28,7 @@ export class Scrollbar extends SceneObject {
     this.bar.style.cssText = `
       position: fixed;
       left: 0;
-      top: 0.5%;
+      top: 0;
       z-index: 1;
       width: 100%;
       height: 0.8vh;
