@@ -44,7 +44,7 @@ export class Scrollbar extends SceneObject {
       height: 100%;
       background-color: black;
       transform-origin: left;
-      pointer-events: auto;
+      pointer-events: none;
       cursor: grab;
     `
 
@@ -93,21 +93,21 @@ export class Scrollbar extends SceneObject {
 
     if (scene.zoom === 1) {
       this.bar.style.opacity = '0'
-      this.bar.style.pointerEvents = 'none'
+      this.knob.style.pointerEvents = 'none'
     } else {
       this.bar.style.opacity = this.grabbed || this.hovered ? '1' : '0.3'
-      this.bar.style.pointerEvents = 'auto'
+      this.knob.style.pointerEvents = 'auto'
     }
   }
 
   private handlePointerEnter = () => {
     this.hovered = true
-    this.bar.style.opacity = '1'
+    this.bar.style.opacity = this.scene.zoom !== 1 ? '1' : '0'
   }
 
   private handlePointerLeave = () => {
     this.hovered = false
-    this.bar.style.opacity = '0.3'
+    this.bar.style.opacity = this.scene.zoom !== 1 ? '0.3' : '0'
   }
 
   private handlePointerDown = (grabEvent: MouseEvent) => {
@@ -130,11 +130,13 @@ export class Scrollbar extends SceneObject {
     const grabCoord = grabEvent.x
     const start = this.scene.position.pointer.target
 
-    document.body.style.cursor = 'grabbing'
-    this.knob.style.cursor = 'grabbing'
-    this.grabbed = true
+    if (this.scene.zoom !== 1) {
+      document.body.style.cursor = 'grabbing'
+      this.knob.style.cursor = 'grabbing'
+      this.grabbed = true
 
-    addEventListener('pointermove', move)
-    addEventListener('pointerup', drop)
+      addEventListener('pointermove', move)
+      addEventListener('pointerup', drop)
+    }
   }
 }
