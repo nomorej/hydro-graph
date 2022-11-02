@@ -72,11 +72,11 @@ export class Scrollbar extends SceneObject {
     this.container.removeChild(this.bar)
   }
 
-  public override resize({ canvas, scene }: SceneCallbackData) {
-    this.knobSize = canvas.size.x / scene.maxZoom
+  public override resize({ renderer, scene }: SceneCallbackData) {
+    this.knobSize = renderer.size.x / scene.maxZoom
     this.knob.style.width = this.knobSize + 'px'
     this.track.slipperiness = scene.position.slipperiness
-    this.track.distance = canvas.size.x - this.knobSize
+    this.track.distance = renderer.size.x - this.knobSize
   }
 
   public render({ scene }: SceneRenderData) {

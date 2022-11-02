@@ -1,21 +1,20 @@
-import { App, AppSettings } from './App'
+import { App, AppGlobals, AppSettings } from './App'
 import GUI from 'lil-gui'
+import { DeepPartial } from './UtilsTS'
 
 // --- TEST
 
 const container = document.createElement('div')
 
 container.style.cssText = `
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 `
 
-document.body.appendChild(container)
+document.getElementById('graph')?.appendChild(container)
+// document.body.appendChild(container)
 
-const settings: AppSettings = {
+const settings: Partial<AppSettings> = {
   maxZoom: 15,
   smoothness: 7,
   wheelZoomSpeed: 1,
@@ -23,9 +22,30 @@ const settings: AppSettings = {
   zoomMouseButton: 'left',
 }
 
+const globals: DeepPartial<AppGlobals> = {
+  colors: {},
+  data: {
+    months: [
+      'Ноябрь',
+      'Декабрь',
+      'Январь',
+      'Февраль',
+      'Март',
+      'Апрель',
+      'Май',
+      'Июнь',
+      'Июль',
+      'Август',
+      'Сентябрь',
+      'Октябрь',
+    ],
+  },
+}
+
 let app = new App({
   container,
-  ...settings,
+  settings,
+  globals,
 })
 
 // --- GUI
@@ -53,10 +73,13 @@ gui
 
 gui.add(settings, 'zoomMouseButton', ['left', 'right']).name('Кнопка мыши для масштабирования')
 
+gui.close()
+
 gui.onChange(() => {
   app?.destroy()
   app = new App({
     container,
-    ...settings,
+    settings,
+    globals,
   })
 })

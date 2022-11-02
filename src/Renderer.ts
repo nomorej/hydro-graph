@@ -37,6 +37,6 @@ export class Renderer extends Canvas {
 
   private render = (canvas: Canvas, t = 0, dt = 0) => {
     canvas.clear()
-    this.scene.render(canvas, t, dt)
+    this.scene.render(this, t, dt)
   }
 }

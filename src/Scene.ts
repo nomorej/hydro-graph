@@ -1,12 +1,12 @@
 import { AppSettings } from './App'
-import { Canvas } from './Canvas'
+import { Renderer } from './Renderer'
 import { Track } from './Track'
 import { UtilsMath } from './UtilsMath'
 
 export interface SceneParameters extends Partial<Pick<AppSettings, 'smoothness' | 'maxZoom'>> {}
 
 export interface SceneCallbackData {
-  canvas: Canvas
+  renderer: Renderer
   scene: Scene
 }
 
@@ -26,7 +26,6 @@ export abstract class SceneObject {
 
 export class Scene {
   private _viewportSize: number
-
   public zoom: number
 
   public readonly maxZoom: number
@@ -35,13 +34,13 @@ export class Scene {
 
   public objects: Set<SceneObject>
 
-  constructor(parameters?: SceneParameters) {
+  constructor({ maxZoom = 1, smoothness = 0 }: SceneParameters = {}) {
     this._viewportSize = 0
     this.zoom = 1
-    this.maxZoom = parameters?.maxZoom || 1
 
-    this.size = new Track({ slipperiness: parameters?.smoothness || 0, start: 0 })
-    this.position = new Track({ slipperiness: parameters?.smoothness || 0, start: 0 })
+    this.maxZoom = maxZoom
+    this.size = new Track({ slipperiness: smoothness || 0, start: 0 })
+    this.position = new Track({ slipperiness: smoothness || 0, start: 0 })
 
     this.objects = new Set()
   }
@@ -81,21 +80,21 @@ export class Scene {
     this.position.calibratePointer()
   }
 
-  public resize(canvas: Canvas) {
-    this.viewportSize = canvas.size.x
-    this.objects.forEach((object) => object.resize?.({ canvas, scene: this }))
+  public resize(renderer: Renderer) {
+    this.viewportSize = renderer.size.x
+    this.objects.forEach((object) => object.resize?.({ renderer, scene: this }))
   }
 
-  public render(canvas: Canvas, t: number, dt: number) {
+  public render(renderer: Renderer, t: number, dt: number) {
     this.size.slide(dt)
     this.position.slide(dt)
 
-    canvas.context.save()
-    canvas.context.translate(this.position.pointer.current * -1, 0)
+    renderer.context.save()
+    renderer.context.translate(this.position.pointer.current * -1, 0)
 
-    this.objects.forEach((object) => object.render({ canvas, scene: this, t, dt }))
+    this.objects.forEach((object) => object.render({ renderer, scene: this, t, dt }))
 
-    canvas.context.restore()
+    renderer.context.restore()
   }
 
   public addObject(object: SceneObject) {

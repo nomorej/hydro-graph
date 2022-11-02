@@ -5,6 +5,24 @@ import { UtilsGrid } from './UtilsGrid'
 import { UtilsMath } from './UtilsMath'
 import Timeline from './Timeline'
 import { Scrollbar } from './Scrollbar'
+import TestGraph from './TestGraph'
+import { DeepPartial } from './UtilsTS'
+
+export interface AppGlobals {
+  data: {
+    months: Array<string>
+  }
+  colors: {
+    timeline: string
+    timelineSegment: string
+  }
+  sizes: {
+    minXOffset: number
+    minYOffset: number
+    timelineYOffset: number
+    timelineAxisThickness: number
+  }
+}
 
 export interface AppSettings {
   zoomMouseButton: 'left' | 'right'
@@ -14,10 +32,20 @@ export interface AppSettings {
   maxZoom: number
 }
 
-export interface AppParameters extends Pick<CanvasParameters, 'container'>, Partial<AppSettings> {}
+export interface AppParameters extends Pick<CanvasParameters, 'container'> {
+  settings?: Partial<AppSettings>
+  globals?: DeepPartial<AppGlobals>
+}
+
+export let appGlobals: AppGlobals = null!
 
 export class App {
   private container: HTMLElement
+
+  private settings: Pick<AppSettings, 'wheelZoomSpeed' | 'wheelTranlationSpeed'> & {
+    zoomMouseButton: 0 | 2
+  }
+
   private scene: Scene
   private renderer: Renderer
   private scrollbar: Scrollbar
@@ -26,17 +54,37 @@ export class App {
     scaleButtonPressed: boolean
   }
 
-  private settings: Omit<
-    AppSettings,
-    'scaleSmoothness' | 'smoothness' | 'maxZoom' | 'zoomMouseButton'
-  > & { zoomMouseButton: 0 | 2 }
+  constructor({ container, settings = {}, globals = {} }: AppParameters) {
+    appGlobals = {
+      data: {
+        months: (globals.data?.months as []) || [],
+      },
+      colors: {
+        timeline: '#000000',
+        timelineSegment: '#6B849A',
+        ...globals.colors,
+      },
+      sizes: {
+        minXOffset: 0.005,
+        minYOffset: 0.005,
+        timelineYOffset: 0.025,
+        timelineAxisThickness: 0.003,
+        ...globals.sizes,
+      },
+    }
 
-  constructor(parameters: AppParameters) {
-    this.container = parameters.container
+    this.container = container
+
+    this.settings = {
+      zoomMouseButton:
+        settings.zoomMouseButton === 'left' ? 0 : settings.zoomMouseButton === 'right' ? 2 : 0,
+      wheelZoomSpeed: settings.wheelZoomSpeed ?? 1,
+      wheelTranlationSpeed: settings.wheelTranlationSpeed ?? 1,
+    }
 
     this.scene = new Scene({
-      maxZoom: parameters.maxZoom,
-      smoothness: parameters.smoothness,
+      maxZoom: settings.maxZoom,
+      smoothness: settings.smoothness,
     })
 
     this.renderer = new Renderer({
@@ -53,13 +101,7 @@ export class App {
       scaleButtonPressed: false,
     }
 
-    this.settings = {
-      zoomMouseButton:
-        parameters.zoomMouseButton === 'left' ? 0 : parameters.zoomMouseButton === 'right' ? 2 : 0,
-      wheelZoomSpeed: parameters.wheelZoomSpeed ?? 1,
-      wheelTranlationSpeed: parameters.wheelTranlationSpeed ?? 1,
-    }
-
+    this.renderer.scene.addObject(new TestGraph())
     this.renderer.scene.addObject(new Timeline())
 
     this.container.addEventListener('wheel', this.handleWheel)
@@ -69,12 +111,15 @@ export class App {
   }
 
   public destroy(): void {
-    this.renderer.destroy()
     this.container.removeEventListener('wheel', this.handleWheel)
     this.container.removeEventListener('pointerdown', this.handlePointerDown)
     this.container.removeEventListener('pointerup', this.handleMouseUp)
     this.container.removeEventListener('contextmenu', this.handleContextMenu)
+
+    this.renderer.destroy()
     this.scrollbar.destroy()
+
+    appGlobals = null!
   }
 
   private handleWheel = (event: WheelEvent) => {

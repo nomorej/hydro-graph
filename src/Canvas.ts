@@ -1,3 +1,4 @@
+import { UtilsMath } from './UtilsMath'
 import { XY } from './UtilsTS'
 
 export type CanvasDrawFunction = (canvasState: Canvas, ...args: any[]) => void
@@ -11,10 +12,12 @@ export class Canvas {
   public readonly canvasElement: HTMLCanvasElement
   public readonly context: CanvasRenderingContext2D
   public readonly size: XY
+  public minSize: number
+  public maxSize: number
 
   private _drawFunction?: CanvasDrawFunction | undefined
   private pixelRatio: number
-  private resizeObserver: ResizeObserver
+  private readonly resizeObserver: ResizeObserver
 
   constructor(parameters: CanvasParameters) {
     this.containerElement = parameters.container
@@ -31,6 +34,9 @@ export class Canvas {
     this.context = context
 
     this.size = { x: 0, y: 0 }
+    this.minSize = 0
+    this.maxSize = 0
+
     this.pixelRatio = 1
 
     this.resizeObserver = new ResizeObserver(this.handleResize)
@@ -56,18 +62,18 @@ export class Canvas {
   }
 
   protected resize(entry: ResizeObserverEntry) {
-    this.pixelRatio = Math.min(devicePixelRatio, 2)
+    this.pixelRatio = UtilsMath.clamp(devicePixelRatio, 1, 2)
     this.size.x = entry.contentRect.width
     this.size.y = entry.contentRect.height
+    this.minSize = Math.min(this.size.x, this.size.y)
+    this.maxSize = Math.max(this.size.x, this.size.y)
     this.canvasElement.width = this.size.x * this.pixelRatio
     this.canvasElement.height = this.size.y * this.pixelRatio
   }
 
   private handleResize = (entries: Array<ResizeObserverEntry>) => {
     this.clear()
-
     entries[0] && this.resize(entries[0])
-
     this.draw()
   }
 }
