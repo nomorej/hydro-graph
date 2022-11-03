@@ -22,8 +22,9 @@ const settings: Partial<AppSettings> = {
 }
 
 const colors: AppGlobalsConfig['colors'] = {
+  default: '#1e6062',
   timeline: '#000000',
-  timelineSegment: '#6B849A',
+  timelineSegment: '#66f5ff',
   content: '#ccfcff',
 }
 
@@ -33,7 +34,7 @@ const sizes: AppGlobalsConfig['sizes'] = {
   paddingY: 0.0,
   contentPaddingX: 0.1,
   timelineOffsetY: 0.05,
-  timelineHeight: 0.03,
+  timelineHeight: 0.02,
 }
 
 const data: AppGlobalsConfig['data'] = {
@@ -127,8 +128,9 @@ controlsFolder
 
 const colorsFolder = gui.addFolder('Цвета').close()
 
+colorsFolder.addColor(colors, 'default').name('Стандартный')
 colorsFolder.addColor(colors, 'timeline').name('Таймлайн')
-colorsFolder.addColor(colors, 'timelineSegment').name('Таймлайн сегмент(not ready)')
+colorsFolder.addColor(colors, 'timelineSegment').name('Cегмент Таймлайна')
 colorsFolder.addColor(colors, 'content').name('Фон контента')
 
 // ---

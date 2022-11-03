@@ -3,12 +3,13 @@ import { Scene } from './Scene'
 import { Renderer } from './Renderer'
 import { UtilsCoordinates } from './UtilsCoordinates'
 import { UtilsMath } from './UtilsMath'
-import Timeline from './Timeline'
+import { ObjectTimeline } from './ObjectTimeline'
 import { Scrollbar } from './Scrollbar'
-import Calculator from './Calculator'
+import { ObjectCalculator } from './ObjectCalculator'
 import { Primitive } from './Primitive'
-import Content from './Content'
-import TestGraph from './TestGraph'
+import { ObjectClip } from './ObjectClip'
+import { ObjectTestGraph } from './ObjectTestGraph'
+import { ObjectTimelineSegments } from './ObjectTimelineSegments'
 
 export interface AppGlobals {
   data: {
@@ -18,6 +19,7 @@ export interface AppGlobals {
     timeline: string
     timelineSegment: string
     content: string
+    default: string
   }
   sizes: {
     font: number
@@ -118,10 +120,11 @@ export class App {
       scaleButtonPressed: false,
     }
 
-    this.renderer.scene.addObject(new Calculator())
-    this.renderer.scene.addObject(new Timeline())
-    this.renderer.scene.addObject(new Content())
-    this.renderer.scene.addObject(new TestGraph())
+    this.renderer.scene.addObject(new ObjectCalculator())
+    this.renderer.scene.addObject(new ObjectTimeline())
+    this.renderer.scene.addObject(new ObjectClip())
+    this.renderer.scene.addObject(new ObjectTimelineSegments())
+    this.renderer.scene.addObject(new ObjectTestGraph())
 
     this.container.addEventListener('wheel', this.handleWheel)
     this.container.addEventListener('pointerdown', this.handlePointerDown)

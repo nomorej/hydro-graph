@@ -1,14 +1,13 @@
 import { appGlobals } from './App'
 import { SceneObject, SceneRenderData } from './Scene'
 import { UtilsGraph } from './UtilsGraph'
-import UtilsPrimitives from './UtilsShapes'
 
-export default class TestGraph extends SceneObject {
+export class ObjectTestGraph extends SceneObject {
   constructor() {
     super()
   }
 
-  public render({ renderer, scene }: SceneRenderData): void {
+  public render({ renderer }: SceneRenderData): void {
     const { content } = appGlobals.calculations
 
     const points = UtilsGraph.points(
@@ -26,8 +25,9 @@ export default class TestGraph extends SceneObject {
       }
     )
 
-    renderer.context.lineWidth = 1
+    renderer.context.lineWidth = 2
     UtilsGraph.smooth(renderer.context, points)
+    renderer.context.strokeStyle = appGlobals.colors.default
     renderer.context.stroke()
   }
 }

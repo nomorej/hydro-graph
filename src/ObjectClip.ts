@@ -1,7 +1,7 @@
 import { appGlobals } from './App'
 import { SceneObject, SceneRenderData } from './Scene'
 
-export default class Content extends SceneObject {
+export class ObjectClip extends SceneObject {
   constructor() {
     super()
   }

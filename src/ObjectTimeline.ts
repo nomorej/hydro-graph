@@ -1,7 +1,7 @@
 import { appGlobals } from './App'
 import { SceneObject, SceneRenderData } from './Scene'
 
-export default class Timeline extends SceneObject {
+export class ObjectTimeline extends SceneObject {
   constructor() {
     super()
   }
@@ -12,14 +12,14 @@ export default class Timeline extends SceneObject {
     renderer.context.beginPath()
     renderer.context.moveTo(timeline.primitive.x1, timeline.primitive.middleY)
     renderer.context.lineTo(timeline.primitive.x2, timeline.primitive.middleY)
-    renderer.context.lineWidth = timeline.primitive.height * 0.08
+    renderer.context.lineWidth = timeline.primitive.height * 0.15
     renderer.context.strokeStyle = appGlobals.colors.timeline
     renderer.context.stroke()
 
     if (timeline.segments.length) {
       renderer.context.font = `${fontSize}px ${appGlobals.font}`
       renderer.context.textAlign = 'center'
-      renderer.context.textBaseline = 'bottom'
+      renderer.context.textBaseline = 'top'
 
       const dashYOffset = timeline.primitive.height / 2
 
@@ -29,14 +29,10 @@ export default class Timeline extends SceneObject {
         renderer.context.beginPath()
         renderer.context.moveTo(sp.x1, sp.y2 - dashYOffset)
         renderer.context.lineTo(sp.x1, sp.y2 + dashYOffset)
-        renderer.context.lineWidth = timeline.primitive.height * 0.08
+        renderer.context.lineWidth = timeline.primitive.height * 0.2
         renderer.context.stroke()
 
-        renderer.context.fillText(
-          segment.data,
-          sp.x1,
-          sp.y2 + timeline.primitive.height + dashYOffset / 2
-        )
+        renderer.context.fillText(segment.data, sp.x1, sp.y2 + timeline.primitive.height * 0.8)
       })
     }
   }

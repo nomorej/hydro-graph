@@ -2,7 +2,7 @@ import { appGlobals } from './App'
 import { Primitive } from './Primitive'
 import { SceneObject, SceneRenderData } from './Scene'
 
-export default class Calculator extends SceneObject {
+export class ObjectCalculator extends SceneObject {
   constructor() {
     super()
   }
