@@ -7,52 +7,42 @@ export default class Timeline extends SceneObject {
   }
 
   public render({ renderer }: SceneRenderData) {
-    const {
-      paddingX,
-      paddingY,
-      sceneWidthMinusPadding,
-      timelineY,
-      contentX,
-      contentWidth,
-      timelineDashSize,
-    } = appGlobals.calculations
-
-    renderer.context.save()
+    const { workspace, timeline, fontSize } = appGlobals.calculations
 
     renderer.context.beginPath()
-    renderer.context.moveTo(paddingX, timelineY)
-    renderer.context.lineTo(sceneWidthMinusPadding, timelineY)
-    renderer.context.lineWidth = appGlobals.sizes.timelineAxisThickness * renderer.minSize
+    renderer.context.moveTo(timeline.primitive.x1, timeline.primitive.middleY)
+    renderer.context.lineTo(timeline.primitive.x2, timeline.primitive.middleY)
+    renderer.context.lineWidth = timeline.primitive.height * 0.08
     renderer.context.strokeStyle = appGlobals.colors.timeline
     renderer.context.stroke()
 
-    if (appGlobals.data.months) {
-      const fontSize = appGlobals.sizes.font * renderer.minSize
+    if (timeline.segments.length) {
       renderer.context.font = `${fontSize}px ${appGlobals.font}`
       renderer.context.textAlign = 'center'
       renderer.context.textBaseline = 'bottom'
 
-      const dashYOffset = timelineDashSize / 2
-      const length = appGlobals.data.months.length - 1
-      const segmentWidth = contentWidth / (length + 2)
+      const dashYOffset = timeline.primitive.height / 2
 
-      appGlobals.data.months.forEach((month, i) => {
-        const x = contentX + segmentWidth + segmentWidth * i
-        const y = renderer.size.y - paddingY
-        appGlobals.calculations.timeline[i] = {
-          x,
-          y,
-        }
+      timeline.segments.forEach((segment, i) => {
+        const sp = segment.primitive
 
         renderer.context.beginPath()
-        renderer.context.moveTo(x, timelineY - dashYOffset)
-        renderer.context.lineTo(x, timelineY + dashYOffset)
+        renderer.context.moveTo(sp.x1, sp.y2 - dashYOffset)
+        renderer.context.lineTo(sp.x1, sp.y2 + dashYOffset)
+        renderer.context.lineWidth = timeline.primitive.height * 0.08
         renderer.context.stroke()
 
-        renderer.context.fillText(month, x, y)
+        // renderer.context.beginPath()
+        // renderer.context.moveTo(sp.x1, sp.y1)
+        // renderer.context.lineTo(sp.x1, sp.y2)
+        // renderer.context.stroke()
+
+        renderer.context.fillText(
+          segment.data,
+          sp.x1,
+          sp.y2 + timeline.primitive.height + dashYOffset / 2
+        )
       })
     }
-
-    renderer.context.restore()
   }
 }

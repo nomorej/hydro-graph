@@ -1,6 +1,7 @@
 import { appGlobals } from './App'
 import { SceneObject, SceneRenderData } from './Scene'
 import { UtilsGraph } from './UtilsGraph'
+import UtilsPrimitives from './UtilsShapes'
 
 export default class TestGraph extends SceneObject {
   constructor() {
@@ -8,12 +9,7 @@ export default class TestGraph extends SceneObject {
   }
 
   public render({ renderer, scene }: SceneRenderData): void {
-    renderer.context.save()
-
-    const { contentY, contentX, contentWidth, contentHeight } = appGlobals.calculations
-
-    renderer.context.fillStyle = appGlobals.colors.content
-    renderer.context.fillRect(contentX, contentY, contentWidth, contentHeight)
+    const { content } = appGlobals.calculations
 
     const points = UtilsGraph.points(
       [
@@ -21,19 +17,17 @@ export default class TestGraph extends SceneObject {
         2, 77, 30, 10, 50, 10, 55, 100, 30, 70, 25, 10, 40, 30, 10, 80, 10, 89, 79, 30, 11, 50,
       ],
       {
-        x: scene.size.pointer.current,
-        y: renderer.size.y,
+        x: content.width,
+        y: content.height,
       },
       {
-        x: contentX,
-        y: renderer.size.y * 0.1,
+        x: content.x1,
+        y: content.y1,
       }
     )
 
-    UtilsGraph.smooth(renderer.context, points)
     renderer.context.lineWidth = 1
+    UtilsGraph.smooth(renderer.context, points)
     renderer.context.stroke()
-
-    renderer.context.restore()
   }
 }

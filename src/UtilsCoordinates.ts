@@ -1,4 +1,4 @@
-export abstract class UtilsGrid {
+export abstract class UtilsCoordinates {
   public static cursorPosition(event: MouseEvent, container: HTMLElement) {
     const rect = container.getBoundingClientRect()
     return {

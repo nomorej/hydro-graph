@@ -1,13 +1,14 @@
 import { CanvasParameters } from './Canvas'
 import { Scene } from './Scene'
 import { Renderer } from './Renderer'
-import { UtilsGrid } from './UtilsGrid'
+import { UtilsCoordinates } from './UtilsCoordinates'
 import { UtilsMath } from './UtilsMath'
 import Timeline from './Timeline'
 import { Scrollbar } from './Scrollbar'
+import Calculator from './Calculator'
+import { Primitive } from './Primitive'
+import Content from './Content'
 import TestGraph from './TestGraph'
-import { XY } from './UtilsTS'
-import PreCalc from './PreCalc'
 
 export interface AppGlobals {
   data: {
@@ -23,25 +24,26 @@ export interface AppGlobals {
     paddingX: number
     paddingY: number
     contentPaddingX: number
-    timelineYOffset: number
-    timelineAxisThickness: number
-    timelineDashSize: number
+    timelineOffsetY: number
+    timelineHeight: number
   }
   font: string
   calculations: {
-    timeline: Array<XY>
-    paddingX: number
-    paddingY: number
-    sceneWidthMinusPadding: number
-    timelineYOffset: number
-    timelineY: number
-    timelineDashSize: number
-    contentX: number
-    contentY: number
-    contentWidth: number
-    contentHeight: number
+    fontSize: number
+    workspace: Primitive
+    content: Primitive
+    contentWrapper: Primitive
+    timeline: {
+      primitive: Primitive
+      segments: Array<{
+        primitive: Primitive
+        data: string
+      }>
+    }
   }
 }
+
+export type AppGlobalsConfig = Omit<AppGlobals, 'calculations'>
 
 export interface AppSettings {
   zoomMouseButton: 'left' | 'right'
@@ -53,7 +55,7 @@ export interface AppSettings {
 
 export interface AppParameters extends Pick<CanvasParameters, 'container'> {
   settings?: Partial<AppSettings>
-  globals: AppGlobals
+  globals: AppGlobalsConfig
 }
 
 export let appGlobals: AppGlobals = null!
@@ -74,7 +76,19 @@ export class App {
   }
 
   constructor({ container, settings = {}, globals }: AppParameters) {
-    appGlobals = globals
+    appGlobals = {
+      ...globals,
+      calculations: {
+        fontSize: 0,
+        timeline: {
+          primitive: new Primitive(),
+          segments: [],
+        },
+        content: new Primitive(),
+        contentWrapper: new Primitive(),
+        workspace: new Primitive(),
+      },
+    }
 
     this.container = container
 
@@ -104,8 +118,9 @@ export class App {
       scaleButtonPressed: false,
     }
 
-    this.renderer.scene.addObject(new PreCalc())
+    this.renderer.scene.addObject(new Calculator())
     this.renderer.scene.addObject(new Timeline())
+    this.renderer.scene.addObject(new Content())
     this.renderer.scene.addObject(new TestGraph())
 
     this.container.addEventListener('wheel', this.handleWheel)
@@ -153,7 +168,7 @@ export class App {
   }
 
   private scale = (event: WheelEvent) => {
-    const mousePosition = UtilsGrid.cursorPosition(event, this.container).x
+    const mousePosition = UtilsCoordinates.cursorPosition(event, this.container).x
     const zoomSpeed = this.settings.wheelZoomSpeed * UtilsMath.clamp(event.deltaY, -1, 1)
     this.renderer.withTicker(() => {
       this.scene.scale(mousePosition, zoomSpeed)
