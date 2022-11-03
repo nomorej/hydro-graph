@@ -1,10 +1,30 @@
-import { appGlobals } from './App'
+import { appGlobals, AppPossibleRows } from './App'
 import { Primitive } from './Primitive'
 import { SceneObject, SceneRenderData } from './Scene'
+import { Segmentator } from './Segmentator'
 
 export class ObjectCalculator extends SceneObject {
+  private segmentator: Segmentator<AppPossibleRows>
+
   constructor() {
     super()
+    this.segmentator = new Segmentator({ scale: 1 })
+  }
+
+  public override resize() {
+    const rows = Object.entries(appGlobals.rows) as Array<[AppPossibleRows, boolean]>
+
+    this.segmentator.gap = appGlobals.sizes.rowsGap
+
+    rows.forEach((row) => {
+      let factor = 0
+
+      if (row[1]) {
+        factor = appGlobals.sizes.factors[row[0]]
+      }
+
+      this.segmentator.cut(row[0], factor)
+    })
   }
 
   public render({ renderer, scene }: SceneRenderData) {
@@ -43,21 +63,28 @@ export class ObjectCalculator extends SceneObject {
 
     if (appGlobals.data.months) {
       const length = appGlobals.data.months.length - 1
-      const segmentWidth = (c.timeline.primitive.width - contentWrapperPaddingX * 2) / (length + 2)
+      const monthWidth = (c.timeline.primitive.width - contentWrapperPaddingX * 2) / (length + 2)
 
-      appGlobals.data.months.forEach((month, i) => {
-        const x1 = segmentWidth + contentWrapperLeft + segmentWidth * i
-        const x2 = x1 + segmentWidth
+      appGlobals.data.months.forEach((data, i) => {
+        const x1 = monthWidth + contentWrapperLeft + monthWidth * i
+        const x2 = x1 + monthWidth
         const y1 = c.workspace.y1
         const y2 = c.timeline.primitive.middleY
 
-        const segment = {
+        const month = {
           primitive: new Primitive(x1, x2, y1, y2),
-          data: month,
+          data,
         }
 
-        c.timeline.segments[i] = segment
+        c.timeline.months[i] = month
       })
     }
+
+    this.segmentator.segments.forEach((s) => {
+      c.graphs[s.id].x1 = c.content.x1
+      c.graphs[s.id].x2 = c.content.x2
+      c.graphs[s.id].y1 = c.content.height * s.a
+      c.graphs[s.id].y2 = c.content.height * s.b
+    })
   }
 }

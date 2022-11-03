@@ -39,7 +39,7 @@ export class Canvas {
 
     this.pixelRatio = 1
 
-    this.resizeObserver = new ResizeObserver(this.handleResize)
+    this.resizeObserver = new ResizeObserver(this.redraw)
   }
 
   public set drawFunction(drawFunction: CanvasDrawFunction) {
@@ -61,11 +61,11 @@ export class Canvas {
     this.context.clearRect(0, 0, this.size.x, this.size.y)
   }
 
-  protected resize(entry: ResizeObserverEntry) {
+  protected resize() {
     this.pixelRatio = UtilsMath.clamp(devicePixelRatio, 1, 2)
 
-    this.size.x = entry.contentRect.width
-    this.size.y = entry.contentRect.height
+    this.size.x = this.containerElement.offsetWidth
+    this.size.y = this.containerElement.offsetHeight
 
     this.minSize = Math.min(this.size.x, this.size.y)
     this.maxSize = Math.max(this.size.x, this.size.y)
@@ -79,9 +79,9 @@ export class Canvas {
     this.context.scale(this.pixelRatio, this.pixelRatio)
   }
 
-  private handleResize = (entries: Array<ResizeObserverEntry>) => {
+  public redraw = () => {
     this.clear()
-    entries[0] && this.resize(entries[0])
+    this.resize()
     this.draw()
   }
 }

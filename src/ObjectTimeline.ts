@@ -16,15 +16,15 @@ export class ObjectTimeline extends SceneObject {
     renderer.context.strokeStyle = appGlobals.colors.timeline
     renderer.context.stroke()
 
-    if (timeline.segments.length) {
+    if (timeline.months.length) {
       renderer.context.font = `${fontSize}px ${appGlobals.font}`
       renderer.context.textAlign = 'center'
       renderer.context.textBaseline = 'top'
 
       const dashYOffset = timeline.primitive.height / 2
 
-      timeline.segments.forEach((segment) => {
-        const sp = segment.primitive
+      timeline.months.forEach((month) => {
+        const sp = month.primitive
 
         renderer.context.beginPath()
         renderer.context.moveTo(sp.x1, sp.y2 - dashYOffset)
@@ -32,7 +32,7 @@ export class ObjectTimeline extends SceneObject {
         renderer.context.lineWidth = timeline.primitive.height * 0.2
         renderer.context.stroke()
 
-        renderer.context.fillText(segment.data, sp.x1, sp.y2 + timeline.primitive.height * 0.8)
+        renderer.context.fillText(month.data, sp.x1, sp.y2 + timeline.primitive.height * 0.8)
       })
     }
   }

@@ -18,10 +18,10 @@ export class Renderer extends Canvas {
     this.drawFunction = this.render
   }
 
-  public withTicker(callback: () => void) {
+  public withTicker(callback?: () => void) {
     Ticker.add(this.draw)
     Ticker.removeAfterDelay(this.draw)
-    callback()
+    callback?.()
   }
 
   public withoutTicker(callback: () => void) {
@@ -30,8 +30,8 @@ export class Renderer extends Canvas {
     this.draw()
   }
 
-  protected override resize(entry: ResizeObserverEntry): void {
-    super.resize(entry)
+  protected override resize(): void {
+    super.resize()
     this.scene.resize(this)
   }
 

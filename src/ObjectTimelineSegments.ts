@@ -9,14 +9,14 @@ export class ObjectTimelineSegments extends SceneObject {
   public render({ renderer }: SceneRenderData) {
     const { timeline } = appGlobals.calculations
 
-    if (timeline.segments.length) {
-      timeline.segments.forEach((segment) => {
-        const sp = segment.primitive
+    if (timeline.months.length) {
+      timeline.months.forEach((month) => {
+        const sp = month.primitive
 
         renderer.context.beginPath()
         renderer.context.moveTo(sp.x1, sp.y1)
         renderer.context.lineTo(sp.x1, sp.y2)
-        renderer.context.strokeStyle = appGlobals.colors.timelineSegment
+        renderer.context.strokeStyle = appGlobals.colors.timelineMonth
         renderer.context.lineWidth = timeline.primitive.height * 0.15
         renderer.context.stroke()
       })

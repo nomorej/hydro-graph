@@ -1,5 +1,5 @@
 import GUI from 'lil-gui'
-import { App, AppParameters } from './App'
+import { App, AppParameters, AppPossibleRows } from './App'
 
 export class AppWithGUI {
   private gui: GUI
@@ -23,6 +23,7 @@ export class AppWithGUI {
     this.controlsFolder()
     this.colorsFolder()
     this.sizesFolder()
+    this.rowsFolder()
     this.gui.add(this, 'handleSave').name('Сохранить')
     this.gui.add(this, 'handleLoad').name('Загрузить')
   }
@@ -72,7 +73,7 @@ export class AppWithGUI {
 
     folder.addColor(colors, 'default').name('Стандартный')
     folder.addColor(colors, 'timeline').name('Таймлайн')
-    folder.addColor(colors, 'timelineSegment').name('Cегмент таймлайна')
+    folder.addColor(colors, 'timelineMonth').name('Месяцы')
     folder.addColor(colors, 'content').name('Фон контента')
   }
 
@@ -86,11 +87,39 @@ export class AppWithGUI {
     folder.add(sizes, 'contentPaddingX').step(0.01).min(0).max(0.2).name('Отступ от контента ↔')
     folder.add(sizes, 'timelineOffsetY').step(0.001).min(0).max(0.1).name('Отступ от таймлайна ↓')
     folder.add(sizes, 'timelineHeight').step(0.001).min(0.01).max(0.05).name('Высота таймлайна')
+    folder
+      .add(sizes.factors, 'airTemperature')
+      .step(0.1)
+      .min(0)
+      .max(10)
+      .name('Фактор высоты ряда "температура воздуха"')
+    folder
+      .add(sizes.factors, 'precipitation')
+      .step(0.1)
+      .min(0)
+      .max(10)
+      .name('Фактор высоты ряда "осадки"')
+    folder
+      .add(sizes.factors, 'waterTemperature')
+      .step(0.1)
+      .min(0)
+      .max(10)
+      .name('Фактор высоты ряда "температура воды"')
+    folder
+      .add(sizes.factors, 'waterLevel')
+      .step(0.1)
+      .min(0)
+      .max(10)
+      .name('Фактор высоты ряда "уровень воды"')
+
+    folder.add(sizes, 'rowsGap').step(0.001).min(0).max(0.2).name('Расстояние между рядами')
   }
 
-  private handleChange = () => {
-    this.app?.destroy()
-    this.app = new App(this.preset)
+  private handleChange = (v: any) => {
+    if (v.controller?.parent?._title !== 'Активные ряды') {
+      this.app?.destroy()
+      this.app = new App(this.preset)
+    }
   }
 
   // @ts-ignore
@@ -137,5 +166,24 @@ export class AppWithGUI {
         reader.readAsText(input.files[0])
       }
     }
+  }
+
+  private rowsFolder() {
+    const folder = this.gui.addFolder('Активные ряды').close()
+
+    const rows = this.preset.globals.rows
+
+    folder.add(rows, 'airTemperature').name('Температура воздуха')
+    folder.add(rows, 'precipitation').name('Осадки')
+    folder.add(rows, 'waterTemperature').name('Температура воды')
+    folder.add(rows, 'waterLevel').name('Уровень воды')
+
+    folder.onChange((v) => {
+      if (v.value) {
+        this.app.showRow(v.property as AppPossibleRows)
+      } else {
+        this.app.hideRow(v.property as AppPossibleRows)
+      }
+    })
   }
 }

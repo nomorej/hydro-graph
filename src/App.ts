@@ -8,8 +8,14 @@ import { Scrollbar } from './Scrollbar'
 import { ObjectCalculator } from './ObjectCalculator'
 import { Primitive } from './Primitive'
 import { ObjectClip } from './ObjectClip'
-import { ObjectTestGraph } from './ObjectTestGraph'
 import { ObjectTimelineSegments } from './ObjectTimelineSegments'
+import { ObjectRowAirTemperature } from './ObjectRowAirTemperature'
+import { ObjectRowPrecipitation } from './ObjectRowPrecipitation'
+import { ObjectRowWaterTemperature } from './ObjectRowWaterTemperature'
+import { ObjectRowWaterLevel } from './ObjectRowWaterLevel'
+
+export type AppPossibleRows = 'airTemperature' | 'precipitation' | 'waterTemperature' | 'waterLevel'
+export type AppPossibleRowsObject<T> = { [K in AppPossibleRows]: T }
 
 export interface AppGlobals {
   data: {
@@ -17,10 +23,11 @@ export interface AppGlobals {
   }
   colors: {
     timeline: string
-    timelineSegment: string
+    timelineMonth: string
     content: string
     default: string
   }
+  font: string
   sizes: {
     font: number
     paddingX: number
@@ -28,8 +35,9 @@ export interface AppGlobals {
     contentPaddingX: number
     timelineOffsetY: number
     timelineHeight: number
+    factors: AppPossibleRowsObject<number>
+    rowsGap: number
   }
-  font: string
   calculations: {
     fontSize: number
     workspace: Primitive
@@ -37,12 +45,14 @@ export interface AppGlobals {
     contentWrapper: Primitive
     timeline: {
       primitive: Primitive
-      segments: Array<{
+      months: Array<{
         primitive: Primitive
         data: string
       }>
     }
+    graphs: AppPossibleRowsObject<Primitive>
   }
+  rows: AppPossibleRowsObject<boolean>
 }
 
 export type AppGlobalsConfig = Omit<AppGlobals, 'calculations'>
@@ -84,11 +94,17 @@ export class App {
         fontSize: 0,
         timeline: {
           primitive: new Primitive(),
-          segments: [],
+          months: [],
         },
         content: new Primitive(),
         contentWrapper: new Primitive(),
         workspace: new Primitive(),
+        graphs: {
+          airTemperature: new Primitive(),
+          precipitation: new Primitive(),
+          waterTemperature: new Primitive(),
+          waterLevel: new Primitive(),
+        },
       },
     }
 
@@ -124,7 +140,10 @@ export class App {
     this.renderer.scene.addObject(new ObjectTimeline())
     this.renderer.scene.addObject(new ObjectClip())
     this.renderer.scene.addObject(new ObjectTimelineSegments())
-    this.renderer.scene.addObject(new ObjectTestGraph())
+    this.renderer.scene.addObject(new ObjectRowAirTemperature())
+    this.renderer.scene.addObject(new ObjectRowPrecipitation())
+    this.renderer.scene.addObject(new ObjectRowWaterTemperature())
+    this.renderer.scene.addObject(new ObjectRowWaterLevel())
 
     this.container.addEventListener('wheel', this.handleWheel)
     this.container.addEventListener('pointerdown', this.handlePointerDown)
@@ -142,6 +161,16 @@ export class App {
     this.scrollbar.destroy()
 
     appGlobals = null!
+  }
+
+  public hideRow(name: AppPossibleRows) {
+    appGlobals.rows[name] = false
+    this.renderer.redraw()
+  }
+
+  public showRow(name: AppPossibleRows) {
+    appGlobals.rows[name] = true
+    this.renderer.redraw()
   }
 
   private handleWheel = (event: WheelEvent) => {

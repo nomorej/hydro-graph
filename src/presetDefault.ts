@@ -17,7 +17,7 @@ export function presetDefault({ data, container }: PresetParameters): AppParamet
   const colors: AppGlobalsConfig['colors'] = {
     default: '#1e6062',
     timeline: '#000000',
-    timelineSegment: '#66f5ff',
+    timelineMonth: '#66f5ff',
     content: '#ccfcff',
   }
 
@@ -28,6 +28,13 @@ export function presetDefault({ data, container }: PresetParameters): AppParamet
     contentPaddingX: 0.1,
     timelineOffsetY: 0.05,
     timelineHeight: 0.02,
+    factors: {
+      airTemperature: 1,
+      precipitation: 1,
+      waterTemperature: 1,
+      waterLevel: 2.5,
+    },
+    rowsGap: 0.05,
   }
 
   return {
@@ -36,6 +43,12 @@ export function presetDefault({ data, container }: PresetParameters): AppParamet
       sizes,
       font: 'sans-serif',
       data,
+      rows: {
+        airTemperature: true,
+        precipitation: true,
+        waterTemperature: true,
+        waterLevel: true,
+      },
     },
     container,
     settings,
