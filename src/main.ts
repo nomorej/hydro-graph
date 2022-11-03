@@ -30,9 +30,9 @@ const colors: AppGlobalsConfig['colors'] = {
 const sizes: AppGlobalsConfig['sizes'] = {
   font: 0.02,
   paddingX: 0.005,
-  paddingY: 0.005,
+  paddingY: 0.0,
   contentPaddingX: 0.1,
-  timelineOffsetY: 0.04,
+  timelineOffsetY: 0.05,
   timelineHeight: 0.03,
 }
 

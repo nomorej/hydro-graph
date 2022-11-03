@@ -7,7 +7,7 @@ export default class Timeline extends SceneObject {
   }
 
   public render({ renderer }: SceneRenderData) {
-    const { workspace, timeline, fontSize } = appGlobals.calculations
+    const { timeline, fontSize } = appGlobals.calculations
 
     renderer.context.beginPath()
     renderer.context.moveTo(timeline.primitive.x1, timeline.primitive.middleY)
@@ -23,7 +23,7 @@ export default class Timeline extends SceneObject {
 
       const dashYOffset = timeline.primitive.height / 2
 
-      timeline.segments.forEach((segment, i) => {
+      timeline.segments.forEach((segment) => {
         const sp = segment.primitive
 
         renderer.context.beginPath()
@@ -31,11 +31,6 @@ export default class Timeline extends SceneObject {
         renderer.context.lineTo(sp.x1, sp.y2 + dashYOffset)
         renderer.context.lineWidth = timeline.primitive.height * 0.08
         renderer.context.stroke()
-
-        // renderer.context.beginPath()
-        // renderer.context.moveTo(sp.x1, sp.y1)
-        // renderer.context.lineTo(sp.x1, sp.y2)
-        // renderer.context.stroke()
 
         renderer.context.fillText(
           segment.data,
