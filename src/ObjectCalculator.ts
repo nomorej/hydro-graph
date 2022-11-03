@@ -83,8 +83,8 @@ export class ObjectCalculator extends SceneObject {
     this.segmentator.segments.forEach((s) => {
       c.graphs[s.id].x1 = c.content.x1
       c.graphs[s.id].x2 = c.content.x2
-      c.graphs[s.id].y1 = c.content.height * s.a
-      c.graphs[s.id].y2 = c.content.height * s.b
+      c.graphs[s.id].y1 = c.content.y1 + c.content.height * s.a
+      c.graphs[s.id].y2 = c.content.y1 + c.content.height * s.b
     })
   }
 }

@@ -9,7 +9,10 @@ export class ObjectRowAirTemperature extends ObjectRow {
   }
 
   public render({ renderer }: SceneRenderData): void {
-    const { graphs } = appGlobals.calculations
+    const { rows, calculations } = appGlobals
+    const row = rows[this.name]
+    if (!row) return
+    const { graphs } = calculations
     const graph = graphs[this.name]
 
     const points = UtilsGraph.points(

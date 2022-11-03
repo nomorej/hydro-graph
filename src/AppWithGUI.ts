@@ -112,7 +112,7 @@ export class AppWithGUI {
       .max(10)
       .name('Фактор высоты ряда "уровень воды"')
 
-    folder.add(sizes, 'rowsGap').step(0.001).min(0).max(0.2).name('Расстояние между рядами')
+    folder.add(sizes, 'rowsGap').step(0.001).min(0).max(0.2).name('Расстояние между рядами ↕')
   }
 
   private handleChange = (v: any) => {
