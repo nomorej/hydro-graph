@@ -32,7 +32,7 @@ export function presetDefault({ data, container }: PresetParameters): AppParamet
       airTemperature: 1,
       precipitation: 1,
       waterTemperature: 1,
-      waterLevel: 2.5,
+      waterLevel: 1,
     },
     rowsGap: 0.05,
   }

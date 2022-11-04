@@ -16,20 +16,17 @@ class Segment<T> {
 
 export interface SegmentatorParameters {
   scale?: number
-  offset?: number
   gap?: number
 }
 
 export class Segmentator<T extends string = string> {
   private _scale: number
-  private _offset: number
   private _gap: number
   public readonly segments: Map<T, Segment<T>> = new Map()
 
   constructor(parameters?: SegmentatorParameters) {
     this._scale = parameters?.scale || 1
-    this._offset = parameters?.offset || 0
-    this._gap = parameters?.offset || 0
+    this._gap = parameters?.gap || 0
   }
 
   public get scale() {
@@ -39,16 +36,6 @@ export class Segmentator<T extends string = string> {
   public set scale(v: number) {
     if (v === this._scale) return
     this._scale = v
-    this.calculate()
-  }
-
-  public get offset() {
-    return this._offset
-  }
-
-  public set offset(v: number) {
-    if (v === this._offset) return
-    this._offset = v
     this.calculate()
   }
 
@@ -75,26 +62,26 @@ export class Segmentator<T extends string = string> {
 
   private calculate() {
     const cutsAsArray = Array.from(this.segments)
+    const scalar =
+      1 / this.scale - this.gap * Math.max(cutsAsArray.length - 1, 0) * (1 / this.scale)
+
     const total = cutsAsArray.reduce((prev, current) => prev + current[1].factor, 0)
 
-    const cutsWithFactor = cutsAsArray.filter((v) => !!v[1].factor)
+    for (let i = 0; i < cutsAsArray.length; i++) {
+      const cut = cutsAsArray[i][1]
+      cut.s = (cut.factor / total) * scalar
+    }
 
-    cutsAsArray.forEach((cut) => {
-      const factor = cut[1].factor
-      const gap = cutsWithFactor.length > 1 ? this.gap : 0
-      cut[1].s = factor ? (factor / total) * this.scale - gap : 0
-    })
+    for (let i = 0; i < cutsAsArray.length; i++) {
+      const cut = cutsAsArray[i][1]
 
-    cutsWithFactor.forEach((cut, cutIndex) => {
-      cut[1].a = this.offset
+      cut.a = 0
 
-      for (let index = 0; index < cutIndex; index++) {
-        const next = cutsWithFactor[index][1]
-        const gap = cutsWithFactor.length ? this.gap + this.gap / (cutsWithFactor.length - 1) : 0
-        cut[1].a += next ? next.s + gap : 0
+      for (let j = 0; j < i; j++) {
+        cut.a += cutsAsArray[j][1].s + this.gap
       }
 
-      cut[1].b = cut[1].a + cut[1].s
-    })
+      cut.b = cut.a + cut.s
+    }
   }
 }
