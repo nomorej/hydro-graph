@@ -30,6 +30,9 @@ export class ObjectRowWaterTemperature extends ObjectRow {
       }
     )
 
+    renderer.context.fillStyle = 'tomato'
+    renderer.context.fillRect(graph.x1, graph.y1, graph.width, graph.height)
+
     renderer.context.lineWidth = 2
     UtilsGraph.smooth(renderer.context, points)
     renderer.context.strokeStyle = appGlobals.colors.default

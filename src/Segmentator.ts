@@ -62,8 +62,11 @@ export class Segmentator<T extends string = string> {
 
   private calculate() {
     const cutsAsArray = Array.from(this.segments)
+
+    const cutsWithFactor = cutsAsArray.filter((c) => c[1].factor)
+
     const scalar =
-      1 / this.scale - this.gap * Math.max(cutsAsArray.length - 1, 0) * (1 / this.scale)
+      1 / this.scale - this.gap * Math.max(cutsWithFactor.length - 1, 0) * (1 / this.scale)
 
     const total = cutsAsArray.reduce((prev, current) => prev + current[1].factor, 0)
 
@@ -78,7 +81,9 @@ export class Segmentator<T extends string = string> {
       cut.a = 0
 
       for (let j = 0; j < i; j++) {
-        cut.a += cutsAsArray[j][1].s + this.gap
+        if (cutsAsArray[j][1].factor) {
+          cut.a += cutsAsArray[j][1].s + this.gap
+        }
       }
 
       cut.b = cut.a + cut.s
