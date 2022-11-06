@@ -1,53 +1,50 @@
-import { appGlobals, AppPossibleRows } from './App'
-import { Primitive } from './Primitive'
-import { SceneObject, SceneRenderData } from './Scene'
-import { Segmentator } from './Segmentator'
+import { CGGlobals } from '../core/ComplexGraph'
+import { SceneRenderData } from '../core/Scene'
+import { SceneObject } from '../core/SceneObject'
+import { Primitive } from '../tools/Primitive'
+import { Segmentator } from '../tools/Segmentator'
 
-export class ObjectCalculator extends SceneObject {
-  private segmentator: Segmentator<AppPossibleRows>
+export class Calculator extends SceneObject {
+  private segmentator: Segmentator<number>
 
   constructor() {
-    super()
+    super('calculator')
     this.segmentator = new Segmentator({ scale: 1 })
   }
 
   public override resize() {
-    const rows = Object.entries(appGlobals.rows) as Array<[AppPossibleRows, boolean]>
-
-    this.segmentator.gap = appGlobals.sizes.rowsGap
-
+    const rows = Object.entries(CGGlobals.rowsVisibility) as Array<[string, boolean]>
+    this.segmentator.gap = CGGlobals.sizes.rowsGap
     rows.forEach((row) => {
       let factor = 0
-
       if (row[1]) {
-        factor = appGlobals.sizes.factors[row[0]]
+        factor = CGGlobals.sizes.rowsFactors[+row[0]]
       }
-
-      this.segmentator.cut(row[0], factor)
+      this.segmentator.cut(+row[0], factor)
     })
   }
 
   public render({ renderer, scene }: SceneRenderData) {
-    const c = appGlobals.calculations
+    const c = CGGlobals.calculations
 
-    c.fontSize = appGlobals.sizes.font * renderer.minSize
+    c.fontSize = CGGlobals.sizes.font * renderer.minSize
 
-    c.workspace.x1 = renderer.minSize * appGlobals.sizes.paddingX
+    c.workspace.x1 = renderer.minSize * CGGlobals.sizes.paddingX
     c.workspace.x2 = renderer.size.x - c.workspace.x1
-    c.workspace.y1 = renderer.minSize * appGlobals.sizes.paddingY
+    c.workspace.y1 = renderer.minSize * CGGlobals.sizes.paddingY
     c.workspace.y2 = renderer.size.y - c.workspace.y1
 
     const sceneSize = scene.size.pointer.current - c.workspace.x1
 
-    const timelineHeight = appGlobals.sizes.timelineHeight * renderer.minSize
-    const timelineOffsetY = appGlobals.sizes.timelineOffsetY * renderer.minSize
+    const timelineHeight = CGGlobals.sizes.timelineHeight * renderer.minSize
+    const timelineOffsetY = CGGlobals.sizes.timelineOffsetY * renderer.minSize
 
     c.timeline.primitive.x1 = c.workspace.x1
     c.timeline.primitive.x2 = sceneSize
     c.timeline.primitive.y1 = c.workspace.y2 - timelineOffsetY - timelineHeight / 2
     c.timeline.primitive.y2 = c.workspace.y2 - timelineOffsetY + timelineHeight / 2
 
-    const contentWrapperPaddingX = renderer.minSize * appGlobals.sizes.contentPaddingX
+    const contentWrapperPaddingX = renderer.minSize * CGGlobals.sizes.contentPaddingX
     const contentWrapperLeft = c.workspace.x1 + contentWrapperPaddingX
     const contentWrapperRight = c.workspace.x2 - contentWrapperPaddingX
 
@@ -61,11 +58,11 @@ export class ObjectCalculator extends SceneObject {
     c.content.y1 = c.contentWrapper.y1
     c.content.y2 = c.contentWrapper.y2
 
-    if (appGlobals.data.months) {
-      const length = appGlobals.data.months.length - 1
+    if (CGGlobals.data.months) {
+      const length = CGGlobals.data.months.length - 1
       const monthWidth = (c.timeline.primitive.width - contentWrapperPaddingX * 2) / (length + 2)
 
-      appGlobals.data.months.forEach((data, i) => {
+      CGGlobals.data.months.forEach((data, i) => {
         const x1 = monthWidth + contentWrapperLeft + monthWidth * i
         const x2 = x1 + monthWidth
         const y1 = c.workspace.y1
@@ -81,10 +78,14 @@ export class ObjectCalculator extends SceneObject {
     }
 
     this.segmentator.segments.forEach((s) => {
-      c.graphs[s.id].x1 = c.content.x1
-      c.graphs[s.id].x2 = c.content.x2
-      c.graphs[s.id].y1 = c.content.y1 + c.content.height * s.a
-      c.graphs[s.id].y2 = c.content.y1 + c.content.height * s.b
+      c.rowsPrimitives[s.id].x1 = c.content.x1
+      c.rowsPrimitives[s.id].x2 = c.content.x2
+      c.rowsPrimitives[s.id].y1 = c.content.y1 + c.content.height * s.a
+      c.rowsPrimitives[s.id].y2 = c.content.y1 + c.content.height * s.b
     })
+
+    c.scaleOffset = CGGlobals.sizes.scaleOffset * renderer.minSize
+    c.scaleMarkSize = CGGlobals.sizes.scaleMarkSize * renderer.minSize
+    c.scalePointerSize = CGGlobals.sizes.scalePointerSize * renderer.minSize
   }
 }

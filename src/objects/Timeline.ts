@@ -1,23 +1,24 @@
-import { appGlobals } from './App'
-import { SceneObject, SceneRenderData } from './Scene'
+import { CGGlobals } from '../core/ComplexGraph'
+import { SceneRenderData } from '../core/Scene'
+import { SceneObject } from '../core/SceneObject'
 
-export class ObjectTimeline extends SceneObject {
+export class Timeline extends SceneObject {
   constructor() {
-    super()
+    super('timeline')
   }
 
   public render({ renderer }: SceneRenderData) {
-    const { timeline, fontSize } = appGlobals.calculations
+    const { timeline, fontSize } = CGGlobals.calculations
 
     renderer.context.beginPath()
     renderer.context.moveTo(timeline.primitive.x1, timeline.primitive.middleY)
     renderer.context.lineTo(timeline.primitive.x2, timeline.primitive.middleY)
     renderer.context.lineWidth = timeline.primitive.height * 0.15
-    renderer.context.strokeStyle = appGlobals.colors.timeline
+    renderer.context.strokeStyle = CGGlobals.colors.timeline
     renderer.context.stroke()
 
     if (timeline.months.length) {
-      renderer.context.font = `${fontSize}px ${appGlobals.font}`
+      renderer.context.font = `${fontSize}px ${CGGlobals.font}`
       renderer.context.textAlign = 'center'
       renderer.context.textBaseline = 'top'
 

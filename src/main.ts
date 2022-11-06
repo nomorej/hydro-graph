@@ -1,6 +1,6 @@
-import { AppGlobalsConfig } from './App'
-import { AppWithGUI } from './AppWithGUI'
-import { presetDefault } from './presetDefault'
+import { ComplexGraphGlobalsConfig } from './core/ComplexGraph'
+import { ComplexGraphWithGUI } from './core/ComplexGraphWithGUI'
+import { presetDefault } from './presets/presetDefault'
 
 // --- TEST
 
@@ -13,7 +13,7 @@ container.style.cssText = `
 
 document.getElementById('graph')?.appendChild(container)
 
-const data: AppGlobalsConfig['data'] = {
+const data: ComplexGraphGlobalsConfig['data'] = {
   months: [
     'Ноябрь',
     'Декабрь',
@@ -30,7 +30,7 @@ const data: AppGlobalsConfig['data'] = {
   ],
 }
 
-new AppWithGUI(
+new ComplexGraphWithGUI(
   presetDefault({
     container,
     data,

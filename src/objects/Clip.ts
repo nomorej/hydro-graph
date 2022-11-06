@@ -1,13 +1,14 @@
-import { appGlobals } from './App'
-import { SceneObject, SceneRenderData } from './Scene'
+import { CGGlobals } from '../core/ComplexGraph'
+import { SceneRenderData } from '../core/Scene'
+import { SceneObject } from '../core/SceneObject'
 
-export class ObjectClip extends SceneObject {
+export class Clip extends SceneObject {
   constructor() {
-    super()
+    super('clip')
   }
 
   public render({ renderer }: SceneRenderData): void {
-    const { contentWrapper } = appGlobals.calculations
+    const { contentWrapper } = CGGlobals.calculations
 
     renderer.context.beginPath()
     renderer.context.rect(
@@ -18,7 +19,7 @@ export class ObjectClip extends SceneObject {
     )
     renderer.context.clip()
 
-    renderer.context.fillStyle = appGlobals.colors.content
+    renderer.context.fillStyle = CGGlobals.colors.content
     renderer.context.fillRect(
       contentWrapper.x1,
       contentWrapper.y1,

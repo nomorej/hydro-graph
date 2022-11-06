@@ -1,5 +1,5 @@
-import { UtilsMath } from './UtilsMath'
-import { XY } from './UtilsTS'
+import { UtilsMath } from '../utils/UtilsMath'
+import { XY } from '../utils/UtilsTS'
 
 export type CanvasDrawFunction = (canvasState: Canvas, ...args: any[]) => void
 

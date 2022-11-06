@@ -19,7 +19,7 @@ export interface SegmentatorParameters {
   gap?: number
 }
 
-export class Segmentator<T extends string = string> {
+export class Segmentator<T extends string | number = string> {
   private _scale: number
   private _gap: number
   public readonly segments: Map<T, Segment<T>> = new Map()

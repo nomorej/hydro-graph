@@ -1,6 +1,6 @@
-import { Canvas, CanvasParameters } from './Canvas'
+import { Canvas, CanvasParameters } from '../tools/Canvas'
+import { Ticker } from '../tools/Ticker'
 import { Scene } from './Scene'
-import { Ticker } from './Ticker'
 
 export interface RendererParameters extends CanvasParameters {
   scene: Scene
@@ -15,6 +15,7 @@ export class Renderer extends Canvas {
     })
 
     this.scene = parameters.scene
+    this.scene.renderer = this
     this.drawFunction = this.render
   }
 

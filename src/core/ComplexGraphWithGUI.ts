@@ -1,14 +1,14 @@
 import GUI from 'lil-gui'
-import { App, AppParameters, AppPossibleRows } from './App'
+import { ComplexGraph, ComplexGraphParameters } from './ComplexGraph'
 
-export class AppWithGUI {
+export class ComplexGraphWithGUI {
   private gui: GUI
-  private app: App
-  private preset: AppParameters
+  private app: ComplexGraph
+  private preset: ComplexGraphParameters
 
-  constructor(preset: AppParameters) {
+  constructor(preset: ComplexGraphParameters) {
     this.preset = preset
-    this.app = new App(this.preset)
+    this.app = new ComplexGraph(this.preset)
 
     this.gui = new GUI({
       title: 'Настройки',
@@ -87,39 +87,27 @@ export class AppWithGUI {
     folder.add(sizes, 'contentPaddingX').step(0.01).min(0).max(0.2).name('Отступ от контента ↔')
     folder.add(sizes, 'timelineOffsetY').step(0.001).min(0).max(0.1).name('Отступ от таймлайна ↓')
     folder.add(sizes, 'timelineHeight').step(0.001).min(0.01).max(0.05).name('Высота таймлайна')
-    folder
-      .add(sizes.factors, 'airTemperature')
-      .step(0.1)
-      .min(0)
-      .max(10)
-      .name('Фактор высоты ряда "температура воздуха"')
-    folder
-      .add(sizes.factors, 'precipitation')
-      .step(0.1)
-      .min(0)
-      .max(10)
-      .name('Фактор высоты ряда "осадки"')
-    folder
-      .add(sizes.factors, 'waterTemperature')
-      .step(0.1)
-      .min(0)
-      .max(10)
-      .name('Фактор высоты ряда "температура воды"')
-    folder
-      .add(sizes.factors, 'waterLevel')
-      .step(0.1)
-      .min(0)
-      .max(10)
-      .name('Фактор высоты ряда "уровень воды"')
+
+    for (const key in sizes.rowsFactors) {
+      folder.add(sizes.rowsFactors, key).step(0.1).min(0).max(10).name(`Фактор высоты ряда №${key}`)
+    }
 
     folder.add(sizes, 'rowsGap').step(0.001).min(0).max(0.2).name('Расстояние между рядами ↕')
+    folder.add(sizes, 'scaleOffset').step(0.001).min(0).max(0.1).name('Отступ от шкал ↔')
+    folder.add(sizes, 'scaleMarkSize').step(0.001).min(0).max(0.05).name('Размер делений на шкалах')
+    folder
+      .add(sizes, 'scalePointerSize')
+      .step(0.001)
+      .min(0)
+      .max(0.03)
+      .name('Размер указателя шкалах')
   }
 
   private handleChange = (v: any) => {
-    if (v.controller?.parent?._title !== 'Активные ряды') {
-      this.app?.destroy()
-      this.app = new App(this.preset)
+    if (v.controller?.parent?._title === 'Движение / Масштабирование') {
+      this.app.updateSettings(this.preset.settings || {})
     }
+    this.app.renderer.redraw()
   }
 
   // @ts-ignore
@@ -171,18 +159,17 @@ export class AppWithGUI {
   private rowsFolder() {
     const folder = this.gui.addFolder('Активные ряды').close()
 
-    const rows = this.preset.globals.rows
+    const rows = this.preset.globals.rowsVisibility
 
-    folder.add(rows, 'airTemperature').name('Температура воздуха')
-    folder.add(rows, 'precipitation').name('Осадки')
-    folder.add(rows, 'waterTemperature').name('Температура воды')
-    folder.add(rows, 'waterLevel').name('Уровень воды')
+    for (const key in rows) {
+      folder.add(rows, key).name(key)
+    }
 
     folder.onChange((v) => {
       if (v.value) {
-        this.app.showRow(v.property as AppPossibleRows)
+        this.app.showObject(parseInt(v.property))
       } else {
-        this.app.hideRow(v.property as AppPossibleRows)
+        this.app.hideObject(parseInt(v.property))
       }
     })
   }

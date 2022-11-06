@@ -1,15 +1,15 @@
-import { appGlobals } from './App'
-import { SceneObject, SceneRenderData } from './Scene'
-import { UtilsGraph } from './UtilsGraph'
+import { CGGlobals } from '../core/ComplexGraph'
+import { SceneRenderData } from '../core/Scene'
+import { SceneObject } from '../core/SceneObject'
+import { UtilsGraph } from '../utils/UtilsGraph'
 
-export class ObjectTestGraph extends SceneObject {
+export class TestGraph extends SceneObject {
   constructor() {
-    super()
+    super('test')
   }
 
   public render({ renderer }: SceneRenderData): void {
-    const { content } = appGlobals.calculations
-
+    const { content } = CGGlobals.calculations
     const points = UtilsGraph.points(
       [
         10, 20, 30, 10, 50, 10, 100, 123, 30, 70, 80, 10, 20, 30, 10, 50, 10, 55, 200, 30, 70, 80,
@@ -27,7 +27,7 @@ export class ObjectTestGraph extends SceneObject {
 
     renderer.context.lineWidth = 2
     UtilsGraph.smooth(renderer.context, points)
-    renderer.context.strokeStyle = appGlobals.colors.default
+    renderer.context.strokeStyle = CGGlobals.colors.default
     renderer.context.stroke()
   }
 }

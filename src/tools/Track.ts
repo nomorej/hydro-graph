@@ -1,4 +1,4 @@
-import { UtilsMath } from './UtilsMath'
+import { UtilsMath } from '../utils/UtilsMath'
 
 export interface TrackPoint {
   current: number

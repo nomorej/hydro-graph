@@ -1,6 +1,7 @@
+import { Track } from '../tools/Track'
 import { Renderer } from './Renderer'
-import { Scene, SceneCallbackData, SceneObject, SceneRenderData } from './Scene'
-import { Track } from './Track'
+import { Scene, SceneCallbackData, SceneRenderData } from './Scene'
+import { SceneObject } from './SceneObject'
 
 export interface ScrollbarParameters {
   container: HTMLElement

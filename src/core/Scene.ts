@@ -1,9 +1,11 @@
-import { AppSettings } from './App'
+import { Track } from '../tools/Track'
+import { UtilsMath } from '../utils/UtilsMath'
+import { ComplexGraphSettings } from './ComplexGraph'
 import { Renderer } from './Renderer'
-import { Track } from './Track'
-import { UtilsMath } from './UtilsMath'
+import { SceneObject } from './SceneObject'
 
-export interface SceneParameters extends Partial<Pick<AppSettings, 'smoothness' | 'maxZoom'>> {}
+export interface SceneParameters
+  extends Partial<Pick<ComplexGraphSettings, 'smoothness' | 'maxZoom'>> {}
 
 export interface SceneCallbackData {
   renderer: Renderer
@@ -15,34 +17,33 @@ export interface SceneRenderData extends SceneCallbackData {
   dt: number
 }
 
-export abstract class SceneObject {
-  constructor() {}
-
-  public abstract render(data: SceneRenderData): void
-  public resize?(data: SceneCallbackData): void
-  public create?(scene: Scene): void
-  public destroy?(scene: Scene): void
-}
-
 export class Scene {
-  private _viewportSize: number
+  public renderer: Renderer
   public zoom: number
 
-  public readonly maxZoom: number
+  public maxZoom: number
   public readonly size: Track
   public readonly position: Track
 
-  public objects: Set<SceneObject>
+  public objects: Array<SceneObject>
+
+  private _viewportSize: number
 
   constructor({ maxZoom = 1, smoothness = 0 }: SceneParameters = {}) {
-    this._viewportSize = 0
+    this.renderer = null!
     this.zoom = 1
 
     this.maxZoom = maxZoom
     this.size = new Track({ slipperiness: smoothness || 0, start: 0 })
     this.position = new Track({ slipperiness: smoothness || 0, start: 0 })
 
-    this.objects = new Set()
+    this.objects = []
+    this._viewportSize = 0
+  }
+
+  public setSmoothness(value: number) {
+    this.size.slipperiness = value
+    this.position.slipperiness = value
   }
 
   public get viewportSize() {
@@ -82,7 +83,11 @@ export class Scene {
 
   public resize(renderer: Renderer) {
     this.viewportSize = renderer.size.x
-    this.objects.forEach((object) => object.resize?.({ renderer, scene: this }))
+    this.objects.forEach((object) => {
+      if (object.active) {
+        object.resize?.({ renderer, scene: this })
+      }
+    })
   }
 
   public render(renderer: Renderer, t: number, dt: number) {
@@ -92,18 +97,26 @@ export class Scene {
     renderer.context.save()
     renderer.context.translate(this.position.pointer.current * -1, 0)
 
-    this.objects.forEach((object) => object.render({ renderer, scene: this, t, dt }))
+    this.objects.forEach((object) => {
+      if (object.active) {
+        object.render({ renderer, scene: this, t, dt })
+      }
+    })
 
     renderer.context.restore()
   }
 
   public addObject(object: SceneObject) {
-    this.objects.add(object)
-    object.create?.(this)
+    if (!this.objects.includes(object)) {
+      this.objects.push(object)
+      object.create?.(this)
+    }
   }
 
   public removeObject(object: SceneObject) {
-    this.objects.delete(object)
-    object.destroy?.(this)
+    if (this.objects.includes(object)) {
+      this.objects = this.objects.filter((o) => o !== object)
+      object.destroy?.(this)
+    }
   }
 }

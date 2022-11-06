@@ -1,23 +1,14 @@
-import { CanvasParameters } from './Canvas'
 import { Scene } from './Scene'
 import { Renderer } from './Renderer'
-import { UtilsCoordinates } from './UtilsCoordinates'
-import { UtilsMath } from './UtilsMath'
-import { ObjectTimeline } from './ObjectTimeline'
+import { SceneObject } from './SceneObject'
+import { SceneRowObject } from './SceneRowObject'
+import { Primitive } from '../tools/Primitive'
+import { CanvasParameters } from '../tools/Canvas'
 import { Scrollbar } from './Scrollbar'
-import { ObjectCalculator } from './ObjectCalculator'
-import { Primitive } from './Primitive'
-import { ObjectClip } from './ObjectClip'
-import { ObjectTimelineSegments } from './ObjectTimelineSegments'
-import { ObjectRowAirTemperature } from './ObjectRowAirTemperature'
-import { ObjectRowPrecipitation } from './ObjectRowPrecipitation'
-import { ObjectRowWaterTemperature } from './ObjectRowWaterTemperature'
-import { ObjectRowWaterLevel } from './ObjectRowWaterLevel'
+import { UtilsCoordinates } from '../utils/UtilsCoordinates'
+import { UtilsMath } from '../utils/UtilsMath'
 
-export type AppPossibleRows = 'airTemperature' | 'precipitation' | 'waterTemperature' | 'waterLevel'
-export type AppPossibleRowsObject<T> = { [K in AppPossibleRows]: T }
-
-export interface AppGlobals {
+export interface ComplexGraphGlobals {
   data: {
     months: Array<string> | undefined
   }
@@ -35,8 +26,11 @@ export interface AppGlobals {
     contentPaddingX: number
     timelineOffsetY: number
     timelineHeight: number
-    factors: AppPossibleRowsObject<number>
+    rowsFactors: { [key: number]: number }
     rowsGap: number
+    scaleOffset: number
+    scaleMarkSize: number
+    scalePointerSize: number
   }
   calculations: {
     fontSize: number
@@ -50,14 +44,17 @@ export interface AppGlobals {
         data: string
       }>
     }
-    graphs: AppPossibleRowsObject<Primitive>
+    rowsPrimitives: { [key: number]: Primitive }
+    scaleOffset: number
+    scaleMarkSize: number
+    scalePointerSize: number
   }
-  rows: AppPossibleRowsObject<boolean>
+  rowsVisibility: { [key: number]: boolean }
 }
 
-export type AppGlobalsConfig = Omit<AppGlobals, 'calculations'>
+export type ComplexGraphGlobalsConfig = Omit<ComplexGraphGlobals, 'calculations'>
 
-export interface AppSettings {
+export interface ComplexGraphSettings {
   zoomMouseButton: 'left' | 'right'
   wheelZoomSpeed: number
   wheelTranlationSpeed: number
@@ -65,30 +62,35 @@ export interface AppSettings {
   maxZoom: number
 }
 
-export interface AppParameters extends Pick<CanvasParameters, 'container'> {
-  settings?: Partial<AppSettings>
-  globals: AppGlobalsConfig
+export interface ComplexGraphParameters extends Pick<CanvasParameters, 'container'> {
+  settings?: Partial<ComplexGraphSettings>
+  globals: ComplexGraphGlobalsConfig
+  objects: Array<SceneObject | SceneRowObject>
 }
 
-export let appGlobals: AppGlobals = null!
+export let CGGlobals: ComplexGraphGlobals = null!
 
-export class App {
-  private container: HTMLElement
+export class ComplexGraph {
+  public readonly renderer: Renderer
 
-  private settings: Pick<AppSettings, 'wheelZoomSpeed' | 'wheelTranlationSpeed'> & {
+  private readonly container: HTMLElement
+
+  private readonly settings: Pick<
+    ComplexGraphSettings,
+    'wheelZoomSpeed' | 'wheelTranlationSpeed'
+  > & {
     zoomMouseButton: 0 | 2
   }
 
-  private scene: Scene
-  private renderer: Renderer
-  private scrollbar: Scrollbar
+  private readonly scene: Scene
+  private readonly scrollbar: Scrollbar
 
-  private statuses: {
+  private readonly statuses: {
     scaleButtonPressed: boolean
   }
 
-  constructor({ container, settings = {}, globals }: AppParameters) {
-    appGlobals = {
+  constructor({ container, settings = {}, globals, objects }: ComplexGraphParameters) {
+    CGGlobals = {
       ...globals,
       calculations: {
         fontSize: 0,
@@ -99,22 +101,19 @@ export class App {
         content: new Primitive(),
         contentWrapper: new Primitive(),
         workspace: new Primitive(),
-        graphs: {
-          airTemperature: new Primitive(),
-          precipitation: new Primitive(),
-          waterTemperature: new Primitive(),
-          waterLevel: new Primitive(),
-        },
+        rowsPrimitives: {},
+        scaleOffset: 0,
+        scaleMarkSize: 0,
+        scalePointerSize: 0,
       },
     }
 
     this.container = container
 
     this.settings = {
-      zoomMouseButton:
-        settings.zoomMouseButton === 'left' ? 0 : settings.zoomMouseButton === 'right' ? 2 : 0,
-      wheelZoomSpeed: settings.wheelZoomSpeed ?? 1,
-      wheelTranlationSpeed: settings.wheelTranlationSpeed ?? 1,
+      zoomMouseButton: 0,
+      wheelZoomSpeed: 1,
+      wheelTranlationSpeed: 1,
     }
 
     this.scene = new Scene({
@@ -136,19 +135,32 @@ export class App {
       scaleButtonPressed: false,
     }
 
-    this.renderer.scene.addObject(new ObjectCalculator())
-    this.renderer.scene.addObject(new ObjectTimeline())
-    this.renderer.scene.addObject(new ObjectClip())
-    this.renderer.scene.addObject(new ObjectTimelineSegments())
-    this.renderer.scene.addObject(new ObjectRowAirTemperature())
-    this.renderer.scene.addObject(new ObjectRowPrecipitation())
-    this.renderer.scene.addObject(new ObjectRowWaterTemperature())
-    this.renderer.scene.addObject(new ObjectRowWaterLevel())
+    objects.forEach((object) => {
+      this.scene.addObject(object)
+      if (object instanceof SceneRowObject) {
+        CGGlobals.rowsVisibility[object.row] = true
+        CGGlobals.sizes.rowsFactors[object.row] = 1
+        if (!CGGlobals.calculations.rowsPrimitives[object.row]) {
+          CGGlobals.calculations.rowsPrimitives[object.row] = new Primitive()
+        }
+      }
+    })
+
+    this.updateSettings(settings)
 
     this.container.addEventListener('wheel', this.handleWheel)
     this.container.addEventListener('pointerdown', this.handlePointerDown)
     this.container.addEventListener('pointerup', this.handleMouseUp)
     this.container.addEventListener('contextmenu', this.handleContextMenu)
+  }
+
+  public updateSettings(settings: Partial<ComplexGraphSettings>) {
+    this.scene.maxZoom = settings.maxZoom || 10
+    this.scene.setSmoothness(settings.smoothness || 0)
+    ;(this.settings.zoomMouseButton =
+      settings.zoomMouseButton === 'left' ? 0 : settings.zoomMouseButton === 'right' ? 2 : 0),
+      (this.settings.wheelZoomSpeed = settings.wheelZoomSpeed ?? 1)
+    this.settings.wheelTranlationSpeed = settings.wheelTranlationSpeed ?? 1
   }
 
   public destroy(): void {
@@ -160,16 +172,31 @@ export class App {
     this.renderer.destroy()
     this.scrollbar.destroy()
 
-    appGlobals = null!
+    CGGlobals = null!
   }
 
-  public hideRow(name: AppPossibleRows) {
-    appGlobals.rows[name] = false
-    this.renderer.redraw()
+  public hideObject(nameOrRowId: string | number) {
+    this.toggleVisibility(nameOrRowId, false)
   }
 
-  public showRow(name: AppPossibleRows) {
-    appGlobals.rows[name] = true
+  public showObject(nameOrRowId: string | number) {
+    this.toggleVisibility(nameOrRowId, true)
+  }
+
+  private toggleVisibility(nameOrRowId: string | number, visible: boolean) {
+    if (typeof nameOrRowId === 'string') {
+      this.scene.objects.forEach((object) => {
+        if (object.name === nameOrRowId) {
+          object.active = visible
+        }
+      })
+    } else {
+      const rowObjects = this.scene.objects.filter(
+        (object) => object instanceof SceneRowObject
+      ) as Array<SceneRowObject>
+      CGGlobals.rowsVisibility[nameOrRowId] = visible
+      rowObjects.forEach((o) => o.row === nameOrRowId && (o.active = visible))
+    }
     this.renderer.redraw()
   }
 
