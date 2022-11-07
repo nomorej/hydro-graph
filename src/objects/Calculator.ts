@@ -1,7 +1,7 @@
 import { CGGlobals } from '../core/ComplexGraph'
 import { SceneCallbackData, SceneRenderData } from '../core/Scene'
 import { SceneObject } from '../core/SceneObject'
-import { Primitive } from '../tools/Primitive'
+import { Primitive } from '../helpers/Primitive'
 import { Segmentator } from '../tools/Segmentator'
 
 export class Calculator extends SceneObject {

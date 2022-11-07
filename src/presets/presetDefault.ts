@@ -79,7 +79,6 @@ export function presetDefault({ data, container }: PresetParameters): ComplexGra
       '2': 1,
       '3': 1,
       '4': 1,
-      '5': 1,
     },
     rowsGap: 0.05,
     scaleOffset: 0.015,

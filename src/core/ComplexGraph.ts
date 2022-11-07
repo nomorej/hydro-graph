@@ -2,12 +2,12 @@ import { Scene } from './Scene'
 import { Renderer } from './Renderer'
 import { SceneObject } from './SceneObject'
 import { SceneDataRepresentation } from './SceneDataRepresentation'
-import { Primitive } from '../tools/Primitive'
+import { Primitive } from '../helpers/Primitive'
 import { CanvasParameters } from '../tools/Canvas'
 import { Scrollbar } from './Scrollbar'
 import { UtilsCoordinates } from '../utils/UtilsCoordinates'
 import { UtilsMath } from '../utils/UtilsMath'
-import { ScaleSegments, ScaleSegmentsData } from '../tools/ScaleSegments'
+import { ScaleSegments, ScaleSegmentsData } from '../helpers/ScaleSegments'
 
 export type DataReps =
   | 'airTemperature'
@@ -211,6 +211,7 @@ export class ComplexGraph {
       position: absolute;
       top: 0;
       right: 0;
+      z-index: 2;
       width: 2vmin;
       height: 2vmin;
       cursor: pointer;
