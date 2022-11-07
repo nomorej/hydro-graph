@@ -85,6 +85,7 @@ export class ComplexGraphWithGUI {
     folder
       .addColor(colors.reps.airTemperature, 'max')
       .name('Цвет графика "Максимальная температура воздуха"')
+    folder.addColor(colors.reps.precipitation, 'scale').name('Цвет шкалы "Осадки"')
   }
 
   private sizesFolder() {
