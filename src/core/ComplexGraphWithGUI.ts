@@ -15,6 +15,8 @@ export class ComplexGraphWithGUI {
     })
 
     this.gui.domElement.style.width = '35%'
+    this.gui.domElement.style.left = '50%'
+    this.gui.domElement.style.transform = 'translateX(-50%)'
 
     this.gui.close()
 
@@ -71,6 +73,7 @@ export class ComplexGraphWithGUI {
     const folder = this.gui.addFolder('Цвета').close()
     const colors = this.preset.globals.colors
 
+    folder.addColor(colors, 'clear').name('Очистка')
     folder.addColor(colors, 'default').name('Стандартный')
     folder.addColor(colors, 'timeline').name('Таймлайн')
     folder.addColor(colors, 'timelineMonth').name('Месяцы')
@@ -112,6 +115,7 @@ export class ComplexGraphWithGUI {
     if (v.controller?.parent?._title === 'Движение / Масштабирование') {
       this.app.updateSettings(this.preset.settings || {})
     }
+    this.app.renderer.stopTick()
     this.app.renderer.redraw()
   }
 

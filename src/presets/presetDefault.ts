@@ -29,6 +29,7 @@ export function presetDefault({ data, container }: PresetParameters): ComplexGra
   }
 
   const colors: Colors = {
+    clear: '#ffffff',
     default: '#000000',
     timeline: '#000000',
     timelineMonth: '#66f5ff',

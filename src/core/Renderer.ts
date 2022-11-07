@@ -1,5 +1,6 @@
 import { Canvas, CanvasParameters } from '../tools/Canvas'
 import { Ticker } from '../tools/Ticker'
+import { CGGlobals } from './ComplexGraph'
 import { Scene } from './Scene'
 
 export interface RendererParameters extends CanvasParameters {
@@ -31,12 +32,17 @@ export class Renderer extends Canvas {
     this.draw()
   }
 
+  public stopTick() {
+    Ticker.remove(this.draw)
+  }
+
   protected override resize(): void {
     super.resize()
     this.scene.resize(this)
   }
 
   private render = (canvas: Canvas, t = 0, dt = 0) => {
+    this.clearColor = CGGlobals.colors.clear
     canvas.clear()
     this.scene.render(this, t, dt)
   }

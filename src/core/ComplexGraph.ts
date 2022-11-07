@@ -44,6 +44,7 @@ export interface Data {
 }
 
 export interface Colors {
+  clear?: string
   timeline: string
   timelineMonth: string
   content: string
@@ -149,6 +150,7 @@ export class ComplexGraph {
   public readonly renderer: Renderer
 
   private readonly container: HTMLElement
+  private readonly wrapper: HTMLElement
 
   private readonly settings: Pick<Settings, 'wheelZoomSpeed' | 'wheelTranlationSpeed'> & {
     zoomMouseButton: 0 | 2
@@ -159,7 +161,10 @@ export class ComplexGraph {
 
   private readonly statuses: {
     scaleButtonPressed: boolean
+    fullView: boolean
   }
+
+  private readonly toggleViewButton: HTMLElement
 
   constructor({ container, settings = {}, globals, objects }: ComplexGraphParameters) {
     CGGlobals = {
@@ -188,7 +193,30 @@ export class ComplexGraph {
       },
     }
 
-    this.container = container
+    this.wrapper = container
+
+    this.container = document.createElement('div')
+    this.container.style.cssText = `
+      position: relative;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+    `
+    this.wrapper.appendChild(this.container)
+
+    this.toggleViewButton = document.createElement('div')
+    this.toggleViewButton.style.cssText = `
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 2vmin;
+      height: 2vmin;
+      cursor: pointer;
+      background-color: black;
+    `
+    this.container.appendChild(this.toggleViewButton)
 
     this.settings = {
       zoomMouseButton: 0,
@@ -213,6 +241,7 @@ export class ComplexGraph {
 
     this.statuses = {
       scaleButtonPressed: false,
+      fullView: false,
     }
 
     objects.forEach((object) => {
@@ -234,6 +263,7 @@ export class ComplexGraph {
     this.container.addEventListener('pointerdown', this.handlePointerDown)
     this.container.addEventListener('pointerup', this.handleMouseUp)
     this.container.addEventListener('contextmenu', this.handleContextMenu)
+    this.toggleViewButton.addEventListener('click', this.toggleView)
   }
 
   public updateSettings(settings: Partial<Settings>) {
@@ -250,9 +280,12 @@ export class ComplexGraph {
     this.container.removeEventListener('pointerdown', this.handlePointerDown)
     this.container.removeEventListener('pointerup', this.handleMouseUp)
     this.container.removeEventListener('contextmenu', this.handleContextMenu)
+    this.toggleViewButton.removeEventListener('click', this.toggleView)
 
     this.renderer.destroy()
     this.scrollbar.destroy()
+
+    this.wrapper.removeChild(this.container)
 
     CGGlobals = null!
   }
@@ -320,5 +353,19 @@ export class ComplexGraph {
     this.renderer.withTicker(() => {
       this.scene.translate(event.deltaY * this.settings.wheelTranlationSpeed)
     })
+  }
+
+  private toggleView = () => {
+    this.renderer.stopTick()
+
+    if (this.statuses.fullView) {
+      this.container.style.position = 'relative'
+      this.toggleViewButton.style.backgroundColor = 'black'
+    } else {
+      this.container.style.position = 'fixed'
+      this.toggleViewButton.style.backgroundColor = 'red'
+    }
+
+    this.statuses.fullView = !this.statuses.fullView
   }
 }

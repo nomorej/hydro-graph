@@ -21,6 +21,7 @@ export class Timeline extends SceneObject {
       renderer.context.font = `${fontSize}px ${CGGlobals.font}`
       renderer.context.textAlign = 'center'
       renderer.context.textBaseline = 'top'
+      renderer.context.fillStyle = CGGlobals.colors.default
 
       const dashYOffset = timeline.primitive.height / 2
 

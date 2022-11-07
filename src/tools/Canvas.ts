@@ -5,6 +5,7 @@ export type CanvasDrawFunction = (canvasState: Canvas, ...args: any[]) => void
 
 export interface CanvasParameters {
   container: HTMLElement
+  clearColor?: string
 }
 
 export class Canvas {
@@ -12,13 +13,13 @@ export class Canvas {
   public readonly canvasElement: HTMLCanvasElement
   public readonly context: CanvasRenderingContext2D
   public readonly size: XY
+  public clearColor: string | undefined
   public minSize: number
   public maxSize: number
 
   private _drawFunction?: CanvasDrawFunction | undefined
   private pixelRatio: number
   private readonly resizeObserver: ResizeObserver
-
   constructor(parameters: CanvasParameters) {
     this.containerElement = parameters.container
     this.canvasElement = document.createElement('canvas')
@@ -31,6 +32,7 @@ export class Canvas {
 
     this.containerElement.appendChild(this.canvasElement)
 
+    this.clearColor = parameters.clearColor
     this.context = context
 
     this.size = { x: 0, y: 0 }
@@ -58,7 +60,12 @@ export class Canvas {
   }
 
   public clear() {
-    this.context.clearRect(0, 0, this.size.x, this.size.y)
+    if (!this.clearColor) {
+      this.context.clearRect(0, 0, this.size.x, this.size.y)
+    } else {
+      this.context.fillStyle = this.clearColor
+      this.context.fillRect(0, 0, this.size.x, this.size.y)
+    }
   }
 
   protected resize() {

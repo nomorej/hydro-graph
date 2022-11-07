@@ -53,7 +53,7 @@ export default abstract class UtilsShapes {
       context.beginPath()
       context.lineWidth = thickness
       context.strokeStyle = lineColor
-      const ds = s.value ? dashSize : dashSize / 2
+      const ds = s.isBase ? dashSize : dashSize / 2
       context.moveTo(x - ds, s.position)
       context.lineTo(x + ds, s.position)
       context.stroke()
