@@ -1,6 +1,11 @@
+/**
+ * Чтобы данные правильно распределились,
+ * размер каждого массива ровняется по наибольшему,
+ * а недостающие значения интерполируются
+ * @param data Данные по каждому месяцу
+ */
 export function prepareData(data: Array<Array<number>>) {
   let maxLength = 0
-
   data.forEach((m) => m.length > maxLength && (maxLength = m.length))
 
   data.forEach((m, i) => {

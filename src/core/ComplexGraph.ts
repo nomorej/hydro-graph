@@ -101,6 +101,12 @@ export interface ScaleCalculationSegment {
   isBase: boolean
 }
 
+export interface TimelineMonth {
+  primitive: Primitive
+  data: string
+  segments: Array<number>
+}
+
 export interface Calculations {
   fontSize: number
   workspace: Primitive
@@ -108,10 +114,7 @@ export interface Calculations {
   contentWrapper: Primitive
   timeline: {
     primitive: Primitive
-    months: Array<{
-      primitive: Primitive
-      data: string
-    }>
+    months: Array<TimelineMonth>
   }
   rowsPrimitives: { [key: number]: Primitive }
   scaleOffset: number

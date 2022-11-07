@@ -24,6 +24,7 @@ export class Timeline extends SceneObject {
       renderer.context.fillStyle = CGGlobals.colors.default
 
       const dashYOffset = timeline.primitive.height / 2
+      const segmentDashYOffset = dashYOffset * 0.7
 
       timeline.months.forEach((month) => {
         const sp = month.primitive
@@ -33,6 +34,14 @@ export class Timeline extends SceneObject {
         renderer.context.lineTo(sp.x1, sp.y2 + dashYOffset)
         renderer.context.lineWidth = timeline.primitive.height * 0.2
         renderer.context.stroke()
+
+        month.segments.forEach((segment) => {
+          renderer.context.beginPath()
+          renderer.context.moveTo(segment, sp.y2 - segmentDashYOffset)
+          renderer.context.lineTo(segment, sp.y2 + segmentDashYOffset)
+          renderer.context.lineWidth = timeline.primitive.height * 0.15
+          renderer.context.stroke()
+        })
 
         renderer.context.fillText(month.data, sp.x1, sp.y2 + timeline.primitive.height * 0.8)
       })

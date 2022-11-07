@@ -1,4 +1,4 @@
-import { CGGlobals } from '../core/ComplexGraph'
+import { CGGlobals, TimelineMonth } from '../core/ComplexGraph'
 import { SceneCallbackData, SceneRenderData } from '../core/Scene'
 import { SceneObject } from '../core/SceneObject'
 import { Primitive } from '../helpers/Primitive'
@@ -68,6 +68,9 @@ export class Calculator extends SceneObject {
     if (CGGlobals.data.months) {
       const length = CGGlobals.data.months.length - 1
       const monthWidth = (c.timeline.primitive.width - contentWrapperPaddingX * 2) / (length + 2)
+      let segmentsAmout = Math.min(2 + Math.floor(scene.zoom * 0.5), 6)
+      segmentsAmout = segmentsAmout === 4 ? 5 : segmentsAmout
+      const segmentWidth = monthWidth / segmentsAmout
 
       CGGlobals.data.months.forEach((data, i) => {
         const x1 = monthWidth + contentWrapperLeft + monthWidth * i
@@ -75,9 +78,14 @@ export class Calculator extends SceneObject {
         const y1 = c.workspace.y1
         const y2 = c.timeline.primitive.middleY
 
-        const month = {
+        const month: TimelineMonth = {
           primitive: new Primitive(x1, x2, y1, y2),
+          segments: [],
           data,
+        }
+
+        for (let i = 0; i < segmentsAmout; i++) {
+          month.segments[i] = x1 + segmentWidth * i
         }
 
         c.timeline.months[i] = month

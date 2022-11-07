@@ -20,6 +20,18 @@ export class TimelineMonths extends SceneObject {
         renderer.context.strokeStyle = CGGlobals.colors.timelineMonth
         renderer.context.lineWidth = timeline.primitive.height * 0.15
         renderer.context.stroke()
+
+        month.segments.forEach((s) => {
+          renderer.context.save()
+          renderer.context.beginPath()
+          renderer.context.moveTo(s, sp.y1)
+          renderer.context.lineTo(s, sp.y2)
+          renderer.context.globalAlpha = 0.3
+          renderer.context.strokeStyle = CGGlobals.colors.timelineMonth
+          renderer.context.lineWidth = timeline.primitive.height * 0.1
+          renderer.context.stroke()
+          renderer.context.restore()
+        })
       })
     }
   }
