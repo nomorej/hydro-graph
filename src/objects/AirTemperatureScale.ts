@@ -8,24 +8,20 @@ export class AirTemperatureScale extends SceneRowObject {
     super('airTemperature', 0)
   }
 
-  public render({ renderer }: SceneRenderData): void {
-    const {
-      rowsPrimitives,
-      scaleOffset,
-      contentWrapper,
-      scaleMarkSize,
-      fontSize,
-      scalePointerSize,
-    } = CGGlobals.calculations
+  public render({ renderer }: SceneRenderData) {
+    const { calculations, colors } = CGGlobals
+
+    const { rowsPrimitives, scaleOffset, contentWrapper, fontSize, scaleThickness, scales } =
+      calculations
 
     UtilsShapes.yScale(renderer.context, {
       x: contentWrapper.x1 - scaleOffset,
       y: contentWrapper.y1,
       height: rowsPrimitives[this.row].height,
-      marks: [10, 20, 30],
-      dashSize: scaleMarkSize,
+      segments: scales.airTemperature,
       fontSize,
-      pointerSize: scalePointerSize,
+      lineColor: colors.airTemperature.scale,
+      thickness: scaleThickness,
     })
   }
 }

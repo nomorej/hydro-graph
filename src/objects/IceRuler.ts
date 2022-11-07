@@ -6,5 +6,5 @@ export class IceRuler extends SceneRowObject {
     super('ice-ruler', 3)
   }
 
-  public render(data: SceneRenderData): void {}
+  public render(_: SceneRenderData): void {}
 }

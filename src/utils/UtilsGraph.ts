@@ -1,9 +1,17 @@
 import { XY } from './UtilsTS'
 
 export abstract class UtilsGraph {
-  public static points(data: Array<number>, graphSize: XY, graphPosition = { x: 0, y: 0 }) {
-    const max = Math.max(...data)
-    const norm = data.map((val) => val / max)
+  public static points(
+    data: Array<number>,
+    graphSize: XY,
+    graphPosition = { x: 0, y: 0 },
+    max = 0,
+    min = 0
+  ) {
+    min = min || Math.min(...data)
+    min = min < 0 ? Math.abs(min) : 0
+    const maxPeak = max || Math.max(...data)
+    const norm = data.map((val) => (min + val) / (maxPeak + min))
 
     const points = norm.map((val, i) => {
       return {

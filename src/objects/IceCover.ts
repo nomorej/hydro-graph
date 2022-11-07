@@ -6,5 +6,5 @@ export class IceCover extends SceneRowObject {
     super('ice-cover', 2)
   }
 
-  public render(data: SceneRenderData): void {}
+  public render(_: SceneRenderData): void {}
 }

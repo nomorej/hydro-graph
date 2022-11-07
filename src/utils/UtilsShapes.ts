@@ -6,9 +6,7 @@ export default abstract class UtilsShapes {
       height = 100,
       x = 0,
       y = 0,
-      dashSize = 20,
-      pointerSize = 20,
-      marks = [],
+      segments = [],
       font = 'sans-serif',
       fontSize = 10,
       textAlign = 'left',
@@ -19,9 +17,7 @@ export default abstract class UtilsShapes {
       height?: number
       x?: number
       y?: number
-      dashSize?: number
-      pointerSize?: number
-      marks?: Array<number | string>
+      segments?: Array<{ position: number; data: number | string }>
       font?: string
       fontSize?: number
       textAlign?: 'left' | 'right'
@@ -40,20 +36,20 @@ export default abstract class UtilsShapes {
     context.textAlign = textAlign === 'left' ? 'right' : 'left'
     context.textBaseline = 'middle'
 
+    const dashSize = thickness * 3.5
+    const pointerSize = dashSize * 1.5
     const textMarkX = textAlign === 'left' ? x - dashSize * 1.5 : x + dashSize * 1.5
-    const markStep = height / marks.length
 
-    marks.forEach((mark, i) => {
-      const markY = y + height - markStep * i
-
+    segments.forEach((s) => {
       context.strokeStyle = textColor
-      context.fillText(mark.toString(), textMarkX, markY)
+      context.fillText(s.data.toString(), textMarkX, s.position)
 
       context.beginPath()
       context.lineWidth = thickness
       context.strokeStyle = lineColor
-      context.moveTo(x - dashSize, markY)
-      context.lineTo(x + dashSize, markY)
+      const ds = s.data ? dashSize : dashSize / 2
+      context.moveTo(x - ds, s.position)
+      context.lineTo(x + ds, s.position)
       context.stroke()
     })
 

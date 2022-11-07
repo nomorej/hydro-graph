@@ -75,6 +75,16 @@ export class ComplexGraphWithGUI {
     folder.addColor(colors, 'timeline').name('Таймлайн')
     folder.addColor(colors, 'timelineMonth').name('Месяцы')
     folder.addColor(colors, 'content').name('Фон контента')
+    folder.addColor(colors.airTemperature, 'scale').name('Цвет шкалы "Температуры воздуха"')
+    folder
+      .addColor(colors.airTemperature, 'min')
+      .name('Цвет графика "Минимальная температура воздуха"')
+    folder
+      .addColor(colors.airTemperature, 'middle')
+      .name('Цвет графика "Средняя температура воздуха"')
+    folder
+      .addColor(colors.airTemperature, 'max')
+      .name('Цвет графика "Максимальная температура воздуха"')
   }
 
   private sizesFolder() {
@@ -94,13 +104,7 @@ export class ComplexGraphWithGUI {
 
     folder.add(sizes, 'rowsGap').step(0.001).min(0).max(0.2).name('Расстояние между рядами ↕')
     folder.add(sizes, 'scaleOffset').step(0.001).min(0).max(0.1).name('Отступ от шкал ↔')
-    folder.add(sizes, 'scaleMarkSize').step(0.001).min(0).max(0.05).name('Размер делений на шкалах')
-    folder
-      .add(sizes, 'scalePointerSize')
-      .step(0.001)
-      .min(0)
-      .max(0.03)
-      .name('Размер указателя шкалах')
+    folder.add(sizes, 'scaleThickness').step(0.0001).min(0.0001).max(0.005).name('Толщина шкал')
   }
 
   private handleChange = (v: any) => {

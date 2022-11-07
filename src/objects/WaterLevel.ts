@@ -6,5 +6,5 @@ export class WaterLevel extends SceneRowObject {
     super('waterTemperature', 4)
   }
 
-  public render(data: SceneRenderData): void {}
+  public render(_: SceneRenderData): void {}
 }

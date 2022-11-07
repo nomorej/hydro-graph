@@ -6,5 +6,5 @@ export class SnowAmount extends SceneRowObject {
     super('snow-amount', 2)
   }
 
-  public render(data: SceneRenderData): void {}
+  public render(_: SceneRenderData): void {}
 }

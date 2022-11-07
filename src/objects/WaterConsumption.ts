@@ -6,5 +6,5 @@ export class WaterConsumption extends SceneRowObject {
     super('water-consumption', 4)
   }
 
-  public render(data: SceneRenderData): void {}
+  public render(_: SceneRenderData): void {}
 }

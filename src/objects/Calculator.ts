@@ -1,5 +1,5 @@
 import { CGGlobals } from '../core/ComplexGraph'
-import { SceneRenderData } from '../core/Scene'
+import { SceneCallbackData, SceneRenderData } from '../core/Scene'
 import { SceneObject } from '../core/SceneObject'
 import { Primitive } from '../tools/Primitive'
 import { Segmentator } from '../tools/Segmentator'
@@ -12,39 +12,90 @@ export class Calculator extends SceneObject {
     this.segmentator = new Segmentator({ scale: 1 })
   }
 
-  public override resize() {
+  public override create() {
+    {
+      let airTemperatureMin = 0
+      let airTemperatureMax = 0
+      Object.entries(CGGlobals.data.airTemperature).forEach(([_, data]) => {
+        let typeMin = 0
+        let typeMax = 0
+
+        data.forEach((v) => {
+          if (v < typeMin) {
+            typeMin = v
+          }
+          if (v > typeMax) {
+            typeMax = v
+          }
+        })
+
+        airTemperatureMin = typeMin < airTemperatureMin ? typeMin : airTemperatureMin
+        airTemperatureMax = typeMax > airTemperatureMax ? typeMax : airTemperatureMax
+      })
+
+      airTemperatureMin = Math.floor(airTemperatureMin / 10) * 10
+      airTemperatureMax = Math.ceil(airTemperatureMax / 10) * 10
+      const airTemperatureDelta = airTemperatureMax - airTemperatureMin
+      const airTemperatureSegments = []
+
+      for (let i = 0; i <= airTemperatureDelta / 10; i++) {
+        airTemperatureSegments[i] = airTemperatureMin + i * 10
+      }
+
+      airTemperatureSegments.forEach((t, i) => {
+        const isEven = (t / 10) % 2 === 0
+        CGGlobals.calculations.scales.airTemperature[i] = {
+          position: 0,
+          data: isEven ? t : '',
+          isBase: isEven ? true : false,
+        }
+      })
+
+      CGGlobals.calculations.airTemperatureMin = airTemperatureMin
+      CGGlobals.calculations.airTemperatureMax = airTemperatureMax
+    }
+  }
+
+  public override resize({ renderer }: SceneCallbackData) {
+    const c = CGGlobals.calculations
+    const s = CGGlobals.sizes
+
     const rows = Object.entries(CGGlobals.rowsVisibility) as Array<[string, boolean]>
-    this.segmentator.gap = CGGlobals.sizes.rowsGap
+    this.segmentator.gap = s.rowsGap
     rows.forEach((row) => {
       let factor = 0
       if (row[1]) {
-        factor = CGGlobals.sizes.rowsFactors[+row[0]]
+        factor = s.rowsFactors[+row[0]]
       }
       this.segmentator.cut(+row[0], factor)
     })
+
+    c.fontSize = s.font * renderer.minSize
+
+    c.workspace.x1 = renderer.minSize * s.paddingX
+    c.workspace.x2 = renderer.size.x - c.workspace.x1
+    c.workspace.y1 = renderer.minSize * s.paddingY
+    c.workspace.y2 = renderer.size.y - c.workspace.y1
+
+    c.scaleOffset = s.scaleOffset * renderer.minSize
+    c.scaleThickness = s.scaleThickness * renderer.minSize
   }
 
   public render({ renderer, scene }: SceneRenderData) {
     const c = CGGlobals.calculations
-
-    c.fontSize = CGGlobals.sizes.font * renderer.minSize
-
-    c.workspace.x1 = renderer.minSize * CGGlobals.sizes.paddingX
-    c.workspace.x2 = renderer.size.x - c.workspace.x1
-    c.workspace.y1 = renderer.minSize * CGGlobals.sizes.paddingY
-    c.workspace.y2 = renderer.size.y - c.workspace.y1
+    const s = CGGlobals.sizes
 
     const sceneSize = scene.size.pointer.current - c.workspace.x1
 
-    const timelineHeight = CGGlobals.sizes.timelineHeight * renderer.minSize
-    const timelineOffsetY = CGGlobals.sizes.timelineOffsetY * renderer.minSize
+    const timelineHeight = s.timelineHeight * renderer.minSize
+    const timelineOffsetY = s.timelineOffsetY * renderer.minSize
 
     c.timeline.primitive.x1 = c.workspace.x1
     c.timeline.primitive.x2 = sceneSize
     c.timeline.primitive.y1 = c.workspace.y2 - timelineOffsetY - timelineHeight / 2
     c.timeline.primitive.y2 = c.workspace.y2 - timelineOffsetY + timelineHeight / 2
 
-    const contentWrapperPaddingX = renderer.minSize * CGGlobals.sizes.contentPaddingX
+    const contentWrapperPaddingX = renderer.minSize * s.contentPaddingX
     const contentWrapperLeft = c.workspace.x1 + contentWrapperPaddingX
     const contentWrapperRight = c.workspace.x2 - contentWrapperPaddingX
 
@@ -84,8 +135,8 @@ export class Calculator extends SceneObject {
       c.rowsPrimitives[s.id].y2 = c.content.y1 + c.content.height * s.b
     })
 
-    c.scaleOffset = CGGlobals.sizes.scaleOffset * renderer.minSize
-    c.scaleMarkSize = CGGlobals.sizes.scaleMarkSize * renderer.minSize
-    c.scalePointerSize = CGGlobals.sizes.scalePointerSize * renderer.minSize
+    c.scales.airTemperature.forEach((s, i, arr) => {
+      s.position = c.rowsPrimitives[0].height - (c.rowsPrimitives[0].height / arr.length) * i
+    })
   }
 }

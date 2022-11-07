@@ -36,6 +36,12 @@ export function presetDefault({ data, container }: PresetParameters): ComplexGra
     timeline: '#000000',
     timelineMonth: '#66f5ff',
     content: '#ccfcff',
+    airTemperature: {
+      scale: '#b44646',
+      min: '#ae00ff',
+      middle: '#adadad',
+      max: '#ff5c5c',
+    },
   }
 
   const sizes: ComplexGraphGlobalsConfig['sizes'] = {
@@ -45,7 +51,15 @@ export function presetDefault({ data, container }: PresetParameters): ComplexGra
     contentPaddingX: 0.1,
     timelineOffsetY: 0.05,
     timelineHeight: 0.02,
-    rowsFactors: {},
+    scaleThickness: 0.0025,
+    rowsFactors: {
+      '0': 2,
+      '1': 1,
+      '2': 1,
+      '3': 1,
+      '4': 1,
+      '5': 1,
+    },
     rowsGap: 0.05,
     scaleOffset: 0.015,
     scaleMarkSize: 0.005,

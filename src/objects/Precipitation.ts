@@ -6,5 +6,5 @@ export class Precipitation extends SceneRowObject {
     super('precipitation', 1)
   }
 
-  public render(data: SceneRenderData): void {}
+  public render(_: SceneRenderData): void {}
 }

@@ -11,12 +11,23 @@ import { UtilsMath } from '../utils/UtilsMath'
 export interface ComplexGraphGlobals {
   data: {
     months: Array<string> | undefined
+    airTemperature: {
+      max: Array<number>
+      middle: Array<number>
+      min: Array<number>
+    }
   }
   colors: {
     timeline: string
     timelineMonth: string
     content: string
     default: string
+    airTemperature: {
+      scale: string
+      min: string
+      middle: string
+      max: string
+    }
   }
   font: string
   sizes: {
@@ -31,6 +42,7 @@ export interface ComplexGraphGlobals {
     scaleOffset: number
     scaleMarkSize: number
     scalePointerSize: number
+    scaleThickness: number
   }
   calculations: {
     fontSize: number
@@ -46,8 +58,16 @@ export interface ComplexGraphGlobals {
     }
     rowsPrimitives: { [key: number]: Primitive }
     scaleOffset: number
-    scaleMarkSize: number
-    scalePointerSize: number
+    scaleThickness: number
+    scales: {
+      airTemperature: Array<{
+        position: number
+        data: string | number
+        isBase: boolean
+      }>
+    }
+    airTemperatureMax: number
+    airTemperatureMin: number
   }
   rowsVisibility: { [key: number]: boolean }
 }
@@ -98,13 +118,18 @@ export class ComplexGraph {
           primitive: new Primitive(),
           months: [],
         },
+
         content: new Primitive(),
         contentWrapper: new Primitive(),
         workspace: new Primitive(),
         rowsPrimitives: {},
         scaleOffset: 0,
-        scaleMarkSize: 0,
-        scalePointerSize: 0,
+        scaleThickness: 0,
+        scales: {
+          airTemperature: [],
+        },
+        airTemperatureMax: 0,
+        airTemperatureMin: 0,
       },
     }
 
@@ -139,7 +164,9 @@ export class ComplexGraph {
       this.scene.addObject(object)
       if (object instanceof SceneRowObject) {
         CGGlobals.rowsVisibility[object.row] = true
-        CGGlobals.sizes.rowsFactors[object.row] = 1
+        if (!CGGlobals.sizes.rowsFactors[object.row]) {
+          CGGlobals.sizes.rowsFactors[object.row] = 1
+        }
         if (!CGGlobals.calculations.rowsPrimitives[object.row]) {
           CGGlobals.calculations.rowsPrimitives[object.row] = new Primitive()
         }
