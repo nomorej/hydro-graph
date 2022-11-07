@@ -37,10 +37,10 @@ export function presetDefault({ data, container }: PresetParameters): ComplexGra
     timelineMonth: '#66f5ff',
     content: '#ccfcff',
     airTemperature: {
-      scale: '#b44646',
+      scale: '#ff9494',
       min: '#ae00ff',
-      middle: '#adadad',
-      max: '#ff5c5c',
+      middle: '#36363',
+      max: '#ff2e2e',
     },
   }
 
