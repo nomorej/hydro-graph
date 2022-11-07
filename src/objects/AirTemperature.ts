@@ -24,6 +24,8 @@ export class AirTemperature extends SceneRowObject {
       }
       if (!s.isBase) {
         renderer.context.globalAlpha = 0.2
+      } else {
+        renderer.context.globalAlpha = 0.7
       }
       renderer.context.moveTo(rowsPrimitives[this.row].x1, s.position)
       renderer.context.lineTo(rowsPrimitives[this.row].x2, s.position)
@@ -36,16 +38,21 @@ export class AirTemperature extends SceneRowObject {
     this.drawGraph(renderer, 'max')
   }
 
-  private drawGraph(renderer: Renderer, name: keyof ComplexGraphGlobals['data']['airTemperature']) {
+  private drawGraph(
+    renderer: Renderer,
+    name: keyof ComplexGraphGlobals['data']['airTemperature']['graphs']
+  ) {
     const { colors, calculations, data } = CGGlobals
     const { rowsPrimitives, scales } = calculations
     const { airTemperature } = data
 
     const offset = rowsPrimitives[this.row].height / scales.airTemperature.length
 
-    if (airTemperature[name] && airTemperature[name].length) {
+    const graph = airTemperature.graphs[name]
+
+    if (graph && graph.data.length) {
       const points = UtilsGraph.points(
-        airTemperature[name],
+        graph.data,
         {
           x: rowsPrimitives[this.row].width,
           y: rowsPrimitives[this.row].height - offset,

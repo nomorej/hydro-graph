@@ -32,14 +32,14 @@ export function presetDefault({ data, container }: PresetParameters): ComplexGra
   }
 
   const colors: ComplexGraphGlobalsConfig['colors'] = {
-    default: '#1e6062',
+    default: '#000000',
     timeline: '#000000',
     timelineMonth: '#66f5ff',
-    content: '#ccfcff',
+    content: '#f5fcff',
     airTemperature: {
       scale: '#ff9494',
       min: '#ae00ff',
-      middle: '#36363',
+      middle: '#737373',
       max: '#ff2e2e',
     },
   }

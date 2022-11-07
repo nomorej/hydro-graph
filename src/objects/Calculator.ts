@@ -16,11 +16,11 @@ export class Calculator extends SceneObject {
     {
       let airTemperatureMin = 0
       let airTemperatureMax = 0
-      Object.entries(CGGlobals.data.airTemperature).forEach(([_, data]) => {
+      Object.entries(CGGlobals.data.airTemperature.graphs).forEach(([_, graph]) => {
         let typeMin = 0
         let typeMax = 0
 
-        data.forEach((v) => {
+        graph.data.forEach((v) => {
           if (v < typeMin) {
             typeMin = v
           }
@@ -136,7 +136,10 @@ export class Calculator extends SceneObject {
     })
 
     c.scales.airTemperature.forEach((s, i, arr) => {
-      s.position = c.rowsPrimitives[0].height - (c.rowsPrimitives[0].height / arr.length) * i
+      s.position =
+        c.rowsPrimitives[0].y1 +
+        c.rowsPrimitives[0].height -
+        (c.rowsPrimitives[0].height / arr.length) * i
     })
   }
 }

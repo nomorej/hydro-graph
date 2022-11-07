@@ -9,19 +9,16 @@ export class AirTemperatureScale extends SceneRowObject {
   }
 
   public render({ renderer }: SceneRenderData) {
-    const { calculations, colors } = CGGlobals
-
-    const { rowsPrimitives, scaleOffset, contentWrapper, fontSize, scaleThickness, scales } =
-      calculations
+    const { calculations, colors, data, font } = CGGlobals
 
     UtilsShapes.yScale(renderer.context, {
-      x: contentWrapper.x1 - scaleOffset,
-      y: contentWrapper.y1,
-      height: rowsPrimitives[this.row].height,
-      segments: scales.airTemperature,
-      fontSize,
-      lineColor: colors.airTemperature.scale,
-      thickness: scaleThickness,
+      align: 'left',
+      calculations,
+      colors,
+      data,
+      font,
+      row: this.row,
+      name: data.airTemperature.scaleName,
     })
   }
 }

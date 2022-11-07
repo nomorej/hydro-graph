@@ -8,13 +8,22 @@ import { Scrollbar } from './Scrollbar'
 import { UtilsCoordinates } from '../utils/UtilsCoordinates'
 import { UtilsMath } from '../utils/UtilsMath'
 
+export interface AirTemperatureGraph {
+  name: string
+  data: Array<number>
+}
+
 export interface ComplexGraphGlobals {
   data: {
     months: Array<string> | undefined
     airTemperature: {
-      max: Array<number>
-      middle: Array<number>
-      min: Array<number>
+      name: 'Температура воздуха'
+      scaleName: 't воздуха ˚С'
+      graphs: {
+        max: AirTemperatureGraph
+        middle: AirTemperatureGraph
+        min: AirTemperatureGraph
+      }
     }
   }
   colors: {
