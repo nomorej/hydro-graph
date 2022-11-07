@@ -1,9 +1,9 @@
 import { SceneRenderData } from '../core/Scene'
-import { SceneRowObject } from '../core/SceneRowObject'
+import { SceneDataRepresentation } from '../core/SceneDataRepresentation'
 
-export class SnowAmount extends SceneRowObject {
+export class SnowAmount extends SceneDataRepresentation {
   constructor() {
-    super('snow-amount', 2)
+    super('snowAmount', 2)
   }
 
   public render(_: SceneRenderData): void {}

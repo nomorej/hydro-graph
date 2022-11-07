@@ -12,50 +12,6 @@ export class Calculator extends SceneObject {
     this.segmentator = new Segmentator({ scale: 1 })
   }
 
-  public override create() {
-    {
-      let airTemperatureMin = 0
-      let airTemperatureMax = 0
-      Object.entries(CGGlobals.data.airTemperature.graphs).forEach(([_, graph]) => {
-        let typeMin = 0
-        let typeMax = 0
-
-        graph.data.forEach((v) => {
-          if (v < typeMin) {
-            typeMin = v
-          }
-          if (v > typeMax) {
-            typeMax = v
-          }
-        })
-
-        airTemperatureMin = typeMin < airTemperatureMin ? typeMin : airTemperatureMin
-        airTemperatureMax = typeMax > airTemperatureMax ? typeMax : airTemperatureMax
-      })
-
-      airTemperatureMin = Math.floor(airTemperatureMin / 10) * 10
-      airTemperatureMax = Math.ceil(airTemperatureMax / 10) * 10
-      const airTemperatureDelta = airTemperatureMax - airTemperatureMin
-      const airTemperatureSegments = []
-
-      for (let i = 0; i <= airTemperatureDelta / 10; i++) {
-        airTemperatureSegments[i] = airTemperatureMin + i * 10
-      }
-
-      airTemperatureSegments.forEach((t, i) => {
-        const isEven = (t / 10) % 2 === 0
-        CGGlobals.calculations.scales.airTemperature[i] = {
-          position: 0,
-          data: isEven ? t : '',
-          isBase: isEven ? true : false,
-        }
-      })
-
-      CGGlobals.calculations.airTemperatureMin = airTemperatureMin
-      CGGlobals.calculations.airTemperatureMax = airTemperatureMax
-    }
-  }
-
   public override resize({ renderer }: SceneCallbackData) {
     const c = CGGlobals.calculations
     const s = CGGlobals.sizes
@@ -135,11 +91,22 @@ export class Calculator extends SceneObject {
       c.rowsPrimitives[s.id].y2 = c.content.y1 + c.content.height * s.b
     })
 
-    c.scales.airTemperature.forEach((s, i, arr) => {
+    // const x = isLeft ? c.contentWrapper.x1 - c.scaleOffset : c.contentWrapper.x2 + c.scaleOffset
+    // const y = c.rowsPrimitives[row].y1
+    // const height = c.rowsPrimitives[row].height
+
+    c.scales.airTemperature.segments.forEach((s, i, arr) => {
       s.position =
         c.rowsPrimitives[0].y1 +
         c.rowsPrimitives[0].height -
         (c.rowsPrimitives[0].height / arr.length) * i
+    })
+
+    c.scales.precipitation.segments.forEach((s, i, arr) => {
+      s.position =
+        c.rowsPrimitives[1].y1 +
+        c.rowsPrimitives[1].height -
+        (c.rowsPrimitives[1].height / arr.length) * i
     })
   }
 }

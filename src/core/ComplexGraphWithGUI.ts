@@ -75,15 +75,15 @@ export class ComplexGraphWithGUI {
     folder.addColor(colors, 'timeline').name('Таймлайн')
     folder.addColor(colors, 'timelineMonth').name('Месяцы')
     folder.addColor(colors, 'content').name('Фон контента')
-    folder.addColor(colors.airTemperature, 'scale').name('Цвет шкалы "Температуры воздуха"')
+    folder.addColor(colors.reps.airTemperature, 'scale').name('Цвет шкалы "Температуры воздуха"')
     folder
-      .addColor(colors.airTemperature, 'min')
+      .addColor(colors.reps.airTemperature, 'min')
       .name('Цвет графика "Минимальная температура воздуха"')
     folder
-      .addColor(colors.airTemperature, 'middle')
+      .addColor(colors.reps.airTemperature, 'middle')
       .name('Цвет графика "Средняя температура воздуха"')
     folder
-      .addColor(colors.airTemperature, 'max')
+      .addColor(colors.reps.airTemperature, 'max')
       .name('Цвет графика "Максимальная температура воздуха"')
   }
 

@@ -4,7 +4,7 @@ import { SceneObject } from '../core/SceneObject'
 
 export class Timeline extends SceneObject {
   constructor() {
-    super('timeline')
+    super()
   }
 
   public render({ renderer }: SceneRenderData) {

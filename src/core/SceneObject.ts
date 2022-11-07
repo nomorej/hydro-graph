@@ -1,10 +1,10 @@
 import { Scene, SceneCallbackData, SceneRenderData } from './Scene'
 
-export abstract class SceneObject {
+export abstract class SceneObject<T extends string = string> {
   public active: boolean
-  public readonly name: string | undefined
+  public readonly name: T | undefined
 
-  constructor(name?: string) {
+  constructor(name?: T) {
     this.active = true
     this.name = name
   }

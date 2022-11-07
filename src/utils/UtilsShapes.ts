@@ -1,4 +1,4 @@
-import { ComplexGraphGlobals } from '../core/ComplexGraph'
+import { ComplexGraphGlobals, DataRepsWithScales } from '../core/ComplexGraph'
 
 export default abstract class UtilsShapes {
   public static yScale(
@@ -9,7 +9,8 @@ export default abstract class UtilsShapes {
       colors,
       row,
       align,
-      name,
+      graphName,
+      scaleName,
     }: {
       calculations: ComplexGraphGlobals['calculations']
       font: ComplexGraphGlobals['font']
@@ -17,15 +18,17 @@ export default abstract class UtilsShapes {
       colors: ComplexGraphGlobals['colors']
       row: number
       align: 'left' | 'right'
-      name: string
+      scaleName: string
+      graphName: DataRepsWithScales
     }
   ) {
-    const x = c.contentWrapper.x1 - c.scaleOffset
+    const isLeft = align === 'left'
+    const x = isLeft ? c.contentWrapper.x1 - c.scaleOffset : c.contentWrapper.x2 + c.scaleOffset
     const y = c.rowsPrimitives[row].y1
     const height = c.rowsPrimitives[row].height
-    const segments = c.scales.airTemperature
+    const segments = c.scales[graphName].segments
     const fontSize = c.fontSize
-    const lineColor = colors.airTemperature.scale
+    const lineColor = colors.reps[graphName].scale
     const thickness = c.scaleThickness
 
     context.beginPath()
@@ -36,21 +39,21 @@ export default abstract class UtilsShapes {
     context.stroke()
 
     context.font = `${fontSize}px ${font}`
-    context.textAlign = align === 'left' ? 'right' : 'left'
+    context.textAlign = isLeft ? 'right' : 'left'
     context.textBaseline = 'middle'
 
     const dashSize = thickness * 3.5
     const pointerSize = dashSize * 1.5
-    const textMarkX = align === 'left' ? x - dashSize * 1.5 : x + dashSize * 1.5
+    const textMarkX = isLeft ? x - dashSize * 1.5 : x + dashSize * 1.5
 
     segments.forEach((s) => {
       context.strokeStyle = colors.default
-      context.fillText(s.data.toString(), textMarkX, s.position)
+      context.fillText(s.value.toString(), textMarkX, s.position)
 
       context.beginPath()
       context.lineWidth = thickness
       context.strokeStyle = lineColor
-      const ds = s.data ? dashSize : dashSize / 2
+      const ds = s.value ? dashSize : dashSize / 2
       context.moveTo(x - ds, s.position)
       context.lineTo(x + ds, s.position)
       context.stroke()
@@ -66,15 +69,17 @@ export default abstract class UtilsShapes {
 
     context.save()
     context.font = `${fontSize}px ${font}`
-    context.textBaseline = 'top'
+    context.textBaseline = isLeft ? 'top' : 'bottom'
     context.textAlign = 'center'
     context.fillStyle = colors.default
     context.rotate(-Math.PI / 2)
     context.translate(
       c.rowsPrimitives[row].y1 * -1 + (c.rowsPrimitives[row].height / 2) * -1,
-      c.contentWrapper.x1 - c.content.x1 + c.workspace.x1
+      isLeft
+        ? c.contentWrapper.x1 - c.content.x1 + c.workspace.x1
+        : c.contentWrapper.x2 + c.content.x1 - c.workspace.x1
     )
-    context.fillText(name, 0, 0)
+    context.fillText(scaleName, 0, 0)
     context.restore()
   }
 }

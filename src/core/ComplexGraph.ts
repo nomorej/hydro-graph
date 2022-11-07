@@ -1,89 +1,135 @@
 import { Scene } from './Scene'
 import { Renderer } from './Renderer'
 import { SceneObject } from './SceneObject'
-import { SceneRowObject } from './SceneRowObject'
+import { SceneDataRepresentation } from './SceneDataRepresentation'
 import { Primitive } from '../tools/Primitive'
 import { CanvasParameters } from '../tools/Canvas'
 import { Scrollbar } from './Scrollbar'
 import { UtilsCoordinates } from '../utils/UtilsCoordinates'
 import { UtilsMath } from '../utils/UtilsMath'
+import { ScaleSegments, ScaleSegmentsData } from '../tools/ScaleSegments'
 
-export interface AirTemperatureGraph {
+export type DataReps =
+  | 'airTemperature'
+  | 'iceCover'
+  | 'iceRuler'
+  | 'precipitation'
+  | 'snowAmount'
+  | 'waterConsumption'
+  | 'waterLevel'
+  | 'waterTemperature'
+
+export type DataRepsWithScales = Exclude<DataReps, 'iceCover' | 'iceRuler'>
+
+export type MonthsData = Array<string> | undefined
+
+export interface GraphsDataGroup<T extends ScaleSegmentsData> {
   name: string
-  data: Array<number>
+  scaleName: string
+  graph: T
 }
 
-export interface ComplexGraphGlobals {
-  data: {
-    months: Array<string> | undefined
-    airTemperature: {
-      name: 'Температура воздуха'
-      scaleName: 't воздуха ˚С'
-      graphs: {
-        max: AirTemperatureGraph
-        middle: AirTemperatureGraph
-        min: AirTemperatureGraph
-      }
-    }
-  }
-  colors: {
-    timeline: string
-    timelineMonth: string
-    content: string
-    default: string
+export type GraphsData = {
+  airTemperature: GraphsDataGroup<{
+    max: Array<number>
+    middle: Array<number>
+    min: Array<number>
+  }>
+  precipitation: GraphsDataGroup<Array<number>>
+}
+
+export interface Data {
+  months: MonthsData
+  reps: GraphsData
+}
+
+export interface Colors {
+  timeline: string
+  timelineMonth: string
+  content: string
+  default: string
+  reps: {
     airTemperature: {
       scale: string
       min: string
       middle: string
       max: string
     }
+    precipitation: {
+      scale: string
+    }
+    iceCover: {
+      scale: string
+    }
+    iceRuler: {
+      scale: string
+    }
+    snowAmount: {
+      scale: string
+    }
+    waterConsumption: {
+      scale: string
+    }
+    waterLevel: {
+      scale: string
+    }
+    waterTemperature: {
+      scale: string
+    }
   }
-  font: string
-  sizes: {
-    font: number
-    paddingX: number
-    paddingY: number
-    contentPaddingX: number
-    timelineOffsetY: number
-    timelineHeight: number
-    rowsFactors: { [key: number]: number }
-    rowsGap: number
-    scaleOffset: number
-    scaleMarkSize: number
-    scalePointerSize: number
-    scaleThickness: number
-  }
-  calculations: {
-    fontSize: number
-    workspace: Primitive
-    content: Primitive
-    contentWrapper: Primitive
-    timeline: {
+}
+
+export interface Sizes {
+  font: number
+  paddingX: number
+  paddingY: number
+  contentPaddingX: number
+  timelineOffsetY: number
+  timelineHeight: number
+  rowsFactors: { [key: number]: number }
+  rowsGap: number
+  scaleOffset: number
+  scaleMarkSize: number
+  scalePointerSize: number
+  scaleThickness: number
+}
+
+export interface ScaleCalculationSegment {
+  position: number
+  value: string | number
+  isBase: boolean
+}
+
+export interface Calculations {
+  fontSize: number
+  workspace: Primitive
+  content: Primitive
+  contentWrapper: Primitive
+  timeline: {
+    primitive: Primitive
+    months: Array<{
       primitive: Primitive
-      months: Array<{
-        primitive: Primitive
-        data: string
-      }>
-    }
-    rowsPrimitives: { [key: number]: Primitive }
-    scaleOffset: number
-    scaleThickness: number
-    scales: {
-      airTemperature: Array<{
-        position: number
-        data: string | number
-        isBase: boolean
-      }>
-    }
-    airTemperatureMax: number
-    airTemperatureMin: number
+      data: string
+    }>
   }
+  rowsPrimitives: { [key: number]: Primitive }
+  scaleOffset: number
+  scaleThickness: number
+  scales: { [K in DataRepsWithScales]: ScaleSegments }
+}
+
+export interface ComplexGraphGlobals {
+  data: Data
+  colors: Colors
+  font: string
+  sizes: Sizes
+  calculations: Calculations
   rowsVisibility: { [key: number]: boolean }
 }
 
-export type ComplexGraphGlobalsConfig = Omit<ComplexGraphGlobals, 'calculations'>
+export type GlobalsConfig = Omit<ComplexGraphGlobals, 'calculations'>
 
-export interface ComplexGraphSettings {
+export interface Settings {
   zoomMouseButton: 'left' | 'right'
   wheelZoomSpeed: number
   wheelTranlationSpeed: number
@@ -92,9 +138,9 @@ export interface ComplexGraphSettings {
 }
 
 export interface ComplexGraphParameters extends Pick<CanvasParameters, 'container'> {
-  settings?: Partial<ComplexGraphSettings>
-  globals: ComplexGraphGlobalsConfig
-  objects: Array<SceneObject | SceneRowObject>
+  settings?: Partial<Settings>
+  globals: GlobalsConfig
+  objects: Array<SceneObject | SceneDataRepresentation>
 }
 
 export let CGGlobals: ComplexGraphGlobals = null!
@@ -104,10 +150,7 @@ export class ComplexGraph {
 
   private readonly container: HTMLElement
 
-  private readonly settings: Pick<
-    ComplexGraphSettings,
-    'wheelZoomSpeed' | 'wheelTranlationSpeed'
-  > & {
+  private readonly settings: Pick<Settings, 'wheelZoomSpeed' | 'wheelTranlationSpeed'> & {
     zoomMouseButton: 0 | 2
   }
 
@@ -135,10 +178,13 @@ export class ComplexGraph {
         scaleOffset: 0,
         scaleThickness: 0,
         scales: {
-          airTemperature: [],
+          airTemperature: new ScaleSegments(globals.data.reps.airTemperature.graph),
+          precipitation: new ScaleSegments(globals.data.reps.precipitation.graph, false),
+          snowAmount: new ScaleSegments(globals.data.reps.precipitation.graph),
+          waterConsumption: new ScaleSegments(globals.data.reps.precipitation.graph),
+          waterLevel: new ScaleSegments(globals.data.reps.precipitation.graph),
+          waterTemperature: new ScaleSegments(globals.data.reps.precipitation.graph),
         },
-        airTemperatureMax: 0,
-        airTemperatureMin: 0,
       },
     }
 
@@ -171,7 +217,7 @@ export class ComplexGraph {
 
     objects.forEach((object) => {
       this.scene.addObject(object)
-      if (object instanceof SceneRowObject) {
+      if (object instanceof SceneDataRepresentation) {
         CGGlobals.rowsVisibility[object.row] = true
         if (!CGGlobals.sizes.rowsFactors[object.row]) {
           CGGlobals.sizes.rowsFactors[object.row] = 1
@@ -190,7 +236,7 @@ export class ComplexGraph {
     this.container.addEventListener('contextmenu', this.handleContextMenu)
   }
 
-  public updateSettings(settings: Partial<ComplexGraphSettings>) {
+  public updateSettings(settings: Partial<Settings>) {
     this.scene.maxZoom = settings.maxZoom || 10
     this.scene.setSmoothness(settings.smoothness || 0)
     ;(this.settings.zoomMouseButton =
@@ -211,15 +257,15 @@ export class ComplexGraph {
     CGGlobals = null!
   }
 
-  public hideObject(nameOrRowId: string | number) {
+  public hideObject(nameOrRowId: DataReps | number) {
     this.toggleVisibility(nameOrRowId, false)
   }
 
-  public showObject(nameOrRowId: string | number) {
+  public showObject(nameOrRowId: DataReps | number) {
     this.toggleVisibility(nameOrRowId, true)
   }
 
-  private toggleVisibility(nameOrRowId: string | number, visible: boolean) {
+  private toggleVisibility(nameOrRowId: DataReps | number, visible: boolean) {
     if (typeof nameOrRowId === 'string') {
       this.scene.objects.forEach((object) => {
         if (object.name === nameOrRowId) {
@@ -228,8 +274,8 @@ export class ComplexGraph {
       })
     } else {
       const rowObjects = this.scene.objects.filter(
-        (object) => object instanceof SceneRowObject
-      ) as Array<SceneRowObject>
+        (object) => object instanceof SceneDataRepresentation
+      ) as Array<SceneDataRepresentation>
       CGGlobals.rowsVisibility[nameOrRowId] = visible
       rowObjects.forEach((o) => o.row === nameOrRowId && (o.active = visible))
     }

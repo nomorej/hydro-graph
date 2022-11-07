@@ -1,9 +1,9 @@
 import { SceneRenderData } from '../core/Scene'
-import { SceneRowObject } from '../core/SceneRowObject'
+import { SceneDataRepresentation } from '../core/SceneDataRepresentation'
 
-export class WaterConsumption extends SceneRowObject {
+export class WaterConsumption extends SceneDataRepresentation {
   constructor() {
-    super('water-consumption', 4)
+    super('waterConsumption', 4)
   }
 
   public render(_: SceneRenderData): void {}

@@ -3,9 +3,9 @@ import { SceneRenderData } from '../core/Scene'
 import { SceneDataRepresentation } from '../core/SceneDataRepresentation'
 import UtilsShapes from '../utils/UtilsShapes'
 
-export class AirTemperatureScale extends SceneDataRepresentation {
+export class PrecipitationScale extends SceneDataRepresentation {
   constructor() {
-    super('airTemperature', 0)
+    super('precipitation', 1)
   }
 
   public render({ renderer }: SceneRenderData) {
@@ -18,7 +18,7 @@ export class AirTemperatureScale extends SceneDataRepresentation {
       data,
       font,
       row: this.row,
-      scaleName: data.reps.airTemperature.scaleName,
+      scaleName: data.reps.precipitation.scaleName,
       graphName: this.name! as DataRepsWithScales,
     })
   }

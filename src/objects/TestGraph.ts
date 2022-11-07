@@ -5,7 +5,7 @@ import { UtilsGraph } from '../utils/UtilsGraph'
 
 export class TestGraph extends SceneObject {
   constructor() {
-    super('test')
+    super()
   }
 
   public render({ renderer }: SceneRenderData): void {

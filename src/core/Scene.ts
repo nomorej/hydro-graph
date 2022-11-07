@@ -1,11 +1,10 @@
 import { Track } from '../tools/Track'
 import { UtilsMath } from '../utils/UtilsMath'
-import { ComplexGraphSettings } from './ComplexGraph'
+import { Settings } from './ComplexGraph'
 import { Renderer } from './Renderer'
 import { SceneObject } from './SceneObject'
 
-export interface SceneParameters
-  extends Partial<Pick<ComplexGraphSettings, 'smoothness' | 'maxZoom'>> {}
+export interface SceneParameters extends Partial<Pick<Settings, 'smoothness' | 'maxZoom'>> {}
 
 export interface SceneCallbackData {
   renderer: Renderer

@@ -1,24 +1,23 @@
-import { CGGlobals, ComplexGraphGlobals } from '../core/ComplexGraph'
+import { CGGlobals, GraphsData } from '../core/ComplexGraph'
 import { Renderer } from '../core/Renderer'
 import { SceneRenderData } from '../core/Scene'
-import { SceneRowObject } from '../core/SceneRowObject'
+import { SceneDataRepresentation } from '../core/SceneDataRepresentation'
 import { UtilsGraph } from '../utils/UtilsGraph'
 
-export class AirTemperature extends SceneRowObject {
+export class AirTemperature extends SceneDataRepresentation {
   constructor() {
     super('airTemperature', 0)
   }
 
   public render({ renderer }: SceneRenderData): void {
-    const { colors, calculations } = CGGlobals
-    const { rowsPrimitives, scales } = calculations
+    const { colors, calculations: c } = CGGlobals
 
-    scales.airTemperature.forEach((s) => {
+    c.scales.airTemperature.segments.forEach((s) => {
       renderer.context.save()
       renderer.context.beginPath()
-      renderer.context.strokeStyle = colors.airTemperature.scale
+      renderer.context.strokeStyle = colors.reps.airTemperature.scale
       renderer.context.lineWidth = 1
-      if (s.data === 0) {
+      if (s.value === 0) {
         renderer.context.strokeStyle = colors.default
         renderer.context.lineWidth = 3
       }
@@ -27,8 +26,8 @@ export class AirTemperature extends SceneRowObject {
       } else {
         renderer.context.globalAlpha = 0.7
       }
-      renderer.context.moveTo(rowsPrimitives[this.row].x1, s.position)
-      renderer.context.lineTo(rowsPrimitives[this.row].x2, s.position)
+      renderer.context.moveTo(c.rowsPrimitives[this.row].x1, s.position)
+      renderer.context.lineTo(c.rowsPrimitives[this.row].x2, s.position)
       renderer.context.stroke()
       renderer.context.restore()
     })
@@ -38,35 +37,31 @@ export class AirTemperature extends SceneRowObject {
     this.drawGraph(renderer, 'max')
   }
 
-  private drawGraph(
-    renderer: Renderer,
-    name: keyof ComplexGraphGlobals['data']['airTemperature']['graphs']
-  ) {
-    const { colors, calculations, data } = CGGlobals
-    const { rowsPrimitives, scales } = calculations
-    const { airTemperature } = data
+  private drawGraph(renderer: Renderer, name: keyof GraphsData['airTemperature']['graph']) {
+    const { colors, calculations: c, data } = CGGlobals
+    const { reps } = data
 
-    const offset = rowsPrimitives[this.row].height / scales.airTemperature.length
+    const offset = c.rowsPrimitives[this.row].height / c.scales.airTemperature.segments.length
 
-    const graph = airTemperature.graphs[name]
+    const graph = reps.airTemperature.graph[name]
 
-    if (graph && graph.data.length) {
+    if (graph && graph.length) {
       const points = UtilsGraph.points(
-        graph.data,
+        graph,
         {
-          x: rowsPrimitives[this.row].width,
-          y: rowsPrimitives[this.row].height - offset,
+          x: c.rowsPrimitives[this.row].width,
+          y: c.rowsPrimitives[this.row].height - offset,
         },
         {
-          x: rowsPrimitives[this.row].x1,
-          y: rowsPrimitives[this.row].y1 + offset,
+          x: c.rowsPrimitives[this.row].x1,
+          y: c.rowsPrimitives[this.row].y1 + offset,
         },
-        calculations.airTemperatureMax,
-        calculations.airTemperatureMin
+        c.scales.airTemperature.max,
+        c.scales.airTemperature.min
       )
       renderer.context.lineWidth = 2
       UtilsGraph.smooth(renderer.context, points)
-      renderer.context.strokeStyle = colors.airTemperature[name]
+      renderer.context.strokeStyle = colors.reps.airTemperature[name]
       renderer.context.stroke()
     }
   }

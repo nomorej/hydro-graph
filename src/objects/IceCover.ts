@@ -1,9 +1,9 @@
 import { SceneRenderData } from '../core/Scene'
-import { SceneRowObject } from '../core/SceneRowObject'
+import { SceneDataRepresentation } from '../core/SceneDataRepresentation'
 
-export class IceCover extends SceneRowObject {
+export class IceCover extends SceneDataRepresentation {
   constructor() {
-    super('ice-cover', 2)
+    super('iceCover', 2)
   }
 
   public render(_: SceneRenderData): void {}

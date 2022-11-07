@@ -1,8 +1,4 @@
-import {
-  ComplexGraphGlobalsConfig,
-  ComplexGraphParameters,
-  ComplexGraphSettings,
-} from '../core/ComplexGraph'
+import { Colors, ComplexGraphParameters, Settings, Sizes } from '../core/ComplexGraph'
 import { AirTemperature } from '../objects/AirTemperature'
 import { AirTemperatureScale } from '../objects/AirTemperatureScale'
 import { Calculator } from '../objects/Calculator'
@@ -10,6 +6,7 @@ import { Clip } from '../objects/Clip'
 import { IceCover } from '../objects/IceCover'
 import { IceRuler } from '../objects/IceRuler'
 import { Precipitation } from '../objects/Precipitation'
+import { PrecipitationScale } from '../objects/PrecipitationScale'
 import { SnowAmount } from '../objects/SnowAmount'
 import { Timeline } from '../objects/Timeline'
 import { TimelineMonths } from '../objects/TimelineMonths'
@@ -23,7 +20,7 @@ export interface PresetParameters {
 }
 
 export function presetDefault({ data, container }: PresetParameters): ComplexGraphParameters {
-  const settings: Partial<ComplexGraphSettings> = {
+  const settings: Partial<Settings> = {
     maxZoom: 15,
     smoothness: 7,
     wheelZoomSpeed: 1,
@@ -31,20 +28,43 @@ export function presetDefault({ data, container }: PresetParameters): ComplexGra
     zoomMouseButton: 'left',
   }
 
-  const colors: ComplexGraphGlobalsConfig['colors'] = {
+  const colors: Colors = {
     default: '#000000',
     timeline: '#000000',
     timelineMonth: '#66f5ff',
     content: '#f5fcff',
-    airTemperature: {
-      scale: '#ff9494',
-      min: '#ae00ff',
-      middle: '#737373',
-      max: '#ff2e2e',
+    reps: {
+      airTemperature: {
+        scale: '#ff9494',
+        min: '#ae00ff',
+        middle: '#737373',
+        max: '#ff2e2e',
+      },
+      precipitation: {
+        scale: '#000000',
+      },
+      iceCover: {
+        scale: '#000000',
+      },
+      iceRuler: {
+        scale: '#000000',
+      },
+      snowAmount: {
+        scale: '#000000',
+      },
+      waterConsumption: {
+        scale: '#000000',
+      },
+      waterLevel: {
+        scale: '#000000',
+      },
+      waterTemperature: {
+        scale: '#000000',
+      },
     },
   }
 
-  const sizes: ComplexGraphGlobalsConfig['sizes'] = {
+  const sizes: Sizes = {
     font: 0.02,
     paddingX: 0.005,
     paddingY: 0.0,
@@ -80,6 +100,7 @@ export function presetDefault({ data, container }: PresetParameters): ComplexGra
       new Calculator(),
       new Timeline(),
       new AirTemperatureScale(),
+      new PrecipitationScale(),
       new Clip(),
       new TimelineMonths(),
       new AirTemperature(),
