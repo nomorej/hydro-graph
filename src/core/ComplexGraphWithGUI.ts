@@ -1,4 +1,5 @@
 import GUI from 'lil-gui'
+import { UtilsFunction } from '../utils/UtilsFunction'
 import { ComplexGraph, ComplexGraphParameters } from './ComplexGraph'
 
 export class ComplexGraphWithGUI {
@@ -111,13 +112,13 @@ export class ComplexGraphWithGUI {
     folder.add(sizes, 'scaleThickness').step(0.0001).min(0.0001).max(0.005).name('Толщина шкал')
   }
 
-  private handleChange = (v: any) => {
+  private handleChange = UtilsFunction.throttle((v: any) => {
     if (v.controller?.parent?._title === 'Движение / Масштабирование') {
       this.app.updateSettings(this.preset.settings || {})
     }
     this.app.renderer.stopTick()
     this.app.renderer.redraw()
-  }
+  }, 10)
 
   // @ts-ignore
   private handleSave = () => {

@@ -1,35 +1,25 @@
-import { Track } from '../tools/Track'
-import { Renderer } from './Renderer'
-import { Scene, SceneCallbackData, SceneRenderData } from './Scene'
-import { SceneObject } from './SceneObject'
-
-export interface ScrollbarParameters {
-  container: HTMLElement
-  renderer: Renderer
-}
+import { Renderer } from '../core/Renderer'
+import { Scene, SceneRenderData } from '../core/Scene'
+import { SceneObject } from '../core/SceneObject'
+import { CGGlobals } from '../core/ComplexGraph'
 
 export class Scrollbar extends SceneObject {
-  private readonly container: HTMLElement
   private readonly bar: HTMLElement
   private readonly knob: HTMLElement
-  private readonly track: Track
-  private knobSize: number
-  private scene: Scene
-  private renderer: Renderer
-  private grabbed: boolean
-  private hovered: boolean
+  private scene: Scene = null!
+  private renderer: Renderer = null!
+  private grabbed: boolean = null!
+  private hovered: boolean = null!
 
-  constructor(parameters: ScrollbarParameters) {
+  constructor() {
     super()
 
-    this.container = parameters.container
     this.bar = document.createElement('div')
     this.knob = document.createElement('div')
 
     this.bar.style.cssText = `
       position: absolute;
       left: 0;
-      top: 0;
       z-index: 1;
       width: 100%;
       height: 1%;
@@ -49,48 +39,42 @@ export class Scrollbar extends SceneObject {
       cursor: grab;
     `
 
-    this.track = new Track()
-    this.knobSize = 0
-
-    this.renderer = parameters.renderer
-    this.scene = parameters.renderer.scene
-    this.scene.addObject(this)
-
     this.grabbed = false
     this.hovered = false
-
-    this.bar.appendChild(this.knob)
-    this.container.appendChild(this.bar)
   }
 
-  public override create() {
+  public override create(scene: Scene) {
+    this.scene = scene
+    this.renderer = scene.renderer
+
+    this.scene.addObject(this)
+
+    this.bar.appendChild(this.knob)
+
+    scene.renderer.containerElement.appendChild(this.bar)
+
     this.knob.addEventListener('pointerdown', this.handlePointerDown)
     this.knob.addEventListener('pointerenter', this.handlePointerEnter)
     this.knob.addEventListener('pointerleave', this.handlePointerLeave)
   }
 
-  public override destroy() {
+  public override destroy(scene: Scene) {
     this.knob.removeEventListener('pointerdown', this.handlePointerDown)
     this.knob.removeEventListener('pointerenter', this.handlePointerEnter)
     this.knob.removeEventListener('pointerleave', this.handlePointerLeave)
-    this.container.removeChild(this.bar)
-  }
-
-  public override resize({ renderer, scene }: SceneCallbackData) {
-    this.knobSize = Math.floor(renderer.size.x / scene.maxZoom)
-    this.knob.style.width = this.knobSize + 'px'
-    this.track.slipperiness = scene.position.slipperiness
-    this.track.distance = renderer.size.x - this.knobSize
+    scene.renderer.containerElement.removeChild(this.bar)
   }
 
   public render({ scene }: SceneRenderData) {
-    let max = scene.size.pointer.current - scene.viewportSize
-
-    const scale = max / scene.viewportSize
-    const scaleR = scene.maxZoom - scale
-    const scaleWithoutButtonSize = max / (scene.viewportSize - this.knobSize * scaleR) || 0
-    const x = scene.position.pointer.current / Math.max(1, scaleWithoutButtonSize)
-    this.knob.style.transform = `translateX(${x}px) scaleX(${scaleR})`
+    const c = CGGlobals.calculations
+    const knobSize = Math.round(c.contentWrapper.width / scene.maxZoom)
+    this.knob.style.width = knobSize + 'px'
+    this.bar.style.top = c.contentWrapper.y2 + 'px'
+    const max = scene.size.pointer.current - scene.viewportSize
+    const scale = scene.maxZoom - max / scene.viewportSize
+    const size = max / Math.max(1, scene.viewportSize - knobSize * scale - c.content.x1 * 2)
+    const x = c.content.x1 + scene.position.pointer.current / Math.max(1, size)
+    this.knob.style.transform = `translateX(${x}px) scaleX(${scale})`
 
     if (scene.zoom === 1) {
       this.bar.style.opacity = '0'

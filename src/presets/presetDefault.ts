@@ -7,6 +7,7 @@ import { IceCover } from '../objects/IceCover'
 import { IceRuler } from '../objects/IceRuler'
 import { Precipitation } from '../objects/Precipitation'
 import { PrecipitationScale } from '../objects/PrecipitationScale'
+import { Scrollbar } from '../objects/Scrollbar'
 import { SnowAmount } from '../objects/SnowAmount'
 import { Timeline } from '../objects/Timeline'
 import { TimelineMonths } from '../objects/TimelineMonths'
@@ -21,9 +22,9 @@ export interface PresetParameters {
 
 export function presetDefault({ data, container }: PresetParameters): ComplexGraphParameters {
   const settings: Partial<Settings> = {
-    maxZoom: 15,
+    maxZoom: 26,
     smoothness: 7,
-    wheelZoomSpeed: 1,
+    wheelZoomSpeed: 2,
     wheelTranlationSpeed: 1,
     zoomMouseButton: 'left',
   }
@@ -98,6 +99,7 @@ export function presetDefault({ data, container }: PresetParameters): ComplexGra
     },
     objects: [
       new Calculator(),
+      new Scrollbar(),
       new Timeline(),
       new AirTemperatureScale(),
       new PrecipitationScale(),

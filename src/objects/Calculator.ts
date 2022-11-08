@@ -8,7 +8,7 @@ export class Calculator extends SceneObject {
   private segmentator: Segmentator<number>
 
   constructor() {
-    super('calculator')
+    super()
     this.segmentator = new Segmentator({ scale: 1 })
   }
 
@@ -98,10 +98,6 @@ export class Calculator extends SceneObject {
       c.rowsPrimitives[s.id].y1 = c.content.y1 + c.content.height * s.a
       c.rowsPrimitives[s.id].y2 = c.content.y1 + c.content.height * s.b
     })
-
-    // const x = isLeft ? c.contentWrapper.x1 - c.scaleOffset : c.contentWrapper.x2 + c.scaleOffset
-    // const y = c.rowsPrimitives[row].y1
-    // const height = c.rowsPrimitives[row].height
 
     c.scales.airTemperature.segments.forEach((s, i, arr) => {
       s.position =

@@ -4,7 +4,7 @@ import { SceneObject } from './SceneObject'
 import { SceneDataRepresentation } from './SceneDataRepresentation'
 import { Primitive } from '../helpers/Primitive'
 import { CanvasParameters } from '../tools/Canvas'
-import { Scrollbar } from './Scrollbar'
+import { Scrollbar } from '../objects/Scrollbar'
 import { UtilsCoordinates } from '../utils/UtilsCoordinates'
 import { UtilsMath } from '../utils/UtilsMath'
 import { ScaleSegments, ScaleSegmentsData } from '../helpers/ScaleSegments'
@@ -160,7 +160,6 @@ export class ComplexGraph {
   }
 
   private readonly scene: Scene
-  private readonly scrollbar: Scrollbar
 
   private readonly statuses: {
     scaleButtonPressed: boolean
@@ -238,11 +237,6 @@ export class ComplexGraph {
       scene: this.scene,
     })
 
-    this.scrollbar = new Scrollbar({
-      container: this.container,
-      renderer: this.renderer,
-    })
-
     this.statuses = {
       scaleButtonPressed: false,
       fullView: false,
@@ -287,7 +281,6 @@ export class ComplexGraph {
     this.toggleViewButton.removeEventListener('click', this.toggleView)
 
     this.renderer.destroy()
-    this.scrollbar.destroy()
 
     this.wrapper.removeChild(this.container)
 
