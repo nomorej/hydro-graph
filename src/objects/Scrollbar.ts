@@ -71,7 +71,7 @@ export class Scrollbar extends SceneObject {
     this.knob.style.width = knobSize + 'px'
     this.bar.style.top = c.contentWrapper.y2 + 'px'
     const max = scene.size.pointer.current - scene.viewportSize
-    const scale = scene.maxZoom - max / scene.viewportSize
+    const scale = scene.maxZoom - max / (scene.viewportSize * 1.1)
     const size = max / Math.max(1, scene.viewportSize - knobSize * scale - c.content.x1 * 2)
     const x = c.content.x1 + scene.position.pointer.current / Math.max(1, size)
     this.knob.style.transform = `translateX(${x}px) scaleX(${scale})`

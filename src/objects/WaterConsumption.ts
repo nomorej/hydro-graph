@@ -1,7 +1,9 @@
-import { SceneRenderData } from '../core/Scene'
-import { SceneDataRepresentation } from '../core/SceneDataRepresentation'
+// @ts-nocheck
 
-export class WaterConsumption extends SceneDataRepresentation {
+import { SceneRenderData } from '../core/Scene'
+import { Graph } from '../core/Graph'
+
+export class WaterConsumption extends Graph {
   constructor() {
     super('waterConsumption', 4)
   }

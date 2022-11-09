@@ -1,7 +1,9 @@
-import { SceneRenderData } from '../core/Scene'
-import { SceneDataRepresentation } from '../core/SceneDataRepresentation'
+// @ts-nocheck
 
-export class SnowAmount extends SceneDataRepresentation {
+import { SceneRenderData } from '../core/Scene'
+import { Graph } from '../core/Graph'
+
+export class SnowAmount extends Graph {
   constructor() {
     super('snowAmount', 2)
   }

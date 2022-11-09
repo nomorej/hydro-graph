@@ -1,25 +1,46 @@
+import { CGGlobals, GraphsData, GraphsNames } from '../core/ComplexGraph'
 import { XY } from './UtilsTS'
 
 export abstract class UtilsGraph {
-  public static points(
-    data: Array<number>,
-    graphSize: XY,
-    graphPosition = { x: 0, y: 0 },
-    max = 0,
-    min = 0
-  ) {
-    min = min || Math.min(...data)
-    min = min < 0 ? Math.abs(min) : 0
-    const maxPeak = max || Math.max(...data)
-    const norm = data.map((val) => (min + val) / (maxPeak + min))
+  public static points<T extends GraphsNames>({
+    graphName,
+    graphSize,
+    graphPosition,
+    row,
+    key,
+  }: {
+    graphName: T
+    key: keyof GraphsData[T]['graph']
+    graphSize: XY
+    graphPosition: XY
+    row: number
+  }) {
+    const { graphsData, calculations } = CGGlobals
+    const { timeline } = calculations
 
-    const points = norm.map((val, i) => {
-      return {
-        x: graphPosition.x + (graphSize.x / (data.length - 1)) * i,
-        y: graphPosition.y + graphSize.y - graphSize.y * val,
+    const graphData = graphsData[graphName]
+
+    const offsetY =
+      calculations.rowsPrimitives[row].height / (graphsData[graphName].scale?.segments.length || 1)
+
+    const points: Array<{ x: number; y: number; width: number }> = []
+
+    const monthWidth = graphSize.x / timeline.months.length
+    graphData.everyMonth(
+      graphData.graphNormalized[key as keyof GraphsData[GraphsNames]['graph']],
+      ({ monthIndex, day }) => {
+        const step = monthWidth / timeline.months[monthIndex].days
+        const x = graphPosition.x + monthWidth * monthIndex + step * day.number
+        const y =
+          graphPosition.y + offsetY + (graphSize.y - offsetY) - (graphSize.y - offsetY) * day.value
+
+        points.push({
+          x,
+          y,
+          width: step,
+        })
       }
-    })
-
+    )
     return points
   }
 

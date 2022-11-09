@@ -1,25 +1,17 @@
-import { CGGlobals, DataRepsWithScales } from '../core/ComplexGraph'
 import { SceneRenderData } from '../core/Scene'
-import { SceneDataRepresentation } from '../core/SceneDataRepresentation'
+import { Graph } from '../core/Graph'
 import UtilsShapes from '../utils/UtilsShapes'
 
-export class PrecipitationScale extends SceneDataRepresentation {
+export class PrecipitationScale extends Graph {
   constructor() {
     super('precipitation', 1)
   }
 
   public render({ renderer }: SceneRenderData) {
-    const { calculations, colors, data, font } = CGGlobals
-
     UtilsShapes.yScale(renderer.context, {
       align: 'left',
-      calculations,
-      colors,
-      data,
-      font,
       row: this.row,
-      scaleName: data.reps.precipitation.scaleName,
-      graphName: this.name! as DataRepsWithScales,
+      graphName: this.name!,
     })
   }
 }

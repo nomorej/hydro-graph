@@ -1,54 +1,51 @@
-import { ComplexGraphGlobals, DataRepsWithScales } from '../core/ComplexGraph'
+import { CGGlobals, GraphsNames } from '../core/ComplexGraph'
 
 export default abstract class UtilsShapes {
   public static yScale(
     context: CanvasRenderingContext2D,
     {
-      calculations: c,
-      font,
-      colors,
       row,
       align,
       graphName,
-      scaleName,
     }: {
-      calculations: ComplexGraphGlobals['calculations']
-      font: ComplexGraphGlobals['font']
-      data: ComplexGraphGlobals['data']
-      colors: ComplexGraphGlobals['colors']
       row: number
       align: 'left' | 'right'
-      scaleName: string
-      graphName: DataRepsWithScales
+      graphName: GraphsNames
     }
   ) {
+    const { calculations: c, graphsData: g, colors, font } = CGGlobals
+
+    const scale = g[graphName].scale
+
+    if (!scale) return
+
     const isLeft = align === 'left'
     const x = isLeft ? c.contentWrapper.x1 - c.scaleOffset : c.contentWrapper.x2 + c.scaleOffset
     const y = c.rowsPrimitives[row].y1
     const height = c.rowsPrimitives[row].height
-    const segments = c.scales[graphName].segments
     const fontSize = c.fontSize
-    const lineColor = colors.reps[graphName].scale
+    const lineColor = colors.graphs[graphName].scale
     const thickness = c.scaleThickness
+    const dashSize = thickness * 3.5
+    const pointerSize = dashSize * 1.5
+    const textMarkX = isLeft ? x - dashSize * 1.5 : x + dashSize * 1.5
 
     context.beginPath()
     context.lineWidth = thickness
     context.strokeStyle = lineColor
     context.moveTo(x, y + height)
-    context.lineTo(x, y)
+    context.lineTo(x, y - pointerSize)
     context.stroke()
 
     context.font = `${fontSize}px ${font}`
     context.textAlign = isLeft ? 'right' : 'left'
     context.textBaseline = 'middle'
 
-    const dashSize = thickness * 3.5
-    const pointerSize = dashSize * 1.5
-    const textMarkX = isLeft ? x - dashSize * 1.5 : x + dashSize * 1.5
-
-    segments.forEach((s) => {
-      context.strokeStyle = colors.default
-      context.fillText(s.value.toString(), textMarkX, s.position)
+    scale.segments.forEach((s) => {
+      if (s.isBase) {
+        context.fillStyle = colors.default
+        context.fillText(s.value.toString(), textMarkX, s.position)
+      }
 
       context.beginPath()
       context.lineWidth = thickness
@@ -62,9 +59,10 @@ export default abstract class UtilsShapes {
     context.beginPath()
     context.lineWidth = thickness
     context.strokeStyle = lineColor
-    context.moveTo(x - pointerSize / 2, y + pointerSize)
-    context.lineTo(x, y)
-    context.lineTo(x + pointerSize / 2, y + pointerSize)
+    const pointerY = y - pointerSize
+    context.moveTo(x - pointerSize / 2, pointerY + pointerSize)
+    context.lineTo(x, pointerY)
+    context.lineTo(x + pointerSize / 2, pointerY + pointerSize)
     context.stroke()
 
     context.save()
@@ -79,7 +77,7 @@ export default abstract class UtilsShapes {
         ? c.contentWrapper.x1 - c.content.x1 + c.workspace.x1
         : c.contentWrapper.x2 + c.content.x1 - c.workspace.x1
     )
-    context.fillText(scaleName, 0, 0)
+    scale.title && context.fillText(scale.title, 0, 0)
     context.restore()
   }
 }

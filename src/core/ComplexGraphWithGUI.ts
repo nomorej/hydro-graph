@@ -1,13 +1,13 @@
 import GUI from 'lil-gui'
 import { UtilsFunction } from '../utils/UtilsFunction'
-import { ComplexGraph, ComplexGraphParameters } from './ComplexGraph'
+import { ComplexGraph, Parameters } from './ComplexGraph'
 
 export class ComplexGraphWithGUI {
   private gui: GUI
   private app: ComplexGraph
-  private preset: ComplexGraphParameters
+  private preset: Parameters
 
-  constructor(preset: ComplexGraphParameters) {
+  constructor(preset: Parameters) {
     this.preset = preset
     this.app = new ComplexGraph(this.preset)
 
@@ -38,16 +38,16 @@ export class ComplexGraphWithGUI {
     const folder = this.gui.addFolder('Движение / Масштабирование').close()
     const settings = this.preset.settings!
 
-    folder.add(settings, 'maxZoom').step(1).min(1).max(100).name('Максимальный масштаб')
+    folder.add(settings, 'maxZoom').step(1).min(11).max(100).name('Максимальный масштаб')
 
     folder.add(settings, 'smoothness').step(0.1).min(0).max(10).name('Плавность')
 
     folder
-      .add(settings, 'wheelZoomSpeed')
+      .add(settings, 'wheelZoomAcceleration')
       .step(0.01)
       .min(0.01)
       .max(3)
-      .name('Скорость масштабирования колесиком')
+      .name('Ускорение масштабирования колесиком')
 
     folder
       .add(settings, 'wheelTranlationSpeed')
@@ -72,33 +72,39 @@ export class ComplexGraphWithGUI {
 
   private colorsFolder() {
     const folder = this.gui.addFolder('Цвета').close()
-    const colors = this.preset.globals.colors
+    const colors = this.preset.colors
 
     folder.addColor(colors, 'clear').name('Очистка')
     folder.addColor(colors, 'default').name('Стандартный')
     folder.addColor(colors, 'timeline').name('Таймлайн')
     folder.addColor(colors, 'timelineMonth').name('Месяцы')
     folder.addColor(colors, 'content').name('Фон контента')
-    folder.addColor(colors.reps.airTemperature, 'scale').name('Цвет шкалы "Температуры воздуха"')
+    folder.addColor(colors.graphs.airTemperature, 'scale').name('Шкала "Температуры воздуха"')
     folder
-      .addColor(colors.reps.airTemperature, 'min')
-      .name('Цвет графика "Минимальная температура воздуха"')
+      .addColor(colors.graphs.airTemperature, 'min')
+      .name('График "Минимальная температура воздуха"')
     folder
-      .addColor(colors.reps.airTemperature, 'middle')
-      .name('Цвет графика "Средняя температура воздуха"')
+      .addColor(colors.graphs.airTemperature, 'middle')
+      .name('График "Средняя температура воздуха"')
     folder
-      .addColor(colors.reps.airTemperature, 'max')
-      .name('Цвет графика "Максимальная температура воздуха"')
-    folder.addColor(colors.reps.precipitation, 'scale').name('Цвет шкалы "Осадки"')
+      .addColor(colors.graphs.airTemperature, 'max')
+      .name('График "Максимальная температура воздуха"')
+    folder.addColor(colors.graphs.precipitation, 'scale').name('Шкала "Осадки"')
+    folder
+      .addColor(colors.graphs.precipitation, 'liquid')
+      .name('Шкала "Осадки", колонка "Жидкие осадки"')
+    folder
+      .addColor(colors.graphs.precipitation, 'solid')
+      .name('Шкала "Осадки", колонка "Твердые осадки"')
   }
 
   private sizesFolder() {
     const folder = this.gui.addFolder('Размеры').close()
-    const sizes = this.preset.globals.sizes
+    const sizes = this.preset.sizes
 
     folder.add(sizes, 'font').step(0.001).min(0.01).max(0.04).name('Размер шрифта')
     folder.add(sizes, 'paddingX').step(0.001).min(0).max(0.02).name('Отступ ↔')
-    folder.add(sizes, 'paddingY').step(0.001).min(0).max(0.02).name('Отступ ↕')
+    folder.add(sizes, 'paddingTop').step(0.001).min(0).max(0.02).name('Отступ ↑')
     folder.add(sizes, 'contentPaddingX').step(0.01).min(0).max(0.2).name('Отступ от контента ↔')
     folder.add(sizes, 'timelineOffsetY').step(0.001).min(0).max(0.1).name('Отступ от таймлайна ↓')
     folder.add(sizes, 'timelineHeight').step(0.001).min(0.01).max(0.05).name('Высота таймлайна')
@@ -169,7 +175,7 @@ export class ComplexGraphWithGUI {
   private rowsFolder() {
     const folder = this.gui.addFolder('Активные ряды').close()
 
-    const rows = this.preset.globals.rowsVisibility
+    const rows = this.preset.rowsVisibility
 
     for (const key in rows) {
       folder.add(rows, key).name(key)

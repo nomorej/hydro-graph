@@ -1,14 +1,15 @@
-import { CGGlobals } from '../core/ComplexGraph'
-import { SceneRenderData } from '../core/Scene'
-import { SceneDataRepresentation } from '../core/SceneDataRepresentation'
+import { CGGlobals, GraphsData } from '../core/ComplexGraph'
+import { Scene, SceneRenderData } from '../core/Scene'
+import { Graph } from '../core/Graph'
+import { UtilsGraph } from '../utils/UtilsGraph'
 
-export class Precipitation extends SceneDataRepresentation {
+export class Precipitation extends Graph {
   constructor() {
     super('precipitation', 1)
   }
 
-  public render({ renderer }: SceneRenderData): void {
-    const { calculations: c, colors } = CGGlobals
+  public render({ renderer, scene }: SceneRenderData): void {
+    const { calculations: c, colors, graphsData: g } = CGGlobals
 
     const row = c.rowsPrimitives[this.row]
 
@@ -19,15 +20,15 @@ export class Precipitation extends SceneDataRepresentation {
     renderer.context.lineWidth = 1
     renderer.context.stroke()
 
-    c.scales.precipitation.segments.forEach((s) => {
+    g.precipitation.scale?.segments.forEach((s) => {
       renderer.context.save()
       renderer.context.beginPath()
-      renderer.context.strokeStyle = colors.reps.precipitation.scale
+      renderer.context.strokeStyle = colors.graphs.precipitation.scale
       renderer.context.lineWidth = 1
       if (!s.isBase) {
-        renderer.context.globalAlpha = 0.2
+        renderer.context.globalAlpha = 0.1
       } else {
-        renderer.context.globalAlpha = 0.7
+        renderer.context.globalAlpha = 0.3
       }
       if (s.value === 0) {
         renderer.context.strokeStyle = colors.default
@@ -39,5 +40,43 @@ export class Precipitation extends SceneDataRepresentation {
       renderer.context.stroke()
       renderer.context.restore()
     })
+
+    this.drawGraph(scene, 'solid')
+    this.drawGraph(scene, 'liquid')
+  }
+
+  private drawGraph(scene: Scene, key: keyof GraphsData['precipitation']['graph']) {
+    const { calculations: c, graphsData: g, colors } = CGGlobals
+
+    const row = c.rowsPrimitives[this.row]
+    const graph = g.precipitation.graph[key]
+
+    if (graph && graph.length) {
+      const points = UtilsGraph.points({
+        graphName: 'precipitation',
+        key: key,
+        graphPosition: {
+          x: row.x1,
+          y: row.y1,
+        },
+        graphSize: {
+          x: row.width,
+          y: row.height,
+        },
+        row: this.row,
+      })
+
+      scene.renderer.context.lineWidth = 1
+      scene.renderer.context.strokeStyle = colors.default
+      scene.renderer.context.fillStyle = colors.graphs.precipitation[key]
+
+      points.forEach((p) => {
+        const width = p.width / 24
+        scene.renderer.context.beginPath()
+        scene.renderer.context.rect(p.x + 1, row.y2 - 1, width, p.y - row.y2 + 1)
+        scene.renderer.context.stroke()
+        scene.renderer.context.fill()
+      })
+    }
   }
 }

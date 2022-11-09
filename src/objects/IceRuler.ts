@@ -1,7 +1,9 @@
-import { SceneRenderData } from '../core/Scene'
-import { SceneDataRepresentation } from '../core/SceneDataRepresentation'
+// @ts-nocheck
 
-export class IceRuler extends SceneDataRepresentation {
+import { SceneRenderData } from '../core/Scene'
+import { Graph } from '../core/Graph'
+
+export class IceRuler extends Graph {
   constructor() {
     super('iceRuler', 3)
   }

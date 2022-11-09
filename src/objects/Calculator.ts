@@ -30,8 +30,8 @@ export class Calculator extends SceneObject {
 
     c.workspace.x1 = renderer.minSize * s.paddingX
     c.workspace.x2 = renderer.size.x - c.workspace.x1
-    c.workspace.y1 = renderer.minSize * s.paddingY
-    c.workspace.y2 = renderer.size.y - c.workspace.y1
+    c.workspace.y1 = renderer.minSize * s.paddingTop
+    c.workspace.y2 = renderer.size.y
 
     c.scaleOffset = s.scaleOffset * renderer.minSize
     c.scaleThickness = s.scaleThickness * renderer.minSize
@@ -39,6 +39,7 @@ export class Calculator extends SceneObject {
 
   public render({ renderer, scene }: SceneRenderData) {
     const c = CGGlobals.calculations
+    const g = CGGlobals.graphsData
     const s = CGGlobals.sizes
 
     const sceneSize = scene.size.pointer.current - c.workspace.x1
@@ -65,30 +66,40 @@ export class Calculator extends SceneObject {
     c.content.y1 = c.contentWrapper.y1
     c.content.y2 = c.contentWrapper.y2
 
-    if (CGGlobals.data.months) {
-      const length = CGGlobals.data.months.length - 1
-      const monthWidth = (c.timeline.primitive.width - contentWrapperPaddingX * 2) / (length + 2)
-      let segmentsAmout = Math.min(2 + Math.floor(scene.zoom * 0.5), 6)
-      segmentsAmout = segmentsAmout === 4 ? 5 : segmentsAmout
-      const segmentWidth = monthWidth / segmentsAmout
+    if (CGGlobals.monthsData) {
+      const length = CGGlobals.monthsData.length - 1
+      const monthWidth = (c.timeline.primitive.width - contentWrapperPaddingX * 2) / (length + 1)
 
-      CGGlobals.data.months.forEach((data, i) => {
-        const x1 = monthWidth + contentWrapperLeft + monthWidth * i
+      CGGlobals.monthsData.forEach((monthData, monthIndex) => {
+        const x1 = contentWrapperLeft + monthWidth * monthIndex
         const x2 = x1 + monthWidth
         const y1 = c.workspace.y1
         const y2 = c.timeline.primitive.middleY
 
         const month: TimelineMonth = {
           primitive: new Primitive(x1, x2, y1, y2),
+          days: monthData.days,
+          name: monthData.name,
           segments: [],
-          data,
         }
 
-        for (let i = 0; i < segmentsAmout; i++) {
-          month.segments[i] = x1 + segmentWidth * i
+        const divider = scene.zoom > 10 ? 1 : 5
+        const dayX = scene.zoom > 4 ? monthWidth / month.days : 0
+
+        if (dayX) {
+          for (let dayIndex = 0; dayIndex < month.days; dayIndex++) {
+            const d = dayIndex + 1
+            const hidden = d % divider !== 0
+            const value = hidden ? '' : divider === 1 ? d : month.days - d > 2 ? d : ''
+
+            month.segments[dayIndex] = {
+              position: x1 + dayX * dayIndex,
+              value: value,
+            }
+          }
         }
 
-        c.timeline.months[i] = month
+        c.timeline.months[monthIndex] = month
       })
     }
 
@@ -99,14 +110,14 @@ export class Calculator extends SceneObject {
       c.rowsPrimitives[s.id].y2 = c.content.y1 + c.content.height * s.b
     })
 
-    c.scales.airTemperature.segments.forEach((s, i, arr) => {
+    g.airTemperature.scale?.segments.forEach((s, i, arr) => {
       s.position =
         c.rowsPrimitives[0].y1 +
         c.rowsPrimitives[0].height -
         (c.rowsPrimitives[0].height / arr.length) * i
     })
 
-    c.scales.precipitation.segments.forEach((s, i, arr) => {
+    g.precipitation.scale?.segments.forEach((s, i, arr) => {
       s.position =
         c.rowsPrimitives[1].y1 +
         c.rowsPrimitives[1].height -

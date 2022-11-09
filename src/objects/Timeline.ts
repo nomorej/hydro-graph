@@ -18,7 +18,6 @@ export class Timeline extends SceneObject {
     renderer.context.stroke()
 
     if (timeline.months.length) {
-      renderer.context.font = `${fontSize}px ${CGGlobals.font}`
       renderer.context.textAlign = 'center'
       renderer.context.textBaseline = 'top'
       renderer.context.fillStyle = CGGlobals.colors.default
@@ -26,24 +25,36 @@ export class Timeline extends SceneObject {
       const dashYOffset = timeline.primitive.height / 2
       const segmentDashYOffset = dashYOffset * 0.7
 
-      timeline.months.forEach((month) => {
+      timeline.months.forEach((month, monthIndex) => {
         const sp = month.primitive
 
-        renderer.context.beginPath()
-        renderer.context.moveTo(sp.x1, sp.y2 - dashYOffset)
-        renderer.context.lineTo(sp.x1, sp.y2 + dashYOffset)
-        renderer.context.lineWidth = timeline.primitive.height * 0.2
-        renderer.context.stroke()
-
-        month.segments.forEach((segment) => {
+        month.segments.forEach((s, index) => {
+          if (monthIndex === 0 && index === 0) return
+          const dayDashYOffset = s.value ? segmentDashYOffset : segmentDashYOffset * 0.5
           renderer.context.beginPath()
-          renderer.context.moveTo(segment, sp.y2 - segmentDashYOffset)
-          renderer.context.lineTo(segment, sp.y2 + segmentDashYOffset)
+          renderer.context.moveTo(s.position, sp.y2 - dayDashYOffset)
+          renderer.context.lineTo(s.position, sp.y2 + dayDashYOffset)
           renderer.context.lineWidth = timeline.primitive.height * 0.15
           renderer.context.stroke()
+          if (index) {
+            renderer.context.font = `${fontSize * 0.8}px ${CGGlobals.font}`
+            renderer.context.fillText(
+              s.value + '',
+              s.position,
+              sp.y2 + timeline.primitive.height * 0.8
+            )
+          }
         })
 
-        renderer.context.fillText(month.data, sp.x1, sp.y2 + timeline.primitive.height * 0.8)
+        if (monthIndex) {
+          renderer.context.beginPath()
+          renderer.context.moveTo(sp.x1, sp.y2 - dashYOffset)
+          renderer.context.lineTo(sp.x1, sp.y2 + dashYOffset)
+          renderer.context.lineWidth = timeline.primitive.height * 0.2
+          renderer.context.font = `${fontSize}px ${CGGlobals.font}`
+          renderer.context.stroke()
+          renderer.context.fillText(month.name, sp.x1, sp.y2 + timeline.primitive.height * 0.8)
+        }
       })
     }
   }
