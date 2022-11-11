@@ -1,0 +1,192 @@
+export interface TimelineMonthData {
+  title: string
+  daysNumber: number
+}
+
+export type TimelineMonthsData = Array<TimelineMonthData>
+
+export interface TimelineSegmentParameters {
+  index: number
+  title: number | string
+  divider?: number
+}
+
+export abstract class TimelineSegment {
+  public readonly index: number
+  public readonly title: number | string
+  public readonly divider: number | undefined
+
+  public x1: number
+  public x2: number
+  public width: number
+
+  public x1Normalized: number
+  public x2Normalized: number
+  public widthNormalized: number
+
+  constructor(parameters: TimelineSegmentParameters) {
+    this.index = parameters.index
+    this.title = parameters.title
+    this.divider = parameters.divider
+
+    this.x1 = 0
+    this.x2 = 0
+    this.width = 0
+
+    this.x1Normalized = 0
+    this.x2Normalized = 0
+    this.widthNormalized = 0
+  }
+}
+
+export class TimelineHour extends TimelineSegment {
+  public readonly day: TimelineDay
+
+  constructor(parameters: TimelineSegmentParameters & { day: TimelineDay }) {
+    super(parameters)
+    this.day = parameters.day
+  }
+}
+
+export class TimelineDay extends TimelineSegment {
+  public readonly hours: Array<TimelineHour>
+  public readonly month: TimelineMonth
+
+  constructor(parameters: TimelineSegmentParameters & { month: TimelineMonth }) {
+    super(parameters)
+
+    this.hours = []
+    this.month = parameters.month
+
+    for (let index = 0; index < this.divider!; index++) {
+      this.hours[index] = new TimelineHour({
+        index,
+        title: index + 1,
+        day: this,
+      })
+    }
+  }
+
+  public forEveryHour(callback: (hour: TimelineHour) => void) {
+    this.hours.forEach((hour) => {
+      callback(hour)
+    })
+  }
+}
+
+export class TimelineMonth extends TimelineSegment {
+  public readonly days: Array<TimelineDay>
+
+  constructor(parameters: TimelineSegmentParameters) {
+    super(parameters)
+
+    this.days = []
+
+    for (let index = 0; index < this.divider!; index++) {
+      this.days[index] = new TimelineDay({
+        divider: 23,
+        index,
+        title: index + 1,
+        month: this,
+      })
+    }
+  }
+
+  public forEveryDay(callback: (day: TimelineDay) => void) {
+    this.days.forEach((day) => {
+      callback(day)
+    })
+  }
+}
+
+export class Timeline {
+  public readonly months: Array<TimelineMonth>
+
+  constructor() {
+    this.months = []
+  }
+
+  public construct(data: TimelineMonthsData) {
+    data.forEach((monthData, monthIndex) => {
+      this.months[monthIndex] = new TimelineMonth({
+        index: monthIndex,
+        title: monthData.title,
+        divider: monthData.daysNumber,
+      })
+    })
+
+    const monthStep = 1 / data.length
+
+    this.forEveryMonth((month) => {
+      month.x1Normalized = month.index * monthStep
+      month.x2Normalized = (month.index + 1) * monthStep
+      month.widthNormalized = month.x2Normalized - month.x1Normalized
+
+      const dayStep = monthStep / month.days.length
+
+      month.forEveryDay((day) => {
+        day.x1Normalized = month.x1Normalized + day.index * dayStep
+        day.x2Normalized = month.x1Normalized + (day.index + 1) * dayStep
+        day.widthNormalized = day.x2Normalized - day.x1Normalized
+
+        const hourStep = dayStep / day.hours.length
+
+        day.forEveryHour((hour) => {
+          hour.x1Normalized = day.x1Normalized + hour.index * hourStep
+          hour.x2Normalized = day.x1Normalized + (hour.index + 1) * hourStep
+          hour.widthNormalized = hour.x2Normalized - hour.x1Normalized
+        })
+      })
+    })
+  }
+
+  public resize(width: number) {
+    this.forEveryMonth((month) => {
+      month.x1 = month.x1Normalized * width
+      month.x2 = month.x2Normalized * width
+      month.width = month.widthNormalized * width
+
+      month.forEveryDay((day) => {
+        day.x1 = day.x1Normalized * width
+        day.x2 = day.x2Normalized * width
+        day.width = day.widthNormalized * width
+
+        day.forEveryHour((hour) => {
+          hour.x1 = hour.x1Normalized * width
+          hour.x2 = hour.x2Normalized * width
+          hour.width = hour.widthNormalized * width
+        })
+      })
+    })
+  }
+
+  public forEvery(
+    callback: (data: { month: TimelineMonth; day: TimelineDay; hour: TimelineHour }) => void
+  ) {
+    this.months.forEach((month) => {
+      month.days.forEach((day) => {
+        day.hours.forEach((hour) => {
+          callback({ month, day, hour })
+        })
+      })
+    })
+  }
+
+  public forEveryMonth(callback: (month: TimelineMonth) => void) {
+    this.months.forEach((month) => {
+      callback(month)
+    })
+  }
+
+  public forEveryDay(month: number, callback: (day: TimelineDay) => void) {
+    this.months[month - 1].days.forEach((day) => {
+      callback(day)
+    })
+  }
+
+  public forEveryHour(month: number, day: number, callback: (hour: TimelineHour) => void) {
+    this.months[month - 1].days[day - 1].hours.forEach((hour) => {
+      callback(hour)
+    })
+  }
+}

@@ -1,10 +1,8 @@
 import { Track } from '../tools/Track'
-import { UtilsMath } from '../utils/UtilsMath'
-import { Settings } from './ComplexGraph'
+import { clamp } from '../utils/math'
 import { Renderer } from './Renderer'
-import { SceneObject } from './SceneObject'
-
-export interface SceneParameters extends Partial<Pick<Settings, 'smoothness' | 'maxZoom'>> {}
+import { Object } from './Object'
+import { ComplexGraph } from './ComplexGraph'
 
 export interface SceneCallbackData {
   renderer: Renderer
@@ -20,29 +18,22 @@ export class Scene {
   public renderer: Renderer
   public zoom: number
 
-  public maxZoom: number
   public readonly size: Track
   public readonly position: Track
 
-  public objects: Array<SceneObject>
+  public objects: Array<Object>
 
   private _viewportSize: number
 
-  constructor({ maxZoom = 1, smoothness = 0 }: SceneParameters = {}) {
+  constructor() {
     this.renderer = null!
     this.zoom = 1
 
-    this.maxZoom = maxZoom
-    this.size = new Track({ slipperiness: smoothness || 0, start: 0 })
-    this.position = new Track({ slipperiness: smoothness || 0, start: 0 })
+    this.size = new Track({ slipperiness: ComplexGraph.globals.smoothness })
+    this.position = new Track({ slipperiness: ComplexGraph.globals.smoothness })
 
     this.objects = []
     this._viewportSize = 0
-  }
-
-  public setSmoothness(value: number) {
-    this.size.slipperiness = value
-    this.position.slipperiness = value
   }
 
   public get viewportSize() {
@@ -58,11 +49,10 @@ export class Scene {
 
   public scale(pivot = 0, value = 0) {
     const zoom = this.zoom
-    this.zoom = UtilsMath.clamp(this.zoom + value, 1, this.maxZoom)
-
+    this.zoom = clamp(this.zoom + value, 1, ComplexGraph.globals.maxZoom)
     this.size.setPointer(this.viewportSize * this.zoom)
     this.size.start = this.viewportSize
-    this.size.distance = this.viewportSize * this.maxZoom
+    this.size.distance = this.viewportSize * ComplexGraph.globals.maxZoom
     this.position.distance = this.size.pointer.target - this.viewportSize
     this.position.setPointer(((pivot + this.position.pointer.target) * this.zoom) / zoom - pivot)
   }
@@ -98,24 +88,29 @@ export class Scene {
 
     this.objects.forEach((object) => {
       if (object.active) {
-        object.render({ renderer, scene: this, t, dt })
+        object.render?.({ renderer, scene: this, t, dt })
       }
     })
 
     renderer.context.restore()
   }
 
-  public addObject(object: SceneObject) {
+  public addObject(object: Object) {
     if (!this.objects.includes(object)) {
       this.objects.push(object)
       object.create?.(this)
     }
   }
 
-  public removeObject(object: SceneObject) {
+  public removeObject(object: Object) {
     if (this.objects.includes(object)) {
       this.objects = this.objects.filter((o) => o !== object)
       object.destroy?.(this)
     }
+  }
+
+  public setSmoothness() {
+    this.size.slipperiness = ComplexGraph.globals.smoothness
+    this.position.slipperiness = ComplexGraph.globals.smoothness
   }
 }

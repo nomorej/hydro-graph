@@ -1,5 +1,6 @@
-import { ComplexGraphWithGUI } from './core/ComplexGraphWithGUI'
-import { presetDefault } from './presets/presetDefault'
+import { ComplexGraph } from './core/ComplexGraph'
+import { AirTemperature } from './graphs/AirTemperature'
+import { Precipitation } from './graphs/Precipitation'
 
 // --- TEST
 
@@ -12,164 +13,156 @@ container.style.cssText = `
 
 document.getElementById('graph')?.appendChild(container)
 
-new ComplexGraphWithGUI(
-  presetDefault({
-    container,
-    months: [
-      {
-        name: 'Октябрь',
-        days: 31,
-      },
-      {
-        name: 'Ноябрь',
-        days: 30,
-      },
-      {
-        name: 'Декабрь',
-        days: 31,
-      },
-      {
-        name: 'Январь',
-        days: 31,
-      },
-      {
-        name: 'Февраль',
-        days: 28,
-      },
-      {
-        name: 'Март',
-        days: 31,
-      },
-      {
-        name: 'Апрель',
-        days: 30,
-      },
-      {
-        name: 'Май',
-        days: 31,
-      },
-      {
-        name: 'Июнь',
-        days: 30,
-      },
-      {
-        name: 'Июль',
-        days: 31,
-      },
-      {
-        name: 'Август',
-        days: 31,
-      },
-      {
-        name: 'Сентябрь',
-        days: 30,
-      },
-      {
-        name: 'Октябрь',
-        days: 31,
-      },
-    ],
-    data: {
-      airTemperature: {
-        title: 'Температура воздуха',
-        scale: 't воздуха ˚С',
-        graph: {
-          min: [
-            [
-              {
-                number: 1,
-                value: 10,
-              },
-              {
-                number: 5,
-                value: 20,
-              },
-              {
-                number: 10,
-                value: 10,
-              },
-              {
-                number: 15,
-                value: 20,
-              },
-              {
-                number: 20,
-                value: 10,
-              },
-              {
-                number: 25,
-                value: 20,
-              },
-            ],
-            [
-              {
-                number: 1,
-                value: 25,
-              },
-              {
-                number: 5,
-                value: 15,
-              },
-              {
-                number: 10,
-                value: 5,
-              },
-              {
-                number: 15,
-                value: -10,
-              },
-              {
-                number: 20,
-                value: -20,
-              },
-              {
-                number: 25,
-                value: -25,
-              },
-              {
-                number: 30,
-                value: -10,
-              },
-            ],
-          ],
-          middle: [],
-          max: [],
-        },
-      },
-      precipitation: {
-        title: 'Осадки',
-        scale: 'Осадки мм',
-        graph: {
-          liquid: [
-            [
-              {
-                number: 1,
-                value: 10,
-              },
-              {
-                number: 12,
-                value: 20,
-              },
-              {
-                number: 12 + (1 / 24) * 5,
-                value: 18,
-              },
-            ],
-          ],
-          solid: [
-            [
-              {
-                number: 10,
-                value: 15,
-              },
-              {
-                number: 25,
-                value: 10,
-              },
-            ],
-          ],
-        },
-      },
+const cg = new ComplexGraph({
+  container,
+  rows: [2, 1, 1, 1],
+  months: [
+    {
+      title: 'Октябрь',
+      daysNumber: 31,
     },
-  })
-)
+    {
+      title: 'Ноябрь',
+      daysNumber: 30,
+    },
+    {
+      title: 'Декабрь',
+      daysNumber: 31,
+    },
+    {
+      title: 'Январь',
+      daysNumber: 31,
+    },
+    {
+      title: 'Февраль',
+      daysNumber: 28,
+    },
+    {
+      title: 'Март',
+      daysNumber: 31,
+    },
+    {
+      title: 'Апрель',
+      daysNumber: 30,
+    },
+    {
+      title: 'Май',
+      daysNumber: 31,
+    },
+    {
+      title: 'Июнь',
+      daysNumber: 30,
+    },
+    {
+      title: 'Июль',
+      daysNumber: 31,
+    },
+    {
+      title: 'Август',
+      daysNumber: 31,
+    },
+    {
+      title: 'Сентябрь',
+      daysNumber: 30,
+    },
+    {
+      title: 'Октябрь',
+      daysNumber: 31,
+    },
+  ],
+})
+
+cg.add(AirTemperature, {
+  name: 'airTemperature',
+  row: 0,
+  scaleName: 'asd',
+  data: {
+    default: [
+      [
+        {
+          day: 1,
+          value: -20,
+        },
+        {
+          day: 31,
+          value: 30,
+        },
+      ],
+    ],
+  },
+})
+
+cg.add(Precipitation, {
+  name: 'precipitation',
+  row: 1,
+  scaleName: 'asd',
+  data: {
+    solid: [
+      [
+        {
+          day: 1,
+          value: 0,
+        },
+        {
+          day: 30,
+          value: [
+            {
+              hour: 1,
+              value: 10,
+            },
+            {
+              hour: 2,
+              value: 5,
+            },
+            {
+              hour: 3,
+              value: 15,
+            },
+            {
+              hour: 4,
+              value: 20,
+            },
+            {
+              hour: 5,
+              value: 10,
+            },
+            {
+              hour: 6,
+              value: 35,
+            },
+            {
+              hour: 7,
+              value: 18,
+            },
+            {
+              hour: 8,
+              value: 7,
+            },
+          ],
+        },
+      ],
+    ],
+    liquid: [
+      [
+        {
+          day: 4,
+          value: 10,
+        },
+        {
+          day: 8,
+          value: 25,
+        },
+      ],
+      [
+        {
+          day: 4,
+          value: 10,
+        },
+        {
+          day: 8,
+          value: 25,
+        },
+      ],
+    ],
+  },
+})

@@ -1,5 +1,5 @@
-import { UtilsMath } from '../utils/UtilsMath'
-import { XY } from '../utils/UtilsTS'
+import { clamp } from '../utils/math'
+import { XY } from '../utils/ts'
 
 export type CanvasDrawFunction = (canvasState: Canvas, ...args: any[]) => void
 
@@ -69,7 +69,7 @@ export class Canvas {
   }
 
   protected resize() {
-    this.pixelRatio = UtilsMath.clamp(devicePixelRatio, 1, 2)
+    this.pixelRatio = clamp(devicePixelRatio, 1, 2)
 
     this.size.x = this.containerElement.offsetWidth
     this.size.y = this.containerElement.offsetHeight

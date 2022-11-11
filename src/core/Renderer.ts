@@ -1,6 +1,5 @@
 import { Canvas, CanvasParameters } from '../tools/Canvas'
 import { Ticker } from '../tools/Ticker'
-import { CGGlobals } from './ComplexGraph'
 import { Scene } from './Scene'
 
 export interface RendererParameters extends CanvasParameters {
@@ -13,6 +12,7 @@ export class Renderer extends Canvas {
   constructor(parameters: RendererParameters) {
     super({
       container: parameters.container,
+      clearColor: parameters.clearColor,
     })
 
     this.scene = parameters.scene
@@ -21,6 +21,7 @@ export class Renderer extends Canvas {
   }
 
   public withTicker(callback?: () => void) {
+    this.scene.setSmoothness()
     Ticker.add(this.draw)
     Ticker.removeAfterDelay(this.draw)
     callback?.()
@@ -42,7 +43,6 @@ export class Renderer extends Canvas {
   }
 
   private render = (canvas: Canvas, t = 0, dt = 0) => {
-    this.clearColor = CGGlobals.colors.clear
     canvas.clear()
     this.scene.render(this, t, dt)
   }

@@ -1,142 +1,56 @@
 import { Scene } from './Scene'
 import { Renderer } from './Renderer'
-import { SceneObject } from './SceneObject'
-import { Graph } from './Graph'
-import { Primitive } from '../helpers/Primitive'
 import { CanvasParameters } from '../tools/Canvas'
-import { UtilsCoordinates } from '../utils/UtilsCoordinates'
-import { UtilsMath } from '../utils/UtilsMath'
-import { MonthsData } from '../utils/UtilsTS'
-import { GraphData } from './GraphData'
+import { cursorPosition } from '../utils/coordinates'
+import { clamp } from '../utils/math'
+import { Timeline, TimelineMonthsData } from './Timeline'
+import { Rows, RowsFactors } from './Rows'
+import { Graph, GraphData, GraphParameters } from './Graph'
+import { Constructor } from '../utils/ts'
+import { Calculator } from './Calculator'
+import { TimelineView } from './TimelineView'
+import { GraphWithScale, GraphWithScaleParameters, ScalePosition } from './GraphWithScale'
+import { Content } from './Content'
+import { Scrollbar } from './Scrollbar'
 
-export type AirTemperatureGraphsData = GraphData<{
-  max: MonthsData
-  middle: MonthsData
-  min: MonthsData
-}>
-
-export type PrecipitationGraphsData = GraphData<{
-  liquid: MonthsData
-  solid: MonthsData
-}>
-
-export interface GraphsData {
-  airTemperature: AirTemperatureGraphsData
-  precipitation: PrecipitationGraphsData
-}
-
-export type GraphsNames = keyof GraphsData
-
-export interface TimelineMonth {
-  primitive: Primitive
-  name: string
-  days: number
-  segments: Array<{
-    position: number
-    value: number | string
-  }>
-}
-
-export interface Globals {
-  colors: {
-    clear?: string
-    timeline: string
-    timelineMonth: string
-    content: string
-    default: string
-    graphs: {
-      airTemperature: {
-        scale: string
-        min: string
-        middle: string
-        max: string
-      }
-      precipitation: {
-        scale: string
-        liquid: string
-        solid: string
-      }
-      iceCover: {
-        scale: string
-      }
-      iceRuler: {
-        scale: string
-      }
-      snowAmount: {
-        scale: string
-      }
-      waterConsumption: {
-        scale: string
-      }
-      waterLevel: {
-        scale: string
-      }
-      waterTemperature: {
-        scale: string
-      }
-    }
-  }
-  font: string
-  sizes: {
-    font: number
-    paddingX: number
-    paddingTop: number
-    contentPaddingX: number
-    timelineOffsetY: number
-    timelineHeight: number
-    rowsFactors: { [key: number]: number }
-    rowsGap: number
-    scaleOffset: number
-    scaleMarkSize: number
-    scalePointerSize: number
-    scaleThickness: number
-  }
-  calculations: {
-    fontSize: number
-    workspace: Primitive
-    content: Primitive
-    contentWrapper: Primitive
-    timeline: {
-      primitive: Primitive
-      months: Array<TimelineMonth>
-    }
-    rowsPrimitives: { [key: number]: Primitive }
-    scaleOffset: number
-    scaleThickness: number
-  }
-  monthsData: Array<Pick<TimelineMonth, 'name' | 'days'>>
-  graphsData: GraphsData
-  rowsVisibility: { [key: number]: boolean }
-}
-
-export interface Settings {
-  zoomMouseButton: 'left' | 'right'
-  wheelZoomAcceleration: number
-  wheelTranlationSpeed: number
-  smoothness: number
-  maxZoom: number
-}
-
-export interface Parameters extends Omit<Globals, 'calculations'> {
+export interface Parameters {
   container: CanvasParameters['container']
-  settings?: Partial<Settings>
-  graphsData: Globals['graphsData']
-  objects: Array<SceneObject | Graph>
+  months: TimelineMonthsData
+  rows: RowsFactors
 }
-
-export let CGGlobals: Globals = null!
 
 export class ComplexGraph {
-  public readonly renderer: Renderer
-
-  private readonly container: HTMLElement
-  private readonly wrapper: HTMLElement
-
-  private readonly settings: Pick<Settings, 'wheelZoomAcceleration' | 'wheelTranlationSpeed'> & {
-    zoomMouseButton: 0 | 2
+  public static globals = {
+    sizes: {
+      font: 0.02,
+    },
+    colors: {
+      timeline: {
+        scale: 'black',
+        font: 'black',
+        month: '#dcdcdc',
+        day: '#dcdcdc',
+        hour: '#dcdcdc',
+      },
+      content: {
+        background: '#f5fcff',
+      },
+    },
+    font: 'sans-serif',
+    zoomMouseButton: 0,
+    wheelZoomAcceleration: 1,
+    wheelTranlationSpeed: 1,
+    smoothness: 7,
+    maxZoom: 300,
+    calculator: new Calculator(),
+    timeline: new Timeline(),
+    rows: new Rows(),
   }
 
+  private readonly wrapper: HTMLElement
+  private readonly container: HTMLElement
   private readonly scene: Scene
+  private readonly renderer: Renderer
 
   private readonly statuses: {
     scaleButtonPressed: boolean
@@ -146,28 +60,6 @@ export class ComplexGraph {
   private readonly toggleViewButton: HTMLElement
 
   constructor(parameters: Parameters) {
-    CGGlobals = {
-      calculations: {
-        fontSize: 0,
-        timeline: {
-          primitive: new Primitive(),
-          months: [],
-        },
-        content: new Primitive(),
-        contentWrapper: new Primitive(),
-        workspace: new Primitive(),
-        rowsPrimitives: {},
-        scaleOffset: 0,
-        scaleThickness: 0,
-      },
-      graphsData: parameters.graphsData,
-      colors: parameters.colors,
-      monthsData: parameters.monthsData,
-      font: parameters.font,
-      rowsVisibility: parameters.rowsVisibility,
-      sizes: parameters.sizes,
-    }
-
     this.wrapper = parameters.container
 
     this.container = document.createElement('div')
@@ -194,56 +86,32 @@ export class ComplexGraph {
     `
     this.container.appendChild(this.toggleViewButton)
 
-    this.settings = {
-      zoomMouseButton: 0,
-      wheelZoomAcceleration: 1,
-      wheelTranlationSpeed: 1,
-    }
-
-    this.scene = new Scene({
-      maxZoom: parameters.settings?.maxZoom,
-      smoothness: parameters.settings?.smoothness,
-    })
+    this.scene = new Scene()
 
     this.renderer = new Renderer({
       container: this.container,
       scene: this.scene,
+      clearColor: 'white',
     })
+
+    ComplexGraph.globals.timeline.construct(parameters.months)
+    ComplexGraph.globals.rows.construct(parameters.rows)
+
+    this.scene.addObject(ComplexGraph.globals.calculator)
+    this.scene.addObject(new Content())
+    this.scene.addObject(new TimelineView())
+    this.scene.addObject(new Scrollbar())
 
     this.statuses = {
       scaleButtonPressed: false,
       fullView: false,
     }
 
-    parameters.objects.forEach((object) => {
-      this.scene.addObject(object)
-      if (object instanceof Graph) {
-        CGGlobals.rowsVisibility[object.row] = true
-        if (!CGGlobals.sizes.rowsFactors[object.row]) {
-          CGGlobals.sizes.rowsFactors[object.row] = 1
-        }
-        if (!CGGlobals.calculations.rowsPrimitives[object.row]) {
-          CGGlobals.calculations.rowsPrimitives[object.row] = new Primitive()
-        }
-      }
-    })
-
-    this.updateSettings(parameters.settings || {})
-
     this.container.addEventListener('wheel', this.handleWheel)
     this.container.addEventListener('pointerdown', this.handlePointerDown)
     this.container.addEventListener('pointerup', this.handleMouseUp)
     this.container.addEventListener('contextmenu', this.handleContextMenu)
     this.toggleViewButton.addEventListener('click', this.toggleView)
-  }
-
-  public updateSettings(settings: Partial<Settings>) {
-    this.scene.maxZoom = settings.maxZoom || 10
-    this.scene.setSmoothness(settings.smoothness || 0)
-    this.settings.zoomMouseButton =
-      settings.zoomMouseButton === 'left' ? 0 : settings.zoomMouseButton === 'right' ? 2 : 0
-    this.settings.wheelZoomAcceleration = settings.wheelZoomAcceleration ?? 1
-    this.settings.wheelTranlationSpeed = settings.wheelTranlationSpeed ?? 1
   }
 
   public destroy(): void {
@@ -256,33 +124,93 @@ export class ComplexGraph {
     this.renderer.destroy()
 
     this.wrapper.removeChild(this.container)
-
-    CGGlobals = null!
   }
 
-  public hideObject(nameOrRowId: GraphsNames | number) {
-    this.toggleVisibility(nameOrRowId, false)
-  }
-
-  public showObject(nameOrRowId: GraphsNames | number) {
-    this.toggleVisibility(nameOrRowId, true)
-  }
-
-  private toggleVisibility(nameOrRowId: GraphsNames | number, visible: boolean) {
-    if (typeof nameOrRowId === 'string') {
-      this.scene.objects.forEach((object) => {
-        if (object.name === nameOrRowId) {
-          object.active = visible
-        }
-      })
-    } else {
-      const rowObjects = this.scene.objects.filter(
-        (object) => object instanceof Graph
-      ) as Array<Graph>
-      CGGlobals.rowsVisibility[nameOrRowId] = visible
-      rowObjects.forEach((o) => o.row === nameOrRowId && (o.active = visible))
+  public add<K extends string, T extends Graph<K> | GraphWithScale<K>>(
+    constructor: Constructor<T, GraphParameters<K> | GraphWithScaleParameters<K>>,
+    parameters: {
+      name?: string
+      data: GraphData<
+        K,
+        Array<{ day: number; value: number | Array<{ hour: number; value: number }> }>
+      >
+      row: number
+      scaleName?: string
+      scaleStep?: number
+      scalePositon?: ScalePosition
     }
-    this.renderer.redraw()
+  ) {
+    if (!ComplexGraph.globals.rows.rows[parameters.row]) {
+      throw new Error(`Ряд номер ${parameters.row} не существует`)
+    }
+
+    const name = parameters.name
+    const row = ComplexGraph.globals.rows.rows[parameters.row]
+    const data: GraphData<K> = {} as GraphData<K>
+
+    for (const key in parameters.data) {
+      const months = parameters.data[key]
+
+      data[key] = []
+
+      let index = 0
+
+      months.forEach((month, monthIndex) => {
+        if (!ComplexGraph.globals.timeline.months[monthIndex]) {
+          throw new Error(`Месяц с индексом ${monthIndex} не существует`)
+        }
+
+        month.forEach((day) => {
+          if (typeof day.value !== 'number') {
+            const daySegment = ComplexGraph.globals.timeline.months[monthIndex].days[day.day - 1]
+
+            const parent = {
+              segment: daySegment,
+              middleValue: 0,
+            }
+
+            day.value.forEach((hour, _index, arr) => {
+              data[key][index] = {
+                segment: daySegment.hours[hour.hour - 1],
+                value: hour.value,
+                parent: parent,
+              }
+
+              parent.middleValue = arr.reduce((p, c) => p + c.value, 0) / arr.length
+
+              index++
+            })
+          } else {
+            data[key][index] = {
+              segment: ComplexGraph.globals.timeline.months[monthIndex].days[day.day - 1],
+              value: day.value,
+            }
+            index++
+          }
+        })
+      })
+    }
+
+    if (constructor.prototype instanceof GraphWithScale) {
+      this.scene.addObject(
+        new (constructor as Constructor<GraphWithScale<K>, GraphWithScaleParameters<K>>)({
+          row,
+          name,
+          data,
+          scaleName: parameters.scaleName,
+          scaleStep: parameters.scaleStep || 5,
+          scalePosition: parameters.scalePositon,
+        })
+      )
+    } else {
+      this.scene.addObject(
+        new (constructor as Constructor<Graph<K>, GraphParameters<K>>)({
+          row,
+          name,
+          data,
+        })
+      )
+    }
   }
 
   private handleWheel = (event: WheelEvent) => {
@@ -294,14 +222,14 @@ export class ComplexGraph {
   }
 
   private handlePointerDown = (event: PointerEvent) => {
-    if (event.button === this.settings.zoomMouseButton) {
+    if (event.button === ComplexGraph.globals.zoomMouseButton) {
       event.preventDefault()
       this.statuses.scaleButtonPressed = true
     }
   }
 
   private handleMouseUp = (event: PointerEvent) => {
-    if (event.button === this.settings.zoomMouseButton) {
+    if (event.button === ComplexGraph.globals.zoomMouseButton) {
       event.preventDefault()
       this.statuses.scaleButtonPressed = false
     }
@@ -312,11 +240,11 @@ export class ComplexGraph {
   }
 
   private scale = (event: WheelEvent) => {
-    const mousePosition = UtilsCoordinates.cursorPosition(event, this.container).x
+    const mousePosition = cursorPosition(event, this.container).x
     const zoomSpeed =
-      UtilsMath.clamp(event.deltaY, -1, 1) *
+      clamp(event.deltaY, -1, 1) *
       this.scene.zoom *
-      this.settings.wheelZoomAcceleration *
+      ComplexGraph.globals.wheelZoomAcceleration *
       0.2
     this.renderer.withTicker(() => {
       this.scene.scale(mousePosition, zoomSpeed)
@@ -325,7 +253,7 @@ export class ComplexGraph {
 
   private translate = (event: WheelEvent) => {
     this.renderer.withTicker(() => {
-      this.scene.translate(event.deltaY * this.settings.wheelTranlationSpeed)
+      this.scene.translate(event.deltaY * ComplexGraph.globals.wheelTranlationSpeed)
     })
   }
 

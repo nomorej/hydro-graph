@@ -56,8 +56,18 @@ export class Primitive {
     return this._y2
   }
 
+  public set width(v: number) {
+    this._width = v
+    this._x2 = this._x1 + this._width
+  }
+
   public get width() {
     return this._width
+  }
+
+  public set height(v: number) {
+    this._height = v
+    this._y2 = this._y1 + this._height
   }
 
   public get height() {

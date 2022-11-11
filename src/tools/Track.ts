@@ -1,4 +1,4 @@
-import { UtilsMath } from '../utils/UtilsMath'
+import { clamp, damp, round } from '../utils/math'
 
 export interface TrackPoint {
   current: number
@@ -42,14 +42,14 @@ export class Track {
 
   public set slipperiness(newValue: number) {
     const m = 11
-    const c = UtilsMath.clamp(newValue, 1, m)
+    const c = clamp(newValue, 1, m)
     const s = 0.0005 * (m - c)
     this._slipperiness = s * m + s - c * s
   }
 
   public setPointer(value: number) {
-    this.pointer.target = UtilsMath.clamp(value, this.start, this.distance)
-    this.progress.target = UtilsMath.round(this.pointer.target / this.distance, 4)
+    this.pointer.target = clamp(value, this.start, this.distance)
+    this.progress.target = round(this.pointer.target / this.distance, 4)
   }
 
   public setProgress(newProgress: number) {
@@ -62,12 +62,12 @@ export class Track {
 
   public slide(dt: number) {
     if (this.slipperiness) {
-      this.pointer.current = UtilsMath.round(
-        UtilsMath.damp(this.pointer.current, this.pointer.target, this.slipperiness, dt),
+      this.pointer.current = round(
+        damp(this.pointer.current, this.pointer.target, this.slipperiness, dt),
         4
       )
 
-      this.progress.current = UtilsMath.round(this.pointer.current / this.distance, 4) || 0
+      this.progress.current = round(this.pointer.current / this.distance, 4) || 0
     } else {
       this.equalize()
     }
@@ -89,7 +89,7 @@ export class Track {
   }
 
   public isIdle() {
-    return UtilsMath.round(this.pointer.target, 2) === UtilsMath.round(this.pointer.current, 2)
+    return round(this.pointer.target, 2) === round(this.pointer.current, 2)
   }
 
   public isStart(progressType: 'current' | 'target') {

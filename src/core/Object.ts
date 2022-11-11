@@ -1,12 +1,16 @@
 import { Scene, SceneCallbackData, SceneRenderData } from './Scene'
 
-export abstract class SceneObject<T extends string = string> {
-  public active: boolean
-  public readonly name: T | undefined
+export interface ObjectParameters {
+  name?: string
+}
 
-  constructor(name?: T) {
+export abstract class Object {
+  public readonly name: string | undefined
+  public active: boolean
+
+  constructor(parameters?: ObjectParameters) {
+    this.name = parameters?.name
     this.active = true
-    this.name = name
   }
 
   public abstract render(data: SceneRenderData): void

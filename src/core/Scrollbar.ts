@@ -1,9 +1,9 @@
 import { Renderer } from '../core/Renderer'
 import { Scene, SceneRenderData } from '../core/Scene'
-import { SceneObject } from '../core/SceneObject'
-import { CGGlobals } from '../core/ComplexGraph'
+import { ComplexGraph } from './ComplexGraph'
+import { Object } from './Object'
 
-export class Scrollbar extends SceneObject {
+export class Scrollbar extends Object {
   private readonly bar: HTMLElement
   private readonly knob: HTMLElement
   private scene: Scene = null!
@@ -32,6 +32,7 @@ export class Scrollbar extends SceneObject {
       position: absolute;
       left: 0;
       top: 0;
+      width: 1px;
       height: 100%;
       background-color: black;
       transform-origin: left;
@@ -66,14 +67,25 @@ export class Scrollbar extends SceneObject {
   }
 
   public render({ scene }: SceneRenderData) {
-    const c = CGGlobals.calculations
-    const knobSize = Math.round(c.contentWrapper.width / scene.maxZoom)
-    this.knob.style.width = knobSize + 'px'
-    this.bar.style.top = c.contentWrapper.y2 + 'px'
-    const max = scene.size.pointer.current - scene.viewportSize
-    const scale = scene.maxZoom - max / (scene.viewportSize * 1.1)
-    const size = max / Math.max(1, scene.viewportSize - knobSize * scale - c.content.x1 * 2)
-    const x = c.content.x1 + scene.position.pointer.current / Math.max(1, size)
+    const c = ComplexGraph.globals.calculator
+
+    this.knob.style.width = 1 + 'px'
+    this.bar.style.top = c.clipArea.y2 + 'px'
+
+    const reduce = 0.9
+    const sceneSize = scene.size.pointer.current - scene.viewportSize
+    const zoom = sceneSize / scene.viewportSize
+    const reversedZoom = ComplexGraph.globals.maxZoom - zoom * reduce
+
+    const scale =
+      ((scene.viewportSize - c.area.x1 * 2) / ComplexGraph.globals.maxZoom) * reversedZoom
+
+    const x =
+      c.area.x1 +
+      (scene.position.pointer.current /
+        ((scene.viewportSize * ComplexGraph.globals.maxZoom) / c.clipArea.width)) *
+        reduce
+
     this.knob.style.transform = `translateX(${x}px) scaleX(${scale})`
 
     if (scene.zoom === 1) {
