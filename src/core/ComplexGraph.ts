@@ -5,13 +5,11 @@ import { cursorPosition } from '../utils/coordinates'
 import { clamp } from '../utils/math'
 import { Timeline, TimelineMonthsData } from './Timeline'
 import { Rows, RowsFactors } from './Rows'
-import { Graph, GraphData, GraphParameters } from './Graph'
-import { Constructor } from '../utils/ts'
 import { Calculator } from './Calculator'
 import { TimelineView } from './TimelineView'
-import { GraphWithScale, GraphWithScaleParameters, ScalePosition } from './GraphWithScale'
 import { Content } from './Content'
 import { Scrollbar } from './Scrollbar'
+import { Object } from './Object'
 
 export interface Parameters {
   container: CanvasParameters['container']
@@ -114,7 +112,7 @@ export class ComplexGraph {
     this.toggleViewButton.addEventListener('click', this.toggleView)
   }
 
-  public destroy(): void {
+  public destroy() {
     this.container.removeEventListener('wheel', this.handleWheel)
     this.container.removeEventListener('pointerdown', this.handlePointerDown)
     this.container.removeEventListener('pointerup', this.handleMouseUp)
@@ -126,91 +124,8 @@ export class ComplexGraph {
     this.wrapper.removeChild(this.container)
   }
 
-  public add<K extends string, T extends Graph<K> | GraphWithScale<K>>(
-    constructor: Constructor<T, GraphParameters<K> | GraphWithScaleParameters<K>>,
-    parameters: {
-      name?: string
-      data: GraphData<
-        K,
-        Array<{ day: number; value: number | Array<{ hour: number; value: number }> }>
-      >
-      row: number
-      scaleName?: string
-      scaleStep?: number
-      scalePositon?: ScalePosition
-    }
-  ) {
-    if (!ComplexGraph.globals.rows.rows[parameters.row]) {
-      throw new Error(`Ряд номер ${parameters.row} не существует`)
-    }
-
-    const name = parameters.name
-    const row = ComplexGraph.globals.rows.rows[parameters.row]
-    const data: GraphData<K> = {} as GraphData<K>
-
-    for (const key in parameters.data) {
-      const months = parameters.data[key]
-
-      data[key] = []
-
-      let index = 0
-
-      months.forEach((month, monthIndex) => {
-        if (!ComplexGraph.globals.timeline.months[monthIndex]) {
-          throw new Error(`Месяц с индексом ${monthIndex} не существует`)
-        }
-
-        month.forEach((day) => {
-          if (typeof day.value !== 'number') {
-            const daySegment = ComplexGraph.globals.timeline.months[monthIndex].days[day.day - 1]
-
-            const parent = {
-              segment: daySegment,
-              middleValue: 0,
-            }
-
-            day.value.forEach((hour, _index, arr) => {
-              data[key][index] = {
-                segment: daySegment.hours[hour.hour - 1],
-                value: hour.value,
-                parent: parent,
-              }
-
-              parent.middleValue = arr.reduce((p, c) => p + c.value, 0) / arr.length
-
-              index++
-            })
-          } else {
-            data[key][index] = {
-              segment: ComplexGraph.globals.timeline.months[monthIndex].days[day.day - 1],
-              value: day.value,
-            }
-            index++
-          }
-        })
-      })
-    }
-
-    if (constructor.prototype instanceof GraphWithScale) {
-      this.scene.addObject(
-        new (constructor as Constructor<GraphWithScale<K>, GraphWithScaleParameters<K>>)({
-          row,
-          name,
-          data,
-          scaleName: parameters.scaleName,
-          scaleStep: parameters.scaleStep || 5,
-          scalePosition: parameters.scalePositon,
-        })
-      )
-    } else {
-      this.scene.addObject(
-        new (constructor as Constructor<Graph<K>, GraphParameters<K>>)({
-          row,
-          name,
-          data,
-        })
-      )
-    }
+  public add<T extends Object>(object: T) {
+    this.scene.addObject(object)
   }
 
   private handleWheel = (event: WheelEvent) => {
@@ -244,7 +159,6 @@ export class ComplexGraph {
       x: ComplexGraph.globals.calculator.area.x1,
       y: 0,
     }).x
-    console.log(mousePosition)
     const zoomSpeed =
       clamp(event.deltaY, -1, 1) *
       this.scene.zoom *

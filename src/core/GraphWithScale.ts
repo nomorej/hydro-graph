@@ -6,11 +6,12 @@ export type ScalePosition = 'right' | 'left'
 export type ScaleSegment = { y: number; value: number }
 
 export interface GraphWithScaleParameters<K extends string = 'default'> extends GraphParameters<K> {
-  scaleName?: string
+  scaleTitle?: string
   scaleStep?: number
-  scalePosition?: ScalePosition
   scaleColor?: string
+  scalePosition?: ScalePosition
   scaleSegmentColor?: string
+  gridColor?: string
 }
 
 export interface SkipScaleSegmentParameters {
@@ -20,17 +21,17 @@ export interface SkipScaleSegmentParameters {
 }
 
 export abstract class GraphWithScale<K extends string = 'default'> extends Graph<K> {
-  protected readonly scaleName: string
+  protected readonly scaleTitle: string
   protected readonly scaleSegments: Array<ScaleSegment>
   protected readonly scaleScatter: number
   protected readonly scalePosition: ScalePosition
   public scaleColor: string
-  public scaleSegmentColor: string
+  public gridColor: string | undefined
 
   constructor(parameters: GraphWithScaleParameters<K>) {
     super(parameters)
 
-    this.scaleName = parameters.scaleName || ''
+    this.scaleTitle = parameters.scaleTitle || ''
 
     this.scaleSegments = []
 
@@ -41,8 +42,8 @@ export abstract class GraphWithScale<K extends string = 'default'> extends Graph
 
     this.scaleScatter = this.max - this.min
     this.scalePosition = parameters.scalePosition || 'left'
+    this.gridColor = parameters.gridColor
     this.scaleColor = parameters.scaleColor || 'black'
-    this.scaleSegmentColor = parameters.scaleSegmentColor || 'black'
 
     for (let i = 0; i <= this.scaleScatter / scaleStep; i++) {
       this.scaleSegments[i] = {
@@ -67,6 +68,7 @@ export abstract class GraphWithScale<K extends string = 'default'> extends Graph
 
     const thickness = renderer.minSize * 0.002
     const dashSize = thickness * 4
+    const sceneOffset = renderer.minSize * 0.01
     const x = isLeft ? this.row.primitive.x1 - dashSize * 2 : this.row.primitive.x2 + dashSize * 2
 
     renderer.context.lineWidth = thickness
@@ -108,20 +110,42 @@ export abstract class GraphWithScale<K extends string = 'default'> extends Graph
       )
     })
 
-    renderer.context.strokeStyle = this.scaleSegmentColor
-    ComplexGraph.globals.calculator.clip(renderer, () => {
-      this.scaleSegments.forEach((segment, index, segments) => {
-        const skip = this.skipScaleSegment({ segment, index, segments })
+    if (this.gridColor) {
+      renderer.context.strokeStyle = this.gridColor
 
-        renderer.context.save()
-        renderer.context.globalAlpha = segment.value == 0 ? 1 : !skip ? 0.3 : 0.1
-        renderer.context.beginPath()
-        renderer.context.moveTo(ComplexGraph.globals.calculator.clipArea.x1, segment.y)
-        renderer.context.lineTo(ComplexGraph.globals.calculator.clipArea.x2, segment.y)
-        renderer.context.stroke()
-        renderer.context.restore()
+      ComplexGraph.globals.calculator.clip(renderer, () => {
+        this.scaleSegments.forEach((segment, index, segments) => {
+          const skip = this.skipScaleSegment({ segment, index, segments })
+
+          renderer.context.save()
+          renderer.context.globalAlpha = segment.value == 0 ? 1 : !skip ? 0.3 : 0.1
+          renderer.context.beginPath()
+          renderer.context.moveTo(ComplexGraph.globals.calculator.clipArea.x1, segment.y)
+          renderer.context.lineTo(ComplexGraph.globals.calculator.clipArea.x2, segment.y)
+          renderer.context.stroke()
+          renderer.context.restore()
+        })
       })
-    })
+    }
+
+    renderer.context.save()
+    renderer.context.font = `${ComplexGraph.globals.calculator.fontSize}px ${ComplexGraph.globals.font}`
+    renderer.context.textBaseline = isLeft ? 'top' : 'bottom'
+    renderer.context.textAlign = 'center'
+    renderer.context.fillStyle = 'black'
+    renderer.context.rotate(-Math.PI / 2)
+    renderer.context.translate(
+      this.row.primitive.y1 * -1 + (this.row.primitive.height / 2) * -1,
+      isLeft
+        ? ComplexGraph.globals.calculator.clipArea.x1 -
+            ComplexGraph.globals.calculator.area.x1 +
+            sceneOffset
+        : ComplexGraph.globals.calculator.clipArea.x2 +
+            ComplexGraph.globals.calculator.area.x1 -
+            sceneOffset
+    )
+    renderer.context.fillText(this.scaleTitle, 0, 0)
+    renderer.context.restore()
   }
 
   protected abstract skipScaleSegment(data: SkipScaleSegmentParameters): boolean

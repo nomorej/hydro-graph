@@ -6,20 +6,27 @@ import {
 } from '../core/GraphWithScale'
 import { SceneRenderData } from '../core/Scene'
 
-export type AirTemperatureGraphsTypes = 'liquid' | 'solid'
+export type PrecipitationGraphsTypes = 'liquid' | 'solid'
 
-export class Precipitation extends GraphWithScale<AirTemperatureGraphsTypes> {
+export interface PrecipitationParameters
+  extends GraphWithScaleParameters<PrecipitationGraphsTypes> {
+  liquidColor?: string
+  solidColor?: string
+}
+
+export class Precipitation extends GraphWithScale<PrecipitationGraphsTypes> {
   public liquidColor: string
   public solidColor: string
 
-  constructor(parameters: GraphWithScaleParameters<AirTemperatureGraphsTypes>) {
-    super(parameters)
+  constructor(parameters: PrecipitationParameters) {
+    super({
+      scaleColor: 'lightgreen',
+      gridColor: 'lightgreen',
+      ...parameters,
+    })
 
-    this.liquidColor = 'darkgreen'
-    this.solidColor = 'darkblue'
-
-    this.scaleColor = 'lightgreen'
-    this.scaleSegmentColor = 'lightgreen'
+    this.liquidColor = parameters.liquidColor || 'darkgreen'
+    this.solidColor = parameters.liquidColor || 'darkblue'
   }
 
   public renderGraph({ renderer }: SceneRenderData) {

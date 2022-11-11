@@ -6,23 +6,28 @@ import {
 import { SceneRenderData } from '../core/Scene'
 import { smoothGraph } from '../utils/graph'
 
-export type AirTemperatureGraphsTypes = 'default'
+export type WaterLevelGraphsTypes = 'default'
 
-export interface AirTemperatureParameters
-  extends GraphWithScaleParameters<AirTemperatureGraphsTypes> {}
+export interface WaterLevelParameters extends GraphWithScaleParameters<WaterLevelGraphsTypes> {
+  color?: string
+}
 
-export class AirTemperature extends GraphWithScale<AirTemperatureGraphsTypes> {
-  constructor(parameters: AirTemperatureParameters) {
+export class WaterLevel extends GraphWithScale<WaterLevelGraphsTypes> {
+  private color: string
+
+  constructor(parameters: WaterLevelParameters) {
     super({
-      scaleColor: 'tomato',
-      gridColor: 'tomato',
+      scaleColor: 'black',
+      gridColor: 'black',
       ...parameters,
     })
+
+    this.color = parameters.color || 'darkblue'
   }
 
   public renderGraph({ renderer }: SceneRenderData) {
     smoothGraph(renderer.context, this.points.default)
-    renderer.context.strokeStyle = 'darkred'
+    renderer.context.strokeStyle = this.color
     renderer.context.stroke()
   }
 

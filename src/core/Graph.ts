@@ -1,6 +1,5 @@
 import { ComplexGraph } from './ComplexGraph'
 import { Object, ObjectParameters } from './Object'
-import { Renderer } from './Renderer'
 import { Row } from './Rows'
 import { SceneRenderData } from './Scene'
 import { TimelineSegment } from './Timeline'
@@ -21,8 +20,8 @@ export type GraphData<K extends string = 'default', T = GraphDataPoint> = {
 }
 
 export interface GraphParameters<K extends string = 'default'> extends ObjectParameters {
-  row: Row
-  data: GraphData<K>
+  row: number
+  data: GraphData<K, Array<{ day: number; value: number | Array<{ hour: number; value: number }> }>>
 }
 
 export interface GraphPoint {
@@ -45,11 +44,53 @@ export abstract class Graph<K extends string = 'default'> extends Object {
   constructor(parameters: GraphParameters<K>) {
     super(parameters)
 
-    this.row = parameters.row
-    this.data = parameters.data
+    this.row = ComplexGraph.globals.rows.rows[parameters.row]
+
+    const data: GraphData<K> = {} as GraphData<K>
+
+    for (const key in parameters.data) {
+      const months = parameters.data[key]
+
+      data[key] = []
+
+      let index = 0
+
+      months.forEach((month, monthIndex) => {
+        month.forEach((day) => {
+          if (typeof day.value !== 'number') {
+            const daySegment = ComplexGraph.globals.timeline.months[monthIndex].days[day.day - 1]
+
+            const parent = {
+              segment: daySegment,
+              middleValue: 0,
+            }
+
+            day.value.forEach((hour, _index, arr) => {
+              data[key][index] = {
+                segment: daySegment.hours[hour.hour - 1],
+                value: hour.value,
+                parent: parent,
+              }
+
+              parent.middleValue = arr.reduce((p, c) => p + c.value, 0) / arr.length
+
+              index++
+            })
+          } else {
+            data[key][index] = {
+              segment: ComplexGraph.globals.timeline.months[monthIndex].days[day.day - 1],
+              value: day.value,
+            }
+            index++
+          }
+        })
+      })
+    }
+
+    this.data = data
     this.points = {} as GraphPoints<K>
 
-    this.min = 9999999999
+    this.min = 0
     this.max = -999999999
 
     for (const key in this.data) {
@@ -71,11 +112,11 @@ export abstract class Graph<K extends string = 'default'> extends Object {
   }
 
   public render(data: SceneRenderData): void {
-    const heightStep = this.row.primitive.height / (this.max - this.min)
+    const heightStep = this.row.primitive.height / Math.max(1, this.max - this.min)
 
     this.everyPoint((key, point, i) => {
       const item = this.data[key][i]
-
+      console.log(item.value, this.min)
       point.width = item.segment.width
       point.height = heightStep * (+item.value - this.min)
       point.x = ComplexGraph.globals.calculator.area.x1 + item.segment.x1
@@ -103,58 +144,6 @@ export abstract class Graph<K extends string = 'default'> extends Object {
       this.points[key].forEach((point, i, arr) => {
         callback(key, point, i, arr)
       })
-    }
-  }
-
-  protected linear({ context }: Renderer, draw: (key: K) => void) {
-    for (const key in this.points) {
-      const points = this.points[key]
-
-      const sx = points[0].x
-      const sy = points[0].y
-
-      context.beginPath()
-      context.moveTo(sx, sy)
-
-      for (let i = 1; i < points.length; i++) {
-        const x = points[i].x
-        const y = points[i].y
-
-        context.lineTo(x, y)
-      }
-
-      draw(key)
-    }
-  }
-
-  protected smooth({ context }: Renderer, draw: (key: K) => void) {
-    for (const key in this.points) {
-      const points = this.points[key]
-
-      const sx = points[0].x
-      const sy = points[0].y
-
-      context.beginPath()
-      context.moveTo(sx, sy)
-
-      for (let i = 0; i < points.length - 1; i++) {
-        const x1 = (points[i].x + points[i + 1].x) / 2
-        const y1 = (points[i].y + points[i + 1].y) / 2
-
-        const cx1 = (x1 + points[i].x) / 2
-        const cy1 = points[i].y
-
-        const x2 = points[i + 1].x
-        const y2 = points[i + 1].y
-
-        const cx2 = (x1 + points[i + 1].x) / 2
-        const cy2 = points[i + 1].y
-
-        context.quadraticCurveTo(cx1, cy1, x1, y1)
-        context.quadraticCurveTo(cx2, cy2, x2, y2)
-      }
-
-      draw(key)
     }
   }
 }
