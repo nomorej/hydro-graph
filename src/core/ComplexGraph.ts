@@ -240,7 +240,11 @@ export class ComplexGraph {
   }
 
   private scale = (event: WheelEvent) => {
-    const mousePosition = cursorPosition(event, this.container).x
+    const mousePosition = cursorPosition(event, this.container, {
+      x: ComplexGraph.globals.calculator.area.x1,
+      y: 0,
+    }).x
+    console.log(mousePosition)
     const zoomSpeed =
       clamp(event.deltaY, -1, 1) *
       this.scene.zoom *

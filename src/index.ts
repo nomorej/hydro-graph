@@ -163,6 +163,76 @@ cg.add(Precipitation, {
           value: 25,
         },
       ],
+      [
+        {
+          day: 4,
+          value: 10,
+        },
+        {
+          day: 8,
+          value: 25,
+        },
+      ],
+      [
+        {
+          day: 4,
+          value: 10,
+        },
+        {
+          day: 8,
+          value: 25,
+        },
+      ],
+      [
+        {
+          day: 4,
+          value: 10,
+        },
+        {
+          day: 8,
+          value: 25,
+        },
+      ],
+      [
+        {
+          day: 4,
+          value: 10,
+        },
+        {
+          day: 8,
+          value: 25,
+        },
+      ],
+      [
+        {
+          day: 4,
+          value: 10,
+        },
+        {
+          day: 8,
+          value: 25,
+        },
+      ],
+      [
+        {
+          day: 4,
+          value: 10,
+        },
+        {
+          day: 8,
+          value: 25,
+        },
+      ],
+      [
+        {
+          day: 4,
+          value: 10,
+        },
+        {
+          day: 8,
+          value: 25,
+        },
+      ],
     ],
   },
 })
