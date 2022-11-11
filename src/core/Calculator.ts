@@ -38,7 +38,7 @@ export class Calculator extends Object {
     this.area.x1 = offsetX
     this.area.x2 = scene.size.pointer.current - offsetX
     this.area.y1 = this.clipArea.y1
-    this.area.y2 = this.clipArea.y2
+    this.area.y2 = this.clipArea.y2 * 0.95
 
     this.fontSize = ComplexGraph.globals.sizes.font * renderer.minSize
 

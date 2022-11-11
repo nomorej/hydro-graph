@@ -1,7 +1,7 @@
 import { Renderer } from '../core/Renderer'
 import { Scene, SceneRenderData } from '../core/Scene'
-import { ComplexGraph } from './ComplexGraph'
-import { Object } from './Object'
+import { ComplexGraph } from '../core/ComplexGraph'
+import { Object } from '../core/Object'
 
 export class Scrollbar extends Object {
   private readonly bar: HTMLElement

@@ -3,6 +3,10 @@ import { AirTemperature } from './graphs/AirTemperature'
 import { Precipitation } from './graphs/Precipitation'
 import { WaterLevel } from './graphs/WaterLevel'
 import { WaterСonsumption } from './graphs/WaterСonsumption'
+import { Content } from './objects/Content'
+import { Phase } from './objects/Phase'
+import { Scrollbar } from './objects/Scrollbar'
+import { Timeline } from './objects/Timeline'
 
 // --- TEST
 
@@ -73,6 +77,129 @@ const cg = new ComplexGraph({
     },
   ],
 })
+
+cg.add(new Content())
+cg.add(
+  new Phase({
+    start: {
+      month: 1,
+    },
+    end: {
+      month: 2,
+      day: 15,
+    },
+    colors: {
+      font: '#C08C50',
+      background: '#FEFFD7',
+    },
+    name: 'Открытое русло',
+    shortName: 'ОР',
+  })
+)
+cg.add(
+  new Phase({
+    start: {
+      month: 2,
+      day: 15,
+    },
+    end: {
+      month: 3,
+    },
+    colors: {
+      font: '#C86546',
+      background: '#FBE9DD',
+    },
+    name: 'Полное название',
+    shortName: 'ОПП',
+  })
+)
+cg.add(
+  new Phase({
+    start: {
+      month: 3,
+    },
+    end: {
+      month: 7,
+    },
+    colors: {
+      font: '#243372',
+      background: '#D5F2FA',
+    },
+    name: 'Ледостав',
+    shortName: 'ЛД',
+  })
+)
+cg.add(
+  new Phase({
+    start: {
+      month: 7,
+    },
+    end: {
+      month: 7,
+      day: 10,
+    },
+    colors: {
+      font: '#2F7B3A',
+      background: '#E0FFDF',
+    },
+    name: 'Полное название',
+    shortName: 'ВПП',
+  })
+)
+cg.add(
+  new Phase({
+    start: {
+      month: 7,
+      day: 10,
+    },
+    end: {
+      month: 7,
+      day: 15,
+    },
+    colors: {
+      font: '#243372',
+      background: '#D5F2FA',
+    },
+    name: 'Ледостав',
+    shortName: 'ЛД',
+  })
+)
+cg.add(
+  new Phase({
+    start: {
+      month: 7,
+      day: 15,
+    },
+    end: {
+      month: 8,
+    },
+    colors: {
+      font: '#2F7B3A',
+      background: '#E0FFDF',
+    },
+    name: 'Полное название',
+    shortName: 'ВПП',
+  })
+)
+cg.add(
+  new Phase({
+    start: {
+      month: 8,
+    },
+    end: {
+      month: 13,
+      day: 31,
+    },
+    colors: {
+      font: '#C08C50',
+      background: '#FEFFD7',
+    },
+    name: 'Открытое русло',
+    shortName: 'ОР',
+  })
+)
+cg.add(new Timeline())
+cg.add(new Scrollbar())
 
 cg.add(
   new AirTemperature({

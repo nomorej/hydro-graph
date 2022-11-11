@@ -3,7 +3,7 @@ import { Object } from '../core/Object'
 import { Scene, SceneRenderData } from '../core/Scene'
 import { TimelineDay, TimelineHour, TimelineMonth } from '../core/Timeline'
 
-export class TimelineView extends Object {
+export class Timeline extends Object {
   constructor() {
     super()
   }
@@ -15,6 +15,7 @@ export class TimelineView extends Object {
     const axisX1 = sceneOffsetX
     const axisX2 = scene.size.pointer.current - sceneOffsetX
     const axisY = ComplexGraph.globals.calculator.clipArea.y2 + contentOffsetY
+    const gridY = ComplexGraph.globals.calculator.area.y2
 
     const scaleThickness = renderer.minSize * 0.003
 
@@ -82,7 +83,7 @@ export class TimelineView extends Object {
         month: (_, x) => {
           renderer.context.strokeStyle = ComplexGraph.globals.colors.timeline.month
           renderer.context.beginPath()
-          renderer.context.moveTo(x, axisY)
+          renderer.context.moveTo(x, gridY)
           renderer.context.lineTo(x, segmentHeight)
           renderer.context.stroke()
         },
@@ -91,7 +92,7 @@ export class TimelineView extends Object {
           renderer.context.strokeStyle = ComplexGraph.globals.colors.timeline.day
           renderer.context.globalAlpha = visible ? 0.5 : 0.3
           renderer.context.beginPath()
-          renderer.context.moveTo(x, axisY)
+          renderer.context.moveTo(x, gridY)
           renderer.context.lineTo(x, segmentHeight)
           renderer.context.stroke()
           renderer.context.restore()
@@ -101,7 +102,7 @@ export class TimelineView extends Object {
           renderer.context.strokeStyle = ComplexGraph.globals.colors.timeline.hour
           renderer.context.globalAlpha = visible ? 0.3 : 0.1
           renderer.context.beginPath()
-          renderer.context.moveTo(x, axisY)
+          renderer.context.moveTo(x, gridY)
           renderer.context.lineTo(x, segmentHeight)
           renderer.context.stroke()
           renderer.context.restore()

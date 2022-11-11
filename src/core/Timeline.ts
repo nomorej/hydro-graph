@@ -160,6 +160,26 @@ export class Timeline {
     })
   }
 
+  public findSegment(month: number, day?: number, hour?: number) {
+    let segment: TimelineSegment | undefined
+
+    segment = this.months[month - 1]
+
+    if (!segment) return
+
+    if (day) {
+      segment = (segment as TimelineMonth).days[day - 1]
+    }
+
+    if (!segment) return
+
+    if (hour) {
+      segment = (segment as TimelineDay).hours[hour - 1]
+    }
+
+    return segment
+  }
+
   public forEvery(
     callback: (data: { month: TimelineMonth; day: TimelineDay; hour: TimelineHour }) => void
   ) {

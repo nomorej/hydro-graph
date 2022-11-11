@@ -116,7 +116,6 @@ export abstract class Graph<K extends string = 'default'> extends Object {
 
     this.everyPoint((key, point, i) => {
       const item = this.data[key][i]
-      console.log(item.value, this.min)
       point.width = item.segment.width
       point.height = heightStep * (+item.value - this.min)
       point.x = ComplexGraph.globals.calculator.area.x1 + item.segment.x1

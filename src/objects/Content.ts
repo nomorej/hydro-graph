@@ -1,6 +1,6 @@
-import { ComplexGraph } from './ComplexGraph'
-import { Object } from './Object'
-import { SceneRenderData } from './Scene'
+import { ComplexGraph } from '../core/ComplexGraph'
+import { Object } from '../core/Object'
+import { SceneRenderData } from '../core/Scene'
 
 export class Content extends Object {
   constructor() {

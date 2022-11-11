@@ -6,9 +6,6 @@ import { clamp } from '../utils/math'
 import { Timeline, TimelineMonthsData } from './Timeline'
 import { Rows, RowsFactors } from './Rows'
 import { Calculator } from './Calculator'
-import { TimelineView } from './TimelineView'
-import { Content } from './Content'
-import { Scrollbar } from './Scrollbar'
 import { Object } from './Object'
 
 export interface Parameters {
@@ -26,9 +23,9 @@ export class ComplexGraph {
       timeline: {
         scale: 'black',
         font: 'black',
-        month: '#dcdcdc',
-        day: '#dcdcdc',
-        hour: '#dcdcdc',
+        month: 'lightblue',
+        day: 'lightblue',
+        hour: 'lightblue',
       },
       content: {
         background: '#f5fcff',
@@ -96,9 +93,6 @@ export class ComplexGraph {
     ComplexGraph.globals.rows.construct(parameters.rows)
 
     this.scene.addObject(ComplexGraph.globals.calculator)
-    this.scene.addObject(new Content())
-    this.scene.addObject(new TimelineView())
-    this.scene.addObject(new Scrollbar())
 
     this.statuses = {
       scaleButtonPressed: false,
