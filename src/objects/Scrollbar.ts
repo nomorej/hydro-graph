@@ -3,6 +3,10 @@ import { Scene, SceneRenderData } from '../core/Scene'
 import { ComplexGraph } from '../core/ComplexGraph'
 import { Object } from '../core/Object'
 
+export interface ScrollbarParameters {
+  color?: string
+}
+
 export class Scrollbar extends Object {
   private readonly bar: HTMLElement
   private readonly knob: HTMLElement
@@ -11,7 +15,7 @@ export class Scrollbar extends Object {
   private grabbed: boolean = null!
   private hovered: boolean = null!
 
-  constructor() {
+  constructor(parameters?: ScrollbarParameters) {
     super()
 
     this.bar = document.createElement('div')
@@ -34,7 +38,7 @@ export class Scrollbar extends Object {
       top: 0;
       width: 1px;
       height: 100%;
-      background-color: black;
+      background-color: ${parameters?.color || 'black'};
       transform-origin: left;
       pointer-events: none;
       cursor: grab;

@@ -3,7 +3,7 @@ import { Object } from './Object'
 import { Primitive } from './Primitive'
 import { Renderer } from './Renderer'
 import { Scene, SceneRenderData } from './Scene'
-import { TimelineMonth } from './Timeline'
+import { TimelineSegment } from './Timeline'
 
 export class Calculator extends Object {
   public readonly clipArea: Primitive
@@ -76,10 +76,17 @@ export class Calculator extends Object {
     renderer.context.restore()
   }
 
-  public isVisible(scene: Scene, month: TimelineMonth) {
+  public isSegmentVisible(scene: Scene, segment: TimelineSegment, segment2?: TimelineSegment) {
     return !(
-      scene.position.pointer.current > month.x2 + this.area.x1 ||
-      scene.position.pointer.current + this.clipArea.width < month.x1 - this.area.x1
+      scene.position.pointer.current > (segment2 || segment).x2 + this.area.x1 ||
+      scene.position.pointer.current + this.clipArea.width < segment.x1 - this.area.x1
+    )
+  }
+
+  public isPointVisible(scene: Scene, point: { x: number; width: number }) {
+    return !(
+      scene.position.pointer.current > point.x + point.width - this.area.x1 ||
+      scene.position.pointer.current + this.clipArea.width < point.x - this.area.x1
     )
   }
 }

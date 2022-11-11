@@ -3,9 +3,29 @@ import { Object } from '../core/Object'
 import { Scene, SceneRenderData } from '../core/Scene'
 import { TimelineDay, TimelineHour, TimelineMonth } from '../core/Timeline'
 
+export interface TimelineParameters {
+  scaleColor?: string
+  fontColor?: string
+  monthColor?: string
+  dayColor?: string
+  hourColor?: string
+}
+
 export class Timeline extends Object {
-  constructor() {
+  public scaleColor: string
+  public fontColor: string
+  public monthColor: string
+  public dayColor: string
+  public hourColor: string
+
+  constructor(parameters?: TimelineParameters) {
     super()
+
+    this.scaleColor = parameters?.scaleColor || 'black'
+    this.fontColor = parameters?.fontColor || 'black'
+    this.monthColor = parameters?.monthColor || 'lightblue'
+    this.dayColor = parameters?.dayColor || 'lightblue'
+    this.hourColor = parameters?.hourColor || 'lightblue'
   }
 
   public render({ renderer, scene }: SceneRenderData) {
@@ -31,14 +51,14 @@ export class Timeline extends Object {
     const segmentHeight = axisY - ComplexGraph.globals.calculator.clipArea.height - contentOffsetY
 
     renderer.context.lineWidth = scaleThickness
-    renderer.context.strokeStyle = ComplexGraph.globals.colors.timeline.scale
+    renderer.context.strokeStyle = this.scaleColor
 
     renderer.context.beginPath()
     renderer.context.moveTo(axisX1, axisY)
     renderer.context.lineTo(axisX2, axisY)
     renderer.context.stroke()
 
-    renderer.context.fillStyle = ComplexGraph.globals.colors.timeline.font
+    renderer.context.fillStyle = this.fontColor
     renderer.context.textAlign = 'center'
     renderer.context.textBaseline = 'top'
 
@@ -81,7 +101,7 @@ export class Timeline extends Object {
       this.renderMonths({
         scene,
         month: (_, x) => {
-          renderer.context.strokeStyle = ComplexGraph.globals.colors.timeline.month
+          renderer.context.strokeStyle = this.monthColor
           renderer.context.beginPath()
           renderer.context.moveTo(x, gridY)
           renderer.context.lineTo(x, segmentHeight)
@@ -89,7 +109,7 @@ export class Timeline extends Object {
         },
         day: (_, x, visible) => {
           renderer.context.save()
-          renderer.context.strokeStyle = ComplexGraph.globals.colors.timeline.day
+          renderer.context.strokeStyle = this.dayColor
           renderer.context.globalAlpha = visible ? 0.5 : 0.3
           renderer.context.beginPath()
           renderer.context.moveTo(x, gridY)
@@ -99,7 +119,7 @@ export class Timeline extends Object {
         },
         hour: (_, x, visible) => {
           renderer.context.save()
-          renderer.context.strokeStyle = ComplexGraph.globals.colors.timeline.hour
+          renderer.context.strokeStyle = this.hourColor
           renderer.context.globalAlpha = visible ? 0.3 : 0.1
           renderer.context.beginPath()
           renderer.context.moveTo(x, gridY)
@@ -118,7 +138,7 @@ export class Timeline extends Object {
     hour: (hour: TimelineHour, x: number, visible: boolean) => void
   }) {
     ComplexGraph.globals.timeline.forEveryMonth((month) => {
-      if (!ComplexGraph.globals.calculator.isVisible(parameters.scene, month)) return
+      if (!ComplexGraph.globals.calculator.isSegmentVisible(parameters.scene, month)) return
 
       if (month.index) {
         parameters.month(month, ComplexGraph.globals.calculator.area.x1 + month.x1)

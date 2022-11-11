@@ -20,17 +20,19 @@ export class Precipitation extends GraphWithScale<PrecipitationGraphsTypes> {
 
   constructor(parameters: PrecipitationParameters) {
     super({
-      scaleColor: 'lightgreen',
-      gridColor: 'lightgreen',
+      scaleColor: 'darkgreen',
+      gridColor: 'darkgreen',
       ...parameters,
     })
 
-    this.liquidColor = parameters.liquidColor || 'darkgreen'
+    this.liquidColor = parameters.liquidColor || 'green'
     this.solidColor = parameters.liquidColor || 'darkblue'
   }
 
-  public renderGraph({ renderer }: SceneRenderData) {
+  public renderGraph({ renderer, scene }: SceneRenderData) {
     this.everyPoint((key, point) => {
+      if (!ComplexGraph.globals.calculator.isPointVisible(scene, point)) return
+
       renderer.context.beginPath()
       renderer.context.fillStyle = key === 'solid' ? this.solidColor : this.liquidColor
 

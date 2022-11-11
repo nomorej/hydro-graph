@@ -1,3 +1,4 @@
+import { ComplexGraph } from '../core/ComplexGraph'
 import {
   GraphWithScale,
   GraphWithScaleParameters,
@@ -35,9 +36,10 @@ export class WaterСonsumption extends GraphWithScale<WaterСonsumptionGraphsTyp
     renderer.context.stroke()
 
     renderer.context.fillStyle = this.color
-    this.points.measured.forEach((p) => {
+    this.points.measured.forEach((point) => {
+      if (!ComplexGraph.globals.calculator.isPointVisible(scene, point)) return
       renderer.context.beginPath()
-      renderer.context.arc(p.x, p.y, renderer.minSize * 0.005, 0, Math.PI * 2)
+      renderer.context.arc(point.x, point.y, renderer.minSize * 0.005, 0, Math.PI * 2)
       renderer.context.fill()
     })
   }

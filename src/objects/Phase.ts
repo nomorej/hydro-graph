@@ -16,19 +16,20 @@ export interface PhaseParameters extends ObjectParameters {
     month: number
     day?: number
     hour?: number
+    fill?: boolean
   }
 
-  colors: {
-    font: string
-    background: string
-  }
+  fontColor?: string
+  backgroundColor?: string
 }
 
 export class Phase extends Object {
   private readonly start: TimelineSegment
   private readonly end: TimelineSegment
-  public readonly colors: PhaseParameters['colors']
+  private readonly fillEndSegment: boolean
   public readonly shortName: string
+  public fontColor: string
+  public backgroundColor: string
 
   constructor(parameters: PhaseParameters) {
     super({ name: '', ...parameters })
@@ -59,16 +60,21 @@ export class Phase extends Object {
 
     this.start = start
     this.end = end
+    this.fillEndSegment = parameters.end.fill || false
 
-    this.colors = parameters.colors
+    this.fontColor = parameters.fontColor || 'darkblue'
+    this.backgroundColor = parameters.backgroundColor || 'lightblue'
     this.shortName = parameters.shortName || this.name || ''
   }
 
-  public render({ renderer }: SceneRenderData) {
+  public render({ renderer, scene }: SceneRenderData) {
     ComplexGraph.globals.calculator.clip(renderer, () => {
-      renderer.context.fillStyle = this.colors.background
+      renderer.context.fillStyle = this.backgroundColor
 
-      const delta = this.end.x1 - this.start.x1
+      if (!ComplexGraph.globals.calculator.isSegmentVisible(scene, this.start, this.end)) return
+
+      const delta = (this.fillEndSegment ? this.end.x2 : this.end.x1) - this.start.x1
+
       const middle = ComplexGraph.globals.calculator.area.x1 + this.start.x1 + delta / 2
       const offsetY =
         (ComplexGraph.globals.calculator.clipArea.height -
@@ -82,7 +88,7 @@ export class Phase extends Object {
         ComplexGraph.globals.calculator.clipArea.height
       )
 
-      renderer.context.fillStyle = this.colors.font
+      renderer.context.fillStyle = this.fontColor
       renderer.context.font = `${ComplexGraph.globals.calculator.fontSize}px ${ComplexGraph.globals.font}`
       renderer.context.textBaseline = 'middle'
       renderer.context.textAlign = 'center'

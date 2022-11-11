@@ -19,18 +19,6 @@ export class ComplexGraph {
     sizes: {
       font: 0.02,
     },
-    colors: {
-      timeline: {
-        scale: 'black',
-        font: 'black',
-        month: 'lightblue',
-        day: 'lightblue',
-        hour: 'lightblue',
-      },
-      content: {
-        background: '#f5fcff',
-      },
-    },
     font: 'sans-serif',
     zoomMouseButton: 0,
     wheelZoomAcceleration: 1,

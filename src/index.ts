@@ -88,10 +88,8 @@ cg.add(
       month: 2,
       day: 15,
     },
-    colors: {
-      font: '#C08C50',
-      background: '#FEFFD7',
-    },
+    fontColor: '#C08C50',
+    backgroundColor: '#FEFFD7',
     name: 'Открытое русло',
     shortName: 'ОР',
   })
@@ -105,10 +103,8 @@ cg.add(
     end: {
       month: 3,
     },
-    colors: {
-      font: '#C86546',
-      background: '#FBE9DD',
-    },
+    fontColor: '#C86546',
+    backgroundColor: '#FBE9DD',
     name: 'Полное название',
     shortName: 'ОПП',
   })
@@ -121,10 +117,8 @@ cg.add(
     end: {
       month: 7,
     },
-    colors: {
-      font: '#243372',
-      background: '#D5F2FA',
-    },
+    fontColor: '#243372',
+    backgroundColor: '#D5F2FA',
     name: 'Ледостав',
     shortName: 'ЛД',
   })
@@ -138,10 +132,8 @@ cg.add(
       month: 7,
       day: 10,
     },
-    colors: {
-      font: '#2F7B3A',
-      background: '#E0FFDF',
-    },
+    fontColor: '#2F7B3A',
+    backgroundColor: '#E0FFDF',
     name: 'Полное название',
     shortName: 'ВПП',
   })
@@ -156,10 +148,8 @@ cg.add(
       month: 7,
       day: 15,
     },
-    colors: {
-      font: '#243372',
-      background: '#D5F2FA',
-    },
+    fontColor: '#243372',
+    backgroundColor: '#D5F2FA',
     name: 'Ледостав',
     shortName: 'ЛД',
   })
@@ -173,10 +163,8 @@ cg.add(
     end: {
       month: 8,
     },
-    colors: {
-      font: '#2F7B3A',
-      background: '#E0FFDF',
-    },
+    fontColor: '#2F7B3A',
+    backgroundColor: '#E0FFDF',
     name: 'Полное название',
     shortName: 'ВПП',
   })
@@ -189,11 +177,10 @@ cg.add(
     end: {
       month: 13,
       day: 31,
+      fill: true,
     },
-    colors: {
-      font: '#C08C50',
-      background: '#FEFFD7',
-    },
+    fontColor: '#C08C50',
+    backgroundColor: '#FEFFD7',
     name: 'Открытое русло',
     shortName: 'ОР',
   })
@@ -207,15 +194,369 @@ cg.add(
     row: 0,
     scaleTitle: 't воздуха °C',
     data: {
-      default: [
+      min: [
         [
           {
             day: 1,
-            value: -20,
+            value: -10,
           },
           {
-            day: 31,
-            value: 25,
+            day: 25,
+            value: 10,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 10,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 10,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 10,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 10,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 10,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 10,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 10,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 10,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 10,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 10,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 10,
+          },
+        ],
+      ],
+      middle: [
+        [
+          {
+            day: 1,
+            value: -5,
+          },
+          {
+            day: 25,
+            value: 5,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -5,
+          },
+          {
+            day: 25,
+            value: 5,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -5,
+          },
+          {
+            day: 25,
+            value: 5,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -5,
+          },
+          {
+            day: 25,
+            value: 5,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -5,
+          },
+          {
+            day: 25,
+            value: 5,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -5,
+          },
+          {
+            day: 25,
+            value: 5,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -5,
+          },
+          {
+            day: 25,
+            value: 5,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -5,
+          },
+          {
+            day: 25,
+            value: 5,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -5,
+          },
+          {
+            day: 25,
+            value: 5,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -5,
+          },
+          {
+            day: 25,
+            value: 5,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -5,
+          },
+          {
+            day: 25,
+            value: 5,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -5,
+          },
+          {
+            day: 25,
+            value: 5,
+          },
+        ],
+      ],
+      max: [
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 20,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 20,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 20,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 20,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 20,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 20,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 20,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 20,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 20,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 20,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 20,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: -10,
+          },
+          {
+            day: 25,
+            value: 20,
           },
         ],
       ],
@@ -233,7 +574,231 @@ cg.add(
         [
           {
             day: 1,
-            value: 10,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
+          },
+          {
+            day: 2,
+            value: 15,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
+          },
+          {
+            day: 2,
+            value: 15,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
+          },
+          {
+            day: 2,
+            value: 15,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
+          },
+          {
+            day: 2,
+            value: 15,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
+          },
+          {
+            day: 2,
+            value: 15,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
+          },
+          {
+            day: 2,
+            value: 15,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
+          },
+          {
+            day: 2,
+            value: 15,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
+          },
+          {
+            day: 2,
+            value: 15,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
+          },
+          {
+            day: 2,
+            value: 15,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
+          },
+          {
+            day: 2,
+            value: 15,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
+          },
+          {
+            day: 2,
+            value: 15,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
+          },
+          {
+            day: 2,
+            value: 15,
+          },
+        ],
+        [
+          {
+            day: 1,
+            value: [
+              { hour: 1, value: 1 },
+              { hour: 2, value: 2 },
+              { hour: 3, value: 3 },
+              { hour: 4, value: 4 },
+              { hour: 5, value: 5 },
+              { hour: 20, value: 15 },
+              { hour: 23, value: 25 },
+            ],
           },
           {
             day: 2,
@@ -244,16 +809,8 @@ cg.add(
       solid: [
         [
           {
-            day: 3,
-            value: 15,
-          },
-          {
-            day: 4,
-            value: 25,
-          },
-          {
             day: 31,
-            value: 25,
+            value: 15,
           },
         ],
       ],
