@@ -1,6 +1,4 @@
-import { ComplexGraph } from './ComplexGraph'
 import { Graph, GraphParameters } from './Graph'
-import { SceneRenderData } from './Scene'
 
 export type ScalePosition = 'right' | 'left'
 export type ScaleSegment = { y: number; value: number }
@@ -21,29 +19,37 @@ export interface SkipScaleSegmentParameters {
 }
 
 export abstract class GraphWithScale<K extends string = 'default'> extends Graph<K> {
-  protected readonly scaleTitle: string
+  private scaleStepParameter: number
   protected readonly scaleSegments: Array<ScaleSegment>
-  protected readonly scaleScatter: number
+  protected readonly scaleTitle: string
   protected readonly scalePosition: ScalePosition
   public scaleColor: string
   public gridColor: string | undefined
+  protected scaleScatter: number
 
   constructor(parameters: GraphWithScaleParameters<K>) {
     super(parameters)
 
-    this.scaleTitle = parameters.scaleTitle || ''
-
+    this.scaleStepParameter = parameters.scaleStep || 5
     this.scaleSegments = []
 
-    const scaleStep = parameters.scaleStep || 5
+    this.scaleTitle = parameters.scaleTitle || ''
+    this.scalePosition = parameters.scalePosition || 'left'
+    this.gridColor = parameters.gridColor
+    this.scaleColor = parameters.scaleColor || 'black'
+
+    this.scaleScatter = null!
+  }
+
+  public override onCreate() {
+    super.onCreate()
+
+    const scaleStep = this.scaleStepParameter!
 
     this.min = Math.floor(this.min / scaleStep) * scaleStep
     this.max = Math.ceil(this.max / scaleStep) * scaleStep
 
     this.scaleScatter = this.max - this.min
-    this.scalePosition = parameters.scalePosition || 'left'
-    this.gridColor = parameters.gridColor
-    this.scaleColor = parameters.scaleColor || 'black'
 
     for (let i = 0; i <= this.scaleScatter / scaleStep; i++) {
       this.scaleSegments[i] = {
@@ -53,38 +59,38 @@ export abstract class GraphWithScale<K extends string = 'default'> extends Graph
     }
   }
 
-  public override render(data: SceneRenderData) {
+  public override onRender() {
     this.scaleSegments.forEach((ss, i) => {
-      ss.y =
-        this.row.primitive.y2 - (this.row.primitive.height / (this.scaleSegments.length - 1)) * i
+      ss.y = this.row.y2 - (this.row.height / (this.scaleSegments.length - 1)) * i
     })
 
-    this.renderScale(data)
-    super.render(data)
+    this.renderScale()
+    super.onRender()
   }
 
-  private renderScale({ renderer }: SceneRenderData) {
+  private renderScale() {
+    const { renderer } = this.complexGraph
     const isLeft = this.scalePosition === 'left'
 
     const thickness = renderer.minSize * 0.002
     const dashSize = thickness * 4
     const sceneOffset = renderer.minSize * 0.01
-    const x = isLeft ? this.row.primitive.x1 - dashSize * 2 : this.row.primitive.x2 + dashSize * 2
+    const x = isLeft ? this.row.x1 - dashSize * 2 : this.row.x2 + dashSize * 2
 
     renderer.context.lineWidth = thickness
     renderer.context.strokeStyle = this.scaleColor
 
     renderer.context.beginPath()
-    renderer.context.moveTo(x, this.row.primitive.y1 - dashSize * 1.5)
-    renderer.context.lineTo(x, this.row.primitive.y2)
+    renderer.context.moveTo(x, this.row.y1 - dashSize * 1.5)
+    renderer.context.lineTo(x, this.row.y2)
     renderer.context.stroke()
 
     renderer.context.fillStyle = this.scaleColor
 
     renderer.context.beginPath()
-    renderer.context.moveTo(x - dashSize, this.row.primitive.y1)
-    renderer.context.lineTo(x, this.row.primitive.y1 - dashSize * 1.5)
-    renderer.context.lineTo(x + dashSize, this.row.primitive.y1)
+    renderer.context.moveTo(x - dashSize, this.row.y1)
+    renderer.context.lineTo(x, this.row.y1 - dashSize * 1.5)
+    renderer.context.lineTo(x + dashSize, this.row.y1)
     renderer.context.fill()
 
     this.scaleSegments.forEach((segment, index, segments) => {
@@ -100,7 +106,7 @@ export abstract class GraphWithScale<K extends string = 'default'> extends Graph
       if (skip) return
 
       renderer.context.fillStyle = 'black'
-      renderer.context.font = `${ComplexGraph.globals.calculator.fontSize}px ${ComplexGraph.globals.font}`
+      renderer.context.font = `${this.complexGraph.calculator.fontSize}px ${this.complexGraph.font}`
       renderer.context.textBaseline = 'middle'
       renderer.context.textAlign = isLeft ? 'right' : 'left'
       renderer.context.fillText(
@@ -113,15 +119,15 @@ export abstract class GraphWithScale<K extends string = 'default'> extends Graph
     if (this.gridColor) {
       renderer.context.strokeStyle = this.gridColor
 
-      ComplexGraph.globals.calculator.clip(renderer, () => {
+      this.complexGraph.calculator.clip(renderer, () => {
         this.scaleSegments.forEach((segment, index, segments) => {
           const skip = this.skipScaleSegment({ segment, index, segments })
 
           renderer.context.save()
           renderer.context.globalAlpha = segment.value == 0 ? 1 : !skip ? 0.3 : 0.1
           renderer.context.beginPath()
-          renderer.context.moveTo(ComplexGraph.globals.calculator.clipArea.x1, segment.y)
-          renderer.context.lineTo(ComplexGraph.globals.calculator.clipArea.x2, segment.y)
+          renderer.context.moveTo(this.complexGraph.calculator.clipArea.x1, segment.y)
+          renderer.context.lineTo(this.complexGraph.calculator.clipArea.x2, segment.y)
           renderer.context.stroke()
           renderer.context.restore()
         })
@@ -129,19 +135,19 @@ export abstract class GraphWithScale<K extends string = 'default'> extends Graph
     }
 
     renderer.context.save()
-    renderer.context.font = `${ComplexGraph.globals.calculator.fontSize}px ${ComplexGraph.globals.font}`
+    renderer.context.font = `${this.complexGraph.calculator.fontSize}px ${this.complexGraph.font}`
     renderer.context.textBaseline = isLeft ? 'top' : 'bottom'
     renderer.context.textAlign = 'center'
     renderer.context.fillStyle = 'black'
     renderer.context.rotate(-Math.PI / 2)
     renderer.context.translate(
-      this.row.primitive.y1 * -1 + (this.row.primitive.height / 2) * -1,
+      this.row.y1 * -1 + (this.row.height / 2) * -1,
       isLeft
-        ? ComplexGraph.globals.calculator.clipArea.x1 -
-            ComplexGraph.globals.calculator.area.x1 +
+        ? this.complexGraph.calculator.clipArea.x1 -
+            this.complexGraph.calculator.area.x1 +
             sceneOffset
-        : ComplexGraph.globals.calculator.clipArea.x2 +
-            ComplexGraph.globals.calculator.area.x1 -
+        : this.complexGraph.calculator.clipArea.x2 +
+            this.complexGraph.calculator.area.x1 -
             sceneOffset
     )
     renderer.context.fillText(this.scaleTitle, 0, 0)

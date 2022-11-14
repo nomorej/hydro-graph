@@ -1,10 +1,8 @@
-import { ComplexGraph } from '../core/ComplexGraph'
 import {
   GraphWithScale,
   GraphWithScaleParameters,
   SkipScaleSegmentParameters,
 } from '../core/GraphWithScale'
-import { SceneRenderData } from '../core/Scene'
 import { smoothGraph } from '../utils/graph'
 
 export type WaterСonsumptionGraphsTypes = 'qh' | 'measured'
@@ -26,7 +24,9 @@ export class WaterСonsumption extends GraphWithScale<WaterСonsumptionGraphsTyp
     this.color = parameters.color || 'darkgreen'
   }
 
-  public renderGraph({ renderer, scene }: SceneRenderData) {
+  protected renderGraph() {
+    const { renderer, scene } = this.complexGraph
+
     smoothGraph(renderer.context, this.points.qh)
     renderer.context.strokeStyle = this.color
     renderer.context.setLineDash([
@@ -37,7 +37,7 @@ export class WaterСonsumption extends GraphWithScale<WaterСonsumptionGraphsTyp
 
     renderer.context.fillStyle = this.color
     this.points.measured.forEach((point) => {
-      if (!ComplexGraph.globals.calculator.isPointVisible(scene, point)) return
+      if (!this.complexGraph.calculator.isPointVisible(scene, point)) return
       renderer.context.beginPath()
       renderer.context.arc(point.x, point.y, renderer.minSize * 0.005, 0, Math.PI * 2)
       renderer.context.fill()

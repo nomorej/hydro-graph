@@ -1,6 +1,4 @@
-import { ComplexGraph } from '../core/ComplexGraph'
 import { Object } from '../core/Object'
-import { SceneRenderData } from '../core/Scene'
 
 export interface ContentParameters {
   backgroundColor?: '#f5fcff'
@@ -15,13 +13,14 @@ export class Content extends Object {
     this.backgroundColor = parameters?.backgroundColor || '#f5fcff'
   }
 
-  public render({ renderer }: SceneRenderData) {
+  public onRender() {
+    const { renderer } = this.complexGraph
     renderer.context.fillStyle = this.backgroundColor
     renderer.context.fillRect(
-      ComplexGraph.globals.calculator.clipArea.x1,
-      ComplexGraph.globals.calculator.clipArea.y1,
-      ComplexGraph.globals.calculator.clipArea.width,
-      ComplexGraph.globals.calculator.clipArea.height
+      this.complexGraph.calculator.clipArea.x1,
+      this.complexGraph.calculator.clipArea.y1,
+      this.complexGraph.calculator.clipArea.width,
+      this.complexGraph.calculator.clipArea.height
     )
   }
 }

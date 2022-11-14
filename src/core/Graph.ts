@@ -1,7 +1,5 @@
-import { ComplexGraph } from './ComplexGraph'
 import { Object, ObjectParameters } from './Object'
-import { Row } from './Rows'
-import { SceneRenderData } from './Scene'
+import { Primitive } from './Primitive'
 import { TimelineSegment } from './Timeline'
 
 export interface GraphDataPoint {
@@ -21,6 +19,7 @@ export type GraphData<K extends string = 'default', T = GraphDataPoint> = {
 
 export interface GraphParameters<K extends string = 'default'> extends ObjectParameters {
   row: number
+  rowFactor?: number
   data: GraphData<K, Array<{ day: number; value: number | Array<{ hour: number; value: number }> }>>
 }
 
@@ -34,22 +33,46 @@ export interface GraphPoint {
 
 export type GraphPoints<K extends string = 'default'> = { [KEY in K]: Array<GraphPoint> }
 
+export type GraphVisibility<K extends string = 'default'> = { [key in K]: boolean }
+
 export abstract class Graph<K extends string = 'default'> extends Object {
-  protected readonly row: Row
-  protected readonly data: GraphData<K>
-  protected readonly points: GraphPoints<K>
-  protected min: number
-  protected max: number
+  public readonly rowParameter: number
+  public readonly rowFactorParameter: number
+  private dataParameter: GraphParameters<K>['data']
+  protected row: Primitive = null!
+  protected data: GraphData<K> = null!
+  protected points: GraphPoints<K> = null!
+  protected min: number = null!
+  protected max: number = null!
+  protected readonly visibility: GraphVisibility<K>
 
   constructor(parameters: GraphParameters<K>) {
     super(parameters)
 
-    this.row = ComplexGraph.globals.rows.rows[parameters.row]
+    this.rowParameter = parameters.row
+    this.rowFactorParameter = parameters.rowFactor || 1
+    this.dataParameter = parameters.data
+
+    this.visibility = {} as GraphVisibility<K>
+
+    for (const key in this.dataParameter) {
+      this.visibility[key] = true
+    }
+  }
+
+  public recreate(data: GraphParameters<K>['data']) {
+    this.dataParameter = data
+    this.onDestroy?.()
+    this.onCreate()
+  }
+
+  public override onCreate() {
+    this.row = this.complexGraph.rows.rows[this.rowParameter!]
 
     const data: GraphData<K> = {} as GraphData<K>
 
-    for (const key in parameters.data) {
-      const months = parameters.data[key]
+    for (const key in this.dataParameter!) {
+      const months = this.dataParameter![key]
 
       data[key] = []
 
@@ -58,7 +81,7 @@ export abstract class Graph<K extends string = 'default'> extends Object {
       months.forEach((month, monthIndex) => {
         month.forEach((day) => {
           if (typeof day.value !== 'number') {
-            const daySegment = ComplexGraph.globals.timeline.months[monthIndex].days[day.day - 1]
+            const daySegment = this.complexGraph.timeline.months[monthIndex].days[day.day - 1]
 
             const parent = {
               segment: daySegment,
@@ -78,7 +101,7 @@ export abstract class Graph<K extends string = 'default'> extends Object {
             })
           } else {
             data[key][index] = {
-              segment: ComplexGraph.globals.timeline.months[monthIndex].days[day.day - 1],
+              segment: this.complexGraph.timeline.months[monthIndex].days[day.day - 1],
               value: day.value,
             }
             index++
@@ -111,36 +134,55 @@ export abstract class Graph<K extends string = 'default'> extends Object {
     }
   }
 
-  public render(data: SceneRenderData): void {
-    const heightStep = this.row.primitive.height / Math.max(1, this.max - this.min)
+  public onRender() {
+    const heightStep = this.row.height / Math.max(1, this.max - this.min)
 
     this.everyPoint((key, point, i) => {
       const item = this.data[key][i]
       point.width = item.segment.width
       point.height = heightStep * (+item.value - this.min)
-      point.x = ComplexGraph.globals.calculator.area.x1 + item.segment.x1
-      point.y = this.row.primitive.y2 - point.height
+      point.x = this.complexGraph.calculator.area.x1 + item.segment.x1
+      point.y = this.row.y2 - point.height
 
       if (item.parent && point.parent) {
         point.parent.width = item.parent.segment.width
         point.parent.height = heightStep * (+item.parent.middleValue - this.min)
-        point.parent.x = ComplexGraph.globals.calculator.area.x1 + item.parent.segment.x1
-        point.parent.y = this.row.primitive.y2 - point.parent.height
+        point.parent.x = this.complexGraph.calculator.area.x1 + item.parent.segment.x1
+        point.parent.y = this.row.y2 - point.parent.height
       }
     })
 
-    ComplexGraph.globals.calculator.clip(data.renderer, () => {
-      this.renderGraph(data)
+    this.complexGraph.calculator.clip(this.complexGraph.renderer, () => {
+      this.renderGraph()
     })
   }
 
-  protected abstract renderGraph(data: SceneRenderData): void
+  public show(key?: K) {
+    if (key) {
+      this.visibility[key] = true
+      this.complexGraph.renderer.redraw()
+    } else {
+      this.complexGraph.show(this)
+    }
+  }
+
+  public hide(key?: K) {
+    if (key) {
+      this.visibility[key] = false
+      this.complexGraph.renderer.redraw()
+    } else {
+      this.complexGraph.hide(this)
+    }
+  }
+
+  protected abstract renderGraph(): void
 
   protected everyPoint(
-    callback: (key: K, point: GraphPoint, index: number, points: Array<GraphPoint>) => void
+    callback: (key: K, point: GraphPoint, index: number, points: Array<GraphPoint>) => void,
+    points = this.points
   ) {
     for (const key in this.data) {
-      this.points[key].forEach((point, i, arr) => {
+      points[key].forEach((point, i, arr) => {
         callback(key, point, i, arr)
       })
     }

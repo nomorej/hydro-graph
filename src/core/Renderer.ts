@@ -21,7 +21,6 @@ export class Renderer extends Canvas {
   }
 
   public withTicker(callback?: () => void) {
-    this.scene.setSmoothness()
     Ticker.add(this.draw)
     Ticker.removeAfterDelay(this.draw)
     callback?.()

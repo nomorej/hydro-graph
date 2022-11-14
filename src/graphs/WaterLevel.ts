@@ -3,7 +3,6 @@ import {
   GraphWithScaleParameters,
   SkipScaleSegmentParameters,
 } from '../core/GraphWithScale'
-import { SceneRenderData } from '../core/Scene'
 import { smoothGraph } from '../utils/graph'
 
 export type WaterLevelGraphsTypes = 'default'
@@ -25,7 +24,8 @@ export class WaterLevel extends GraphWithScale<WaterLevelGraphsTypes> {
     this.color = parameters.color || 'darkblue'
   }
 
-  public renderGraph({ renderer }: SceneRenderData) {
+  protected renderGraph() {
+    const { renderer } = this.complexGraph
     smoothGraph(renderer.context, this.points.default)
     renderer.context.strokeStyle = this.color
     renderer.context.stroke()

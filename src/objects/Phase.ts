@@ -1,6 +1,4 @@
-import { ComplexGraph } from '../core/ComplexGraph'
 import { Object, ObjectParameters } from '../core/Object'
-import { SceneRenderData } from '../core/Scene'
 import { TimelineSegment } from '../core/Timeline'
 
 export interface PhaseParameters extends ObjectParameters {
@@ -24,72 +22,93 @@ export interface PhaseParameters extends ObjectParameters {
 }
 
 export class Phase extends Object {
-  private readonly start: TimelineSegment
-  private readonly end: TimelineSegment
-  private readonly fillEndSegment: boolean
+  private start: TimelineSegment
+  private end: TimelineSegment
+
+  private startParameters: PhaseParameters['start']
+  private endParameters: PhaseParameters['end']
+
   public readonly shortName: string
+
+  private readonly fillEndSegment: boolean
+
   public fontColor: string
   public backgroundColor: string
 
   constructor(parameters: PhaseParameters) {
     super({ name: '', ...parameters })
 
-    const start = ComplexGraph.globals.timeline.findSegment(
-      parameters.start.month,
-      parameters.start.day,
-      parameters.start.hour
+    this.start = null!
+    this.end = null!
+
+    this.startParameters = parameters.start
+    this.endParameters = parameters.end
+
+    this.shortName = parameters.shortName || this.name || ''
+
+    this.fillEndSegment = parameters.end.fill || false
+
+    this.fontColor = parameters.fontColor || 'darkblue'
+    this.backgroundColor = parameters.backgroundColor || 'lightblue'
+  }
+
+  public override onCreate() {
+    const start = this.complexGraph.timeline.findSegment(
+      this.startParameters!.month,
+      this.startParameters!.day,
+      this.startParameters!.hour
     )
 
     if (!start) {
       throw new Error(
-        `Сегмент со следующими параметрами [month:${parameters.start.month}, day:${parameters.start.day}, hour:${parameters.start.hour}] не найден`
+        `Сегмент со следующими параметрами [month:${this.startParameters!.month}, day:${
+          this.startParameters!.day
+        }, hour:${this.startParameters!.hour}] не найден`
       )
     }
 
-    const end = ComplexGraph.globals.timeline.findSegment(
-      parameters.end.month,
-      parameters.end.day,
-      parameters.end.hour
+    const end = this.complexGraph.timeline.findSegment(
+      this.endParameters!.month,
+      this.endParameters!.day,
+      this.endParameters!.hour
     )
 
     if (!end) {
       throw new Error(
-        `Сегмент со следующими параметрами [month:${parameters.end.month}, day:${parameters.end.day}, hour:${parameters.end.hour}] не найден`
+        `Сегмент со следующими параметрами [month:${this.endParameters!.month}, day:${
+          this.endParameters!.day
+        }, hour:${this.endParameters!.hour}] не найден`
       )
     }
 
     this.start = start
     this.end = end
-    this.fillEndSegment = parameters.end.fill || false
-
-    this.fontColor = parameters.fontColor || 'darkblue'
-    this.backgroundColor = parameters.backgroundColor || 'lightblue'
-    this.shortName = parameters.shortName || this.name || ''
   }
 
-  public render({ renderer, scene }: SceneRenderData) {
-    ComplexGraph.globals.calculator.clip(renderer, () => {
+  public onRender() {
+    const { renderer, scene } = this.complexGraph
+
+    this.complexGraph.calculator.clip(renderer, () => {
       renderer.context.fillStyle = this.backgroundColor
 
-      if (!ComplexGraph.globals.calculator.isSegmentVisible(scene, this.start, this.end)) return
+      if (!this.complexGraph.calculator.isSegmentVisible(scene, this.start, this.end)) return
 
       const delta = (this.fillEndSegment ? this.end.x2 : this.end.x1) - this.start.x1
 
-      const middle = ComplexGraph.globals.calculator.area.x1 + this.start.x1 + delta / 2
+      const middle = this.complexGraph.calculator.area.x1 + this.start.x1 + delta / 2
       const offsetY =
-        (ComplexGraph.globals.calculator.clipArea.height -
-          ComplexGraph.globals.calculator.area.height) /
+        (this.complexGraph.calculator.clipArea.height - this.complexGraph.calculator.area.height) /
         2
 
       renderer.context.fillRect(
-        ComplexGraph.globals.calculator.area.x1 + this.start.x1,
-        ComplexGraph.globals.calculator.clipArea.y1,
+        this.complexGraph.calculator.area.x1 + this.start.x1,
+        this.complexGraph.calculator.clipArea.y1,
         delta,
-        ComplexGraph.globals.calculator.clipArea.height
+        this.complexGraph.calculator.clipArea.height
       )
 
       renderer.context.fillStyle = this.fontColor
-      renderer.context.font = `${ComplexGraph.globals.calculator.fontSize}px ${ComplexGraph.globals.font}`
+      renderer.context.font = `${this.complexGraph.calculator.fontSize}px ${this.complexGraph.font}`
       renderer.context.textBaseline = 'middle'
       renderer.context.textAlign = 'center'
 
@@ -100,16 +119,12 @@ export class Phase extends Object {
       const xs = textSize.width > delta
 
       if (xs) {
-        renderer.context.font = `${ComplexGraph.globals.calculator.fontSize * 0.5}px ${
-          ComplexGraph.globals.font
+        renderer.context.font = `${this.complexGraph.calculator.fontSize * 0.5}px ${
+          this.complexGraph.font
         }`
       }
 
-      renderer.context.fillText(
-        title,
-        middle,
-        ComplexGraph.globals.calculator.clipArea.y2 - offsetY
-      )
+      renderer.context.fillText(title, middle, this.complexGraph.calculator.clipArea.y2 - offsetY)
     })
   }
 }

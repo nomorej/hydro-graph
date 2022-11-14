@@ -102,11 +102,8 @@ export class TimelineMonth extends TimelineSegment {
 export class Timeline {
   public readonly months: Array<TimelineMonth>
 
-  constructor() {
+  constructor(data: TimelineMonthsData) {
     this.months = []
-  }
-
-  public construct(data: TimelineMonthsData) {
     data.forEach((monthData, monthIndex) => {
       this.months[monthIndex] = new TimelineMonth({
         index: monthIndex,

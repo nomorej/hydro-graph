@@ -1,0 +1,1 @@
+[EXAMPLE](/src/example.ts)

@@ -1,8 +1,7 @@
-import { ComplexGraph } from './ComplexGraph'
 import { Object } from './Object'
 import { Primitive } from './Primitive'
 import { Renderer } from './Renderer'
-import { Scene, SceneRenderData } from './Scene'
+import { Scene } from './Scene'
 import { TimelineSegment } from './Timeline'
 
 export class Calculator extends Object {
@@ -26,7 +25,9 @@ export class Calculator extends Object {
     this.isHoursFullZoom = false
   }
 
-  public render({ scene, renderer }: SceneRenderData): void {
+  public onRender() {
+    const { renderer, scene } = this.complexGraph
+
     const offsetX = renderer.minSize * 0.15
     const offsetY = renderer.minSize * 0.02
 
@@ -40,15 +41,15 @@ export class Calculator extends Object {
     this.area.y1 = this.clipArea.y1
     this.area.y2 = this.clipArea.y2 * 0.95
 
-    this.fontSize = ComplexGraph.globals.sizes.font * renderer.minSize
+    this.fontSize = this.complexGraph.fontSize * renderer.minSize
 
     this.isDaysZoom = scene.zoom > 4
     this.isDaysFullZoom = scene.zoom > 10
     this.isHoursZoom = scene.zoom > 50
     this.isHoursFullZoom = scene.zoom > 150
 
-    ComplexGraph.globals.timeline.resize(this.area.width)
-    ComplexGraph.globals.rows.resize(
+    this.complexGraph.timeline.resize(this.area.width)
+    this.complexGraph.rows.resize(
       this.clipArea.x1,
       this.clipArea.x2,
       this.clipArea.y1,

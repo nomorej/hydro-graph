@@ -1,6 +1,5 @@
-import { ComplexGraph } from '../core/ComplexGraph'
 import { Object } from '../core/Object'
-import { Scene, SceneRenderData } from '../core/Scene'
+import { Scene } from '../core/Scene'
 import { TimelineDay, TimelineHour, TimelineMonth } from '../core/Timeline'
 
 export interface TimelineParameters {
@@ -28,18 +27,20 @@ export class Timeline extends Object {
     this.hourColor = parameters?.hourColor || 'lightblue'
   }
 
-  public render({ renderer, scene }: SceneRenderData) {
+  public onRender() {
+    const { renderer, scene } = this.complexGraph
+
     const sceneOffsetX = renderer.minSize * 0.01
-    const contentOffsetY = (renderer.size.y - ComplexGraph.globals.calculator.clipArea.y2) / 3
+    const contentOffsetY = (renderer.size.y - this.complexGraph.calculator.clipArea.y2) / 3
 
     const axisX1 = sceneOffsetX
     const axisX2 = scene.size.pointer.current - sceneOffsetX
-    const axisY = ComplexGraph.globals.calculator.clipArea.y2 + contentOffsetY
-    const gridY = ComplexGraph.globals.calculator.area.y2
+    const axisY = this.complexGraph.calculator.clipArea.y2 + contentOffsetY
+    const gridY = this.complexGraph.calculator.area.y2
 
     const scaleThickness = renderer.minSize * 0.003
 
-    const monthFontSize = ComplexGraph.globals.calculator.fontSize
+    const monthFontSize = this.complexGraph.calculator.fontSize
     const monthDashSize = scaleThickness * 4
 
     const dayFontSize = monthFontSize * 0.9
@@ -48,7 +49,7 @@ export class Timeline extends Object {
     const hourFontSize = dayFontSize * 0.8
     const hourDashSize = dayDashSize * 0.6
 
-    const segmentHeight = axisY - ComplexGraph.globals.calculator.clipArea.height - contentOffsetY
+    const segmentHeight = axisY - this.complexGraph.calculator.clipArea.height - contentOffsetY
 
     renderer.context.lineWidth = scaleThickness
     renderer.context.strokeStyle = this.scaleColor
@@ -70,7 +71,7 @@ export class Timeline extends Object {
         renderer.context.lineTo(x, axisY + monthDashSize)
         renderer.context.stroke()
 
-        renderer.context.font = `${monthFontSize}px ${ComplexGraph.globals.font}`
+        renderer.context.font = `${monthFontSize}px ${this.complexGraph.font}`
         renderer.context.fillText(month.title.toString(), x, axisY + monthDashSize * 2)
       },
       day: (day, x, visible) => {
@@ -80,7 +81,7 @@ export class Timeline extends Object {
         renderer.context.stroke()
 
         if (visible) {
-          renderer.context.font = `${dayFontSize}px ${ComplexGraph.globals.font}`
+          renderer.context.font = `${dayFontSize}px ${this.complexGraph.font}`
           renderer.context.fillText(day.title.toString(), x, axisY + dayDashSize * 2)
         }
       },
@@ -91,13 +92,13 @@ export class Timeline extends Object {
         renderer.context.stroke()
 
         if (visible) {
-          renderer.context.font = `${hourFontSize}px ${ComplexGraph.globals.font}`
+          renderer.context.font = `${hourFontSize}px ${this.complexGraph.font}`
           renderer.context.fillText(hour.title.toString(), x, axisY + hourDashSize * 2)
         }
       },
     })
 
-    ComplexGraph.globals.calculator.clip(renderer, () => {
+    this.complexGraph.calculator.clip(renderer, () => {
       this.renderMonths({
         scene,
         month: (_, x) => {
@@ -137,31 +138,31 @@ export class Timeline extends Object {
     day: (day: TimelineDay, x: number, visible: boolean) => void
     hour: (hour: TimelineHour, x: number, visible: boolean) => void
   }) {
-    ComplexGraph.globals.timeline.forEveryMonth((month) => {
-      if (!ComplexGraph.globals.calculator.isSegmentVisible(parameters.scene, month)) return
+    this.complexGraph.timeline.forEveryMonth((month) => {
+      if (!this.complexGraph.calculator.isSegmentVisible(parameters.scene, month)) return
 
       if (month.index) {
-        parameters.month(month, ComplexGraph.globals.calculator.area.x1 + month.x1)
+        parameters.month(month, this.complexGraph.calculator.area.x1 + month.x1)
       }
 
-      if (ComplexGraph.globals.calculator.isDaysZoom) {
+      if (this.complexGraph.calculator.isDaysZoom) {
         month.forEveryDay((day) => {
           const dayVisible =
             day.index > 0 &&
             ((+day.title % 5 === 0 &&
-              !ComplexGraph.globals.calculator.isDaysFullZoom &&
+              !this.complexGraph.calculator.isDaysFullZoom &&
               day.title != 30) ||
-              ComplexGraph.globals.calculator.isDaysFullZoom)
+              this.complexGraph.calculator.isDaysFullZoom)
 
-          parameters.day(day, ComplexGraph.globals.calculator.area.x1 + day.x1, dayVisible)
+          parameters.day(day, this.complexGraph.calculator.area.x1 + day.x1, dayVisible)
 
-          if (ComplexGraph.globals.calculator.isHoursZoom) {
+          if (this.complexGraph.calculator.isHoursZoom) {
             day.forEveryHour((hour) => {
               const hourVisible =
                 hour.index > 0 &&
-                ((+hour.title % 4 === 0 && !ComplexGraph.globals.calculator.isHoursFullZoom) ||
-                  ComplexGraph.globals.calculator.isHoursFullZoom)
-              parameters.hour(hour, ComplexGraph.globals.calculator.area.x1 + hour.x1, hourVisible)
+                ((+hour.title % 4 === 0 && !this.complexGraph.calculator.isHoursFullZoom) ||
+                  this.complexGraph.calculator.isHoursFullZoom)
+              parameters.hour(hour, this.complexGraph.calculator.area.x1 + hour.x1, hourVisible)
             })
           }
         })

@@ -1,6 +1,3 @@
-import { Renderer } from '../core/Renderer'
-import { Scene, SceneRenderData } from '../core/Scene'
-import { ComplexGraph } from '../core/ComplexGraph'
 import { Object } from '../core/Object'
 
 export interface ScrollbarParameters {
@@ -10,8 +7,6 @@ export interface ScrollbarParameters {
 export class Scrollbar extends Object {
   private readonly bar: HTMLElement
   private readonly knob: HTMLElement
-  private scene: Scene = null!
-  private renderer: Renderer = null!
   private grabbed: boolean = null!
   private hovered: boolean = null!
 
@@ -48,11 +43,10 @@ export class Scrollbar extends Object {
     this.hovered = false
   }
 
-  public override create(scene: Scene) {
-    this.scene = scene
-    this.renderer = scene.renderer
+  public override onCreate() {
+    const { scene } = this.complexGraph
 
-    this.scene.addObject(this)
+    scene.addObject(this)
 
     this.bar.appendChild(this.knob)
 
@@ -63,15 +57,18 @@ export class Scrollbar extends Object {
     this.knob.addEventListener('pointerleave', this.handlePointerLeave)
   }
 
-  public override destroy(scene: Scene) {
+  public override onDestroy() {
+    const { scene } = this.complexGraph
     this.knob.removeEventListener('pointerdown', this.handlePointerDown)
     this.knob.removeEventListener('pointerenter', this.handlePointerEnter)
     this.knob.removeEventListener('pointerleave', this.handlePointerLeave)
     scene.renderer.containerElement.removeChild(this.bar)
   }
 
-  public render({ scene }: SceneRenderData) {
-    const c = ComplexGraph.globals.calculator
+  public onRender() {
+    const { scene } = this.complexGraph
+
+    const c = this.complexGraph.calculator
 
     this.knob.style.width = 1 + 'px'
     this.bar.style.top = c.clipArea.y2 + 'px'
@@ -79,15 +76,15 @@ export class Scrollbar extends Object {
     const reduce = 0.9
     const sceneSize = scene.size.pointer.current - scene.viewportSize
     const zoom = sceneSize / scene.viewportSize
-    const reversedZoom = ComplexGraph.globals.maxZoom - zoom * reduce
+    const reversedZoom = this.complexGraph.scene.maxZoom - zoom * reduce
 
     const scale =
-      ((scene.viewportSize - c.area.x1 * 2) / ComplexGraph.globals.maxZoom) * reversedZoom
+      ((scene.viewportSize - c.area.x1 * 2) / this.complexGraph.scene.maxZoom) * reversedZoom
 
     const x =
       c.area.x1 +
       (scene.position.pointer.current /
-        ((scene.viewportSize * ComplexGraph.globals.maxZoom) / c.clipArea.width)) *
+        ((scene.viewportSize * this.complexGraph.scene.maxZoom) / c.clipArea.width)) *
         reduce
 
     this.knob.style.transform = `translateX(${x}px) scaleX(${scale})`
@@ -102,20 +99,24 @@ export class Scrollbar extends Object {
   }
 
   private handlePointerEnter = () => {
+    const { scene } = this.complexGraph
     this.hovered = true
-    this.bar.style.opacity = this.scene.zoom !== 1 ? '1' : '0'
+    this.bar.style.opacity = scene.zoom !== 1 ? '1' : '0'
   }
 
   private handlePointerLeave = () => {
+    const { scene } = this.complexGraph
     this.hovered = false
-    this.bar.style.opacity = this.scene.zoom !== 1 ? '0.3' : '0'
+    this.bar.style.opacity = scene.zoom !== 1 ? '0.3' : '0'
   }
 
   private handlePointerDown = (grabEvent: MouseEvent) => {
+    const { renderer, scene } = this.complexGraph
+
     const move = (moveEvent: MouseEvent) => {
-      this.renderer.withTicker(() => {
-        const moveCoord = start + (moveEvent.x - grabCoord) * this.scene.zoom
-        this.scene.setTranslate(moveCoord)
+      renderer.withTicker(() => {
+        const moveCoord = start + (moveEvent.x - grabCoord) * scene.zoom
+        scene.setTranslate(moveCoord)
       })
     }
 
@@ -129,9 +130,9 @@ export class Scrollbar extends Object {
     }
 
     const grabCoord = grabEvent.x
-    const start = this.scene.position.pointer.target
+    const start = scene.position.pointer.target
 
-    if (this.scene.zoom !== 1) {
+    if (scene.zoom !== 1) {
       document.body.style.cursor = 'grabbing'
       this.knob.style.cursor = 'grabbing'
       this.grabbed = true

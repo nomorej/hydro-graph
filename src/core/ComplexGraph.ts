@@ -4,46 +4,46 @@ import { CanvasParameters } from '../tools/Canvas'
 import { cursorPosition } from '../utils/coordinates'
 import { clamp } from '../utils/math'
 import { Timeline, TimelineMonthsData } from './Timeline'
-import { Rows, RowsFactors } from './Rows'
+import { Rows } from './Rows'
 import { Calculator } from './Calculator'
 import { Object } from './Object'
+import { Graph } from './Graph'
 
 export interface Parameters {
-  container: CanvasParameters['container']
+  wrapper: CanvasParameters['container']
   months: TimelineMonthsData
-  rows: RowsFactors
+  zoomMouseButton?: number
+  wheelZoomAcceleration?: number
+  wheelTranlationSpeed?: number
+  smoothness?: number
+  maxZoom?: number
+  fontSize?: number
+  font?: string
 }
 
 export class ComplexGraph {
-  public static globals = {
-    sizes: {
-      font: 0.02,
-    },
-    font: 'sans-serif',
-    zoomMouseButton: 0,
-    wheelZoomAcceleration: 1,
-    wheelTranlationSpeed: 1,
-    smoothness: 7,
-    maxZoom: 300,
-    calculator: new Calculator(),
-    timeline: new Timeline(),
-    rows: new Rows(),
-  }
-
-  private readonly wrapper: HTMLElement
-  private readonly container: HTMLElement
-  private readonly scene: Scene
-  private readonly renderer: Renderer
-
+  public readonly wrapper: HTMLElement
+  public readonly container: HTMLElement
+  public readonly scene: Scene
+  public readonly renderer: Renderer
+  private readonly toggleViewButton: HTMLElement
   private readonly statuses: {
     scaleButtonPressed: boolean
     fullView: boolean
   }
 
-  private readonly toggleViewButton: HTMLElement
+  public readonly calculator: Calculator
+  public readonly timeline: Timeline
+  public readonly rows: Rows
+
+  public zoomMouseButton: number
+  public wheelZoomAcceleration: number
+  public wheelTranlationSpeed: number
+  public fontSize: number
+  public font: string
 
   constructor(parameters: Parameters) {
-    this.wrapper = parameters.container
+    this.wrapper = parameters.wrapper
 
     this.container = document.createElement('div')
     this.container.style.cssText = `
@@ -55,6 +55,17 @@ export class ComplexGraph {
       height: 100%;
     `
     this.wrapper.appendChild(this.container)
+
+    this.scene = new Scene({
+      smoothness: parameters.smoothness,
+      maxZoom: parameters.maxZoom,
+    })
+
+    this.renderer = new Renderer({
+      container: this.container,
+      scene: this.scene,
+      clearColor: 'white',
+    })
 
     this.toggleViewButton = document.createElement('div')
     this.toggleViewButton.style.cssText = `
@@ -69,23 +80,23 @@ export class ComplexGraph {
     `
     this.container.appendChild(this.toggleViewButton)
 
-    this.scene = new Scene()
-
-    this.renderer = new Renderer({
-      container: this.container,
-      scene: this.scene,
-      clearColor: 'white',
-    })
-
-    ComplexGraph.globals.timeline.construct(parameters.months)
-    ComplexGraph.globals.rows.construct(parameters.rows)
-
-    this.scene.addObject(ComplexGraph.globals.calculator)
-
     this.statuses = {
       scaleButtonPressed: false,
       fullView: false,
     }
+
+    this.timeline = new Timeline(parameters.months)
+    this.rows = new Rows()
+    this.calculator = new Calculator()
+    this.calculator.complexGraph = this
+
+    this.zoomMouseButton = parameters.zoomMouseButton || 0
+    this.wheelZoomAcceleration = parameters.wheelZoomAcceleration || 1
+    this.wheelTranlationSpeed = parameters.wheelTranlationSpeed || 1
+    this.fontSize = parameters.maxZoom || 0.02
+    this.font = parameters.font || 'sans-serif'
+
+    this.scene.addObject(this.calculator)
 
     this.container.addEventListener('wheel', this.handleWheel)
     this.container.addEventListener('pointerdown', this.handlePointerDown)
@@ -106,8 +117,34 @@ export class ComplexGraph {
     this.wrapper.removeChild(this.container)
   }
 
+  public hide(graph: Graph<any>) {
+    this.rows.removeGraph(graph)
+    graph.isActive = false
+    this.renderer.redraw()
+  }
+
+  public show(graph: Graph<any>) {
+    this.rows.addGraph(graph)
+    graph.isActive = true
+    this.renderer.redraw()
+  }
+
   public add<T extends Object>(object: T) {
+    object.complexGraph = this
+    if (object instanceof Graph) {
+      this.rows.addGraph(object)
+    }
     this.scene.addObject(object)
+    this.renderer.redraw()
+    return object
+  }
+
+  public remove<T extends Object>(object: T) {
+    if (object instanceof Graph) {
+      this.rows.removeGraph(object)
+    }
+    this.scene.removeObject(object)
+    this.renderer.redraw()
   }
 
   private handleWheel = (event: WheelEvent) => {
@@ -119,14 +156,14 @@ export class ComplexGraph {
   }
 
   private handlePointerDown = (event: PointerEvent) => {
-    if (event.button === ComplexGraph.globals.zoomMouseButton) {
+    if (event.button === this.zoomMouseButton) {
       event.preventDefault()
       this.statuses.scaleButtonPressed = true
     }
   }
 
   private handleMouseUp = (event: PointerEvent) => {
-    if (event.button === ComplexGraph.globals.zoomMouseButton) {
+    if (event.button === this.zoomMouseButton) {
       event.preventDefault()
       this.statuses.scaleButtonPressed = false
     }
@@ -138,14 +175,11 @@ export class ComplexGraph {
 
   private scale = (event: WheelEvent) => {
     const mousePosition = cursorPosition(event, this.container, {
-      x: ComplexGraph.globals.calculator.area.x1,
+      x: this.calculator.area.x1,
       y: 0,
     }).x
     const zoomSpeed =
-      clamp(event.deltaY, -1, 1) *
-      this.scene.zoom *
-      ComplexGraph.globals.wheelZoomAcceleration *
-      0.2
+      clamp(event.deltaY, -1, 1) * this.scene.zoom * this.wheelZoomAcceleration * 0.2
     this.renderer.withTicker(() => {
       this.scene.scale(mousePosition, zoomSpeed)
     })
@@ -153,7 +187,7 @@ export class ComplexGraph {
 
   private translate = (event: WheelEvent) => {
     this.renderer.withTicker(() => {
-      this.scene.translate(event.deltaY * ComplexGraph.globals.wheelTranlationSpeed)
+      this.scene.translate(event.deltaY * this.wheelTranlationSpeed)
     })
   }
 

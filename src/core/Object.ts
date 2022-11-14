@@ -1,4 +1,4 @@
-import { Scene, SceneCallbackData, SceneRenderData } from './Scene'
+import { ComplexGraph } from './ComplexGraph'
 
 export interface ObjectParameters {
   name?: string
@@ -6,15 +6,16 @@ export interface ObjectParameters {
 
 export abstract class Object {
   public readonly name: string | undefined
-  public active: boolean
+  public isActive: boolean
+  public complexGraph: ComplexGraph = null!
 
   constructor(parameters?: ObjectParameters) {
     this.name = parameters?.name
-    this.active = true
+    this.isActive = true
   }
 
-  public abstract render(data: SceneRenderData): void
-  public resize?(data: SceneCallbackData): void
-  public create?(scene: Scene): void
-  public destroy?(scene: Scene): void
+  public abstract onRender(): void
+  public onResize?(): void
+  public onCreate?(): void
+  public onDestroy?(): void
 }

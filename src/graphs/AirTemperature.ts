@@ -3,7 +3,6 @@ import {
   GraphWithScaleParameters,
   SkipScaleSegmentParameters,
 } from '../core/GraphWithScale'
-import { SceneRenderData } from '../core/Scene'
 import { smoothGraph } from '../utils/graph'
 
 export type AirTemperatureGraphsTypes = 'middle' | 'max' | 'min'
@@ -32,18 +31,26 @@ export class AirTemperature extends GraphWithScale<AirTemperatureGraphsTypes> {
     this.maxCurveColor = parameters.maxCurveColor || 'darkred'
   }
 
-  public renderGraph({ renderer }: SceneRenderData) {
-    smoothGraph(renderer.context, this.points.min)
-    renderer.context.strokeStyle = this.minCurveColor
-    renderer.context.stroke()
+  protected renderGraph() {
+    const { renderer } = this.complexGraph
 
-    smoothGraph(renderer.context, this.points.middle)
-    renderer.context.strokeStyle = this.middleCurveColor
-    renderer.context.stroke()
+    if (this.visibility.min) {
+      smoothGraph(renderer.context, this.points.min)
+      renderer.context.strokeStyle = this.minCurveColor
+      renderer.context.stroke()
+    }
 
-    smoothGraph(renderer.context, this.points.max)
-    renderer.context.strokeStyle = this.maxCurveColor
-    renderer.context.stroke()
+    if (this.visibility.middle) {
+      smoothGraph(renderer.context, this.points.middle)
+      renderer.context.strokeStyle = this.middleCurveColor
+      renderer.context.stroke()
+    }
+
+    if (this.visibility.max) {
+      smoothGraph(renderer.context, this.points.max)
+      renderer.context.strokeStyle = this.maxCurveColor
+      renderer.context.stroke()
+    }
   }
 
   protected skipScaleSegment(data: SkipScaleSegmentParameters): boolean {
