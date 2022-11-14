@@ -14,8 +14,8 @@ export class Scene {
   public zoom: number
   public maxZoom: number
 
-  public readonly size: Track
-  public readonly position: Track
+  public size: Track
+  public position: Track
   public readonly objects: Set<Object>
 
   private _smoothness: number
@@ -27,8 +27,8 @@ export class Scene {
     this.zoom = 1
     this.maxZoom = parameters?.maxZoom || 300
 
-    this.size = new Track()
-    this.position = new Track()
+    this.size = new Track({ slipperiness: 0 })
+    this.position = new Track({ slipperiness: 0 })
 
     this.objects = new Set()
 
@@ -93,6 +93,10 @@ export class Scene {
   public render(renderer: Renderer, _: number, dt: number) {
     this.size.slide(dt)
     this.position.slide(dt)
+
+    if (this.position.isIdle() && this.size.isIdle()) {
+      this.renderer.stopTick()
+    }
 
     renderer.context.save()
     renderer.context.translate(this.position.pointer.current * -1, 0)

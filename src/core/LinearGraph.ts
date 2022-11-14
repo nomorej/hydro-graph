@@ -32,7 +32,7 @@ export abstract class LinearGraph<
 
     context.moveTo(sx, sy)
 
-    for (let i = 1; i < points.length; i += 1) {
+    for (let i = 1; i < points.length; i++) {
       const x = points[i].x
       const y = points[i].y
 
