@@ -231,6 +231,51 @@ export function example() {
           ],
         ],
       },
+      waterTemperature: {
+        default: [
+          [
+            {
+              day: 1,
+              value: 10,
+            },
+            {
+              day: 30,
+              value: 55,
+            },
+          ],
+        ],
+      },
+      snowLevel: {
+        default: [
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [
+            {
+              day: 1,
+              value: 10,
+            },
+            {
+              day: 30,
+              value: -10,
+            },
+          ],
+          [
+            {
+              day: 31,
+              value: 10,
+            },
+          ],
+        ],
+      },
       waterlevel: {
         default: [
           [
@@ -275,6 +320,18 @@ export function example() {
                   value: 333,
                 },
               ],
+            },
+          ],
+        ],
+        calculated: [
+          [
+            {
+              day: 12,
+              value: 10,
+            },
+            {
+              day: 18,
+              value: 13,
             },
           ],
         ],

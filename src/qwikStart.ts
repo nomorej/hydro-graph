@@ -1,7 +1,9 @@
 import { ComplexGraph, Parameters } from './core/ComplexGraph'
 import { AirTemperature, AirTemperatureParameters } from './graphs/AirTemperature'
 import { Precipitation, PrecipitationParameters } from './graphs/Precipitation'
+import { SnowLevel, SnowLevelParameters } from './graphs/SnowLevel'
 import { WaterLevel, WaterLevelParameters } from './graphs/WaterLevel'
+import { WaterTemperature, WaterTemperatureParameters } from './graphs/WaterTemperature'
 import { WaterСonsumption, WaterСonsumptionParameters } from './graphs/WaterСonsumption'
 import { Content } from './objects/Content'
 import { Phase, PhaseParameters } from './objects/Phase'
@@ -39,6 +41,8 @@ export interface QwikStartParameters extends Pick<Parameters, 'wrapper' | 'month
   data: {
     airTemperature: AirTemperatureParameters['data']
     precipitation: PrecipitationParameters['data']
+    waterTemperature: WaterTemperatureParameters['data']
+    snowLevel: SnowLevelParameters['data']
     waterlevel: WaterLevelParameters['data']
     waterСonsumption: WaterСonsumptionParameters['data']
     phases?: Array<{
@@ -74,6 +78,7 @@ export function qwikStart(parameters: QwikStartParameters) {
     new AirTemperature({
       name: 'airTemperature',
       row: 0,
+      rowFactor: 1.5,
       scaleTitle: 't воздуха °C',
       data: parameters.data.airTemperature,
     })
@@ -88,10 +93,29 @@ export function qwikStart(parameters: QwikStartParameters) {
     })
   )
 
+  const waterTemperature = cg.add(
+    new WaterTemperature({
+      name: 'waterTemperature',
+      row: 2,
+      scaleTitle: 't воды °C',
+      data: parameters.data.waterTemperature,
+    })
+  )
+
+  const snowLevel = cg.add(
+    new SnowLevel({
+      name: 'snowLevel',
+      row: 2,
+      scaleTitle: 'Снег, лед см',
+      data: parameters.data.snowLevel,
+    })
+  )
+
   const waterlevel = cg.add(
     new WaterLevel({
       name: 'waterlevel',
       row: 3,
+      rowFactor: 2,
       scaleTitle: 'Ур. воды, см',
       scaleStep: 50,
       data: parameters.data.waterlevel,
@@ -112,6 +136,8 @@ export function qwikStart(parameters: QwikStartParameters) {
   return {
     airTemperature,
     precipitation,
+    waterTemperature,
+    snowLevel,
     waterlevel,
     waterСonsumption,
     destroy() {

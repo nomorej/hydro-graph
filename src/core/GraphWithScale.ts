@@ -8,7 +8,6 @@ export interface GraphWithScaleParameters<K extends string = 'default'> extends 
   scaleStep?: number
   scaleColor?: string
   scalePosition?: ScalePosition
-  scaleSegmentColor?: string
   gridColor?: string
 }
 

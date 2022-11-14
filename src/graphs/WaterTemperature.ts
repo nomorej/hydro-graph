@@ -5,27 +5,28 @@ import {
 } from '../core/GraphWithScale'
 import { linearGraph } from '../utils/graph'
 
-export type WaterLevelGraphsTypes = 'default'
+export type WaterTemperatureGraphsTypes = 'default'
 
-export interface WaterLevelParameters extends GraphWithScaleParameters<WaterLevelGraphsTypes> {
+export interface WaterTemperatureParameters
+  extends GraphWithScaleParameters<WaterTemperatureGraphsTypes> {
   color?: string
 }
 
-export class WaterLevel extends GraphWithScale<WaterLevelGraphsTypes> {
-  private color: string
+export class WaterTemperature extends GraphWithScale<WaterTemperatureGraphsTypes> {
+  public color: string
 
-  constructor(parameters: WaterLevelParameters) {
+  constructor(parameters: WaterTemperatureParameters) {
     super({
-      scaleColor: 'black',
-      gridColor: 'black',
+      scaleColor: 'darkred',
       ...parameters,
     })
 
-    this.color = parameters.color || 'darkblue'
+    this.color = parameters.color || 'darkred'
   }
 
   protected renderGraph() {
     const { renderer } = this.complexGraph
+
     linearGraph(renderer.context, this.points.default)
     renderer.context.strokeStyle = this.color
     renderer.context.stroke()

@@ -3,7 +3,7 @@ import {
   GraphWithScaleParameters,
   SkipScaleSegmentParameters,
 } from '../core/GraphWithScale'
-import { smoothGraph } from '../utils/graph'
+import { linearGraph } from '../utils/graph'
 
 export type AirTemperatureGraphsTypes = 'middle' | 'max' | 'min'
 
@@ -35,19 +35,19 @@ export class AirTemperature extends GraphWithScale<AirTemperatureGraphsTypes> {
     const { renderer } = this.complexGraph
 
     if (this.visibility.min) {
-      smoothGraph(renderer.context, this.points.min)
+      linearGraph(renderer.context, this.points.min)
       renderer.context.strokeStyle = this.minCurveColor
       renderer.context.stroke()
     }
 
     if (this.visibility.middle) {
-      smoothGraph(renderer.context, this.points.middle)
+      linearGraph(renderer.context, this.points.middle)
       renderer.context.strokeStyle = this.middleCurveColor
       renderer.context.stroke()
     }
 
     if (this.visibility.max) {
-      smoothGraph(renderer.context, this.points.max)
+      linearGraph(renderer.context, this.points.max)
       renderer.context.strokeStyle = this.maxCurveColor
       renderer.context.stroke()
     }
