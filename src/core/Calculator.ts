@@ -1,7 +1,6 @@
 import { Object } from './Object'
 import { Primitive } from './Primitive'
 import { Renderer } from './Renderer'
-import { Scene } from './Scene'
 import { TimelineSegment } from './Timeline'
 
 export class Calculator extends Object {
@@ -29,12 +28,12 @@ export class Calculator extends Object {
     const { renderer, scene } = this.complexGraph
 
     const offsetX = renderer.minSize * 0.15
-    const offsetY = renderer.minSize * 0.02
+    const offsetY = renderer.minSize * 0.03
 
     this.clipArea.x1 = offsetX + scene.position.pointer.current
     this.clipArea.x2 = renderer.size.x - offsetX + scene.position.pointer.current
     this.clipArea.y1 = offsetY
-    this.clipArea.y2 = renderer.size.y - offsetY * 4
+    this.clipArea.y2 = renderer.size.y - offsetY * 3
 
     this.area.x1 = offsetX
     this.area.x2 = scene.size.pointer.current - offsetX
@@ -77,17 +76,19 @@ export class Calculator extends Object {
     renderer.context.restore()
   }
 
-  public isSegmentVisible(scene: Scene, segment: TimelineSegment, segment2?: TimelineSegment) {
+  public isSegmentVisible(segment: TimelineSegment, segment2?: TimelineSegment) {
+    const { scene } = this.complexGraph
     return !(
       scene.position.pointer.current > (segment2 || segment).x2 + this.area.x1 ||
       scene.position.pointer.current + this.clipArea.width < segment.x1 - this.area.x1
     )
   }
 
-  public isPointVisible(scene: Scene, point: { x: number; width: number }) {
+  public isPointVisible(point: { x: number; width: number }, offsetLeft = 0, offsetRight = 0) {
+    const { scene } = this.complexGraph
     return !(
-      scene.position.pointer.current > point.x + point.width - this.area.x1 ||
-      scene.position.pointer.current + this.clipArea.width < point.x - this.area.x1
+      scene.position.pointer.current > point.x + point.width - this.area.x1 + offsetLeft ||
+      scene.position.pointer.current + this.clipArea.width < point.x - this.area.x1 - offsetRight
     )
   }
 }

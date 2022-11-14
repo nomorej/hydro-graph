@@ -1,20 +1,15 @@
-import {
-  GraphWithScale,
-  GraphWithScaleParameters,
-  SkipScaleSegmentParameters,
-} from '../core/GraphWithScale'
-import { linearGraph } from '../utils/graph'
+import { LinearGraph, LinearGraphParameters } from '../core/LinearGraph'
 
 export type WaterСonsumptionGraphsTypes = 'qh' | 'measured' | 'calculated'
 
 export interface WaterСonsumptionParameters
-  extends GraphWithScaleParameters<WaterСonsumptionGraphsTypes> {
+  extends LinearGraphParameters<WaterСonsumptionGraphsTypes> {
   measuredColor?: string
   calculatedColor?: string
   qhColor?: string
 }
 
-export class WaterСonsumption extends GraphWithScale<WaterСonsumptionGraphsTypes> {
+export class WaterСonsumption extends LinearGraph<WaterСonsumptionGraphsTypes> {
   public measuredColor: string
   public calculatedColor: string
   public qhColor: string
@@ -25,38 +20,33 @@ export class WaterСonsumption extends GraphWithScale<WaterСonsumptionGraphsTyp
       ...parameters,
     })
 
-    this.measuredColor = parameters.measuredColor || 'darkgreen'
+    this.measuredColor = parameters.measuredColor || '#863688'
     this.calculatedColor = parameters.calculatedColor || 'brown'
-    this.qhColor = parameters.qhColor || 'green'
+    this.qhColor = parameters.qhColor || '#397634'
   }
 
   protected renderGraph() {
-    const { renderer, scene } = this.complexGraph
+    const { renderer, calculator } = this.complexGraph
 
-    renderer.context.save()
-    linearGraph(renderer.context, this.points.qh)
-    renderer.context.strokeStyle = this.qhColor
-    renderer.context.setLineDash([
-      (scene.size.pointer.current / scene.zoom) * scene.zoom * 0.003,
-      (scene.size.pointer.current / scene.zoom) * scene.zoom * 0.003,
-    ])
-    renderer.context.stroke()
-    renderer.context.restore()
+    if (this.visibility.qh) {
+      renderer.context.save()
+      renderer.context.setLineDash([calculator.clipArea.width * 0.01])
+      this.drawPoints(this.points.qh, this.qhColor)
+      renderer.context.restore()
+    }
 
-    linearGraph(renderer.context, this.points.calculated)
-    renderer.context.strokeStyle = this.calculatedColor
-    renderer.context.stroke()
+    if (this.visibility.calculated) {
+      this.drawPoints(this.points.calculated, this.calculatedColor)
+    }
 
-    renderer.context.fillStyle = this.measuredColor
-    this.points.measured.forEach((point) => {
-      if (!this.complexGraph.calculator.isPointVisible(scene, point)) return
-      renderer.context.beginPath()
-      renderer.context.arc(point.x, point.y, renderer.minSize * 0.005, 0, Math.PI * 2)
-      renderer.context.fill()
-    })
-  }
-
-  protected skipScaleSegment(data: SkipScaleSegmentParameters): boolean {
-    return data.index % 2 !== 0
+    if (this.visibility.measured) {
+      renderer.context.fillStyle = this.measuredColor
+      this.points.measured.forEach((point) => {
+        if (!this.complexGraph.calculator.isPointVisible(point)) return
+        renderer.context.beginPath()
+        renderer.context.arc(point.x, point.y, renderer.minSize * 0.005, 0, Math.PI * 2)
+        renderer.context.fill()
+      })
+    }
   }
 }

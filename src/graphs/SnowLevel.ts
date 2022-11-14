@@ -1,38 +1,27 @@
-import {
-  GraphWithScale,
-  GraphWithScaleParameters,
-  SkipScaleSegmentParameters,
-} from '../core/GraphWithScale'
-import { linearGraph } from '../utils/graph'
+import { LinearGraph, LinearGraphParameters } from '../core/LinearGraph'
 
 export type SnowLevelGraphsTypes = 'default'
 
-export interface SnowLevelParameters extends GraphWithScaleParameters<SnowLevelGraphsTypes> {
+export interface SnowLevelParameters extends LinearGraphParameters<SnowLevelGraphsTypes> {
   color?: string
 }
 
-export class SnowLevel extends GraphWithScale<SnowLevelGraphsTypes> {
+export class SnowLevel extends LinearGraph<SnowLevelGraphsTypes> {
   public color: string
 
   constructor(parameters: SnowLevelParameters) {
     super({
-      scaleColor: 'lightblue',
+      scaleColor: '#0635DB',
       scalePosition: 'right',
       ...parameters,
     })
 
-    this.color = parameters.color || 'darkred'
+    this.color = parameters.color || '#0635DB'
   }
 
   protected renderGraph() {
-    const { renderer } = this.complexGraph
-
-    linearGraph(renderer.context, this.points.default)
-    renderer.context.strokeStyle = this.color
-    renderer.context.stroke()
-  }
-
-  protected skipScaleSegment(data: SkipScaleSegmentParameters): boolean {
-    return data.index % 2 !== 0
+    if (this.visibility.default) {
+      this.drawPoints(this.points.default, this.color)
+    }
   }
 }

@@ -1,59 +1,41 @@
-import {
-  GraphWithScale,
-  GraphWithScaleParameters,
-  SkipScaleSegmentParameters,
-} from '../core/GraphWithScale'
-import { linearGraph } from '../utils/graph'
+import { LinearGraph, LinearGraphParameters } from '../core/LinearGraph'
 
 export type AirTemperatureGraphsTypes = 'middle' | 'max' | 'min'
 
-export interface AirTemperatureParameters
-  extends GraphWithScaleParameters<AirTemperatureGraphsTypes> {
+export interface AirTemperatureParameters extends LinearGraphParameters<AirTemperatureGraphsTypes> {
   minCurveColor?: string
   middleCurveColor?: string
   maxCurveColor?: string
 }
 
-export class AirTemperature extends GraphWithScale<AirTemperatureGraphsTypes> {
+export class AirTemperature extends LinearGraph<AirTemperatureGraphsTypes> {
   public minCurveColor: string
   public middleCurveColor: string
   public maxCurveColor: string
 
   constructor(parameters: AirTemperatureParameters) {
     super({
-      scaleColor: 'tomato',
-      gridColor: 'tomato',
+      scaleColor: '#B13007',
+      gridColor: '#B13007',
       ...parameters,
     })
 
-    this.minCurveColor = parameters.minCurveColor || 'darkblue'
-    this.middleCurveColor = parameters.middleCurveColor || 'darkgrey'
-    this.maxCurveColor = parameters.maxCurveColor || 'darkred'
+    this.minCurveColor = parameters.minCurveColor || '#0066FF'
+    this.middleCurveColor = parameters.middleCurveColor || '#6B6C7E'
+    this.maxCurveColor = parameters.maxCurveColor || '#D72929'
   }
 
   protected renderGraph() {
-    const { renderer } = this.complexGraph
-
     if (this.visibility.min) {
-      linearGraph(renderer.context, this.points.min)
-      renderer.context.strokeStyle = this.minCurveColor
-      renderer.context.stroke()
+      this.drawPoints(this.points.min, this.minCurveColor)
     }
 
     if (this.visibility.middle) {
-      linearGraph(renderer.context, this.points.middle)
-      renderer.context.strokeStyle = this.middleCurveColor
-      renderer.context.stroke()
+      this.drawPoints(this.points.middle, this.middleCurveColor)
     }
 
     if (this.visibility.max) {
-      linearGraph(renderer.context, this.points.max)
-      renderer.context.strokeStyle = this.maxCurveColor
-      renderer.context.stroke()
+      this.drawPoints(this.points.max, this.maxCurveColor)
     }
-  }
-
-  protected skipScaleSegment(data: SkipScaleSegmentParameters): boolean {
-    return data.index % 2 !== 0
   }
 }

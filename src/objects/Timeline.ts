@@ -139,7 +139,7 @@ export class Timeline extends Object {
     hour: (hour: TimelineHour, x: number, visible: boolean) => void
   }) {
     this.complexGraph.timeline.forEveryMonth((month) => {
-      if (!this.complexGraph.calculator.isSegmentVisible(parameters.scene, month)) return
+      if (!this.complexGraph.calculator.isSegmentVisible(month)) return
 
       if (month.index) {
         parameters.month(month, this.complexGraph.calculator.area.x1 + month.x1)

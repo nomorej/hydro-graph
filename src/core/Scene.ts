@@ -16,8 +16,8 @@ export class Scene {
 
   public readonly size: Track
   public readonly position: Track
+  public readonly objects: Set<Object>
 
-  private objects: Array<Object>
   private _smoothness: number
   private _viewportSize: number
 
@@ -30,7 +30,7 @@ export class Scene {
     this.size = new Track()
     this.position = new Track()
 
-    this.objects = []
+    this.objects = new Set()
 
     this._smoothness =
       this.size.slipperiness =
@@ -107,15 +107,15 @@ export class Scene {
   }
 
   public addObject(object: Object) {
-    if (!this.objects.includes(object)) {
-      this.objects.push(object)
+    if (!this.objects.has(object)) {
+      this.objects.add(object)
       object.onCreate?.()
     }
   }
 
   public removeObject(object: Object) {
-    if (this.objects.includes(object)) {
-      this.objects = this.objects.filter((o) => o !== object)
+    if (this.objects.has(object)) {
+      this.objects.delete(object)
       object.onDestroy?.()
     }
   }

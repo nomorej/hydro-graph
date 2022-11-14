@@ -1,38 +1,26 @@
-import {
-  GraphWithScale,
-  GraphWithScaleParameters,
-  SkipScaleSegmentParameters,
-} from '../core/GraphWithScale'
-import { linearGraph } from '../utils/graph'
+import { LinearGraph, LinearGraphParameters } from '../core/LinearGraph'
 
 export type WaterTemperatureGraphsTypes = 'default'
 
 export interface WaterTemperatureParameters
-  extends GraphWithScaleParameters<WaterTemperatureGraphsTypes> {
+  extends LinearGraphParameters<WaterTemperatureGraphsTypes> {
   color?: string
 }
 
-export class WaterTemperature extends GraphWithScale<WaterTemperatureGraphsTypes> {
+export class WaterTemperature extends LinearGraph<WaterTemperatureGraphsTypes> {
   public color: string
 
   constructor(parameters: WaterTemperatureParameters) {
     super({
-      scaleColor: 'darkred',
+      scaleColor: '#B13007',
       ...parameters,
     })
-
-    this.color = parameters.color || 'darkred'
+    this.color = parameters.color || '#EF543F'
   }
 
   protected renderGraph() {
-    const { renderer } = this.complexGraph
-
-    linearGraph(renderer.context, this.points.default)
-    renderer.context.strokeStyle = this.color
-    renderer.context.stroke()
-  }
-
-  protected skipScaleSegment(data: SkipScaleSegmentParameters): boolean {
-    return data.index % 2 !== 0
+    if (this.visibility.default) {
+      this.drawPoints(this.points.default, this.color)
+    }
   }
 }

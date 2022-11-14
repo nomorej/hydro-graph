@@ -75,7 +75,7 @@ export class Scrollbar extends Object {
 
     const reduce = 0.9
     const sceneSize = scene.size.pointer.current - scene.viewportSize
-    const zoom = sceneSize / scene.viewportSize
+    let zoom = sceneSize / scene.viewportSize
     const reversedZoom = this.complexGraph.scene.maxZoom - zoom * reduce
 
     const scale =

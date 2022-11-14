@@ -3,7 +3,8 @@ import { Graph, GraphParameters } from './Graph'
 export type ScalePosition = 'right' | 'left'
 export type ScaleSegment = { y: number; value: number }
 
-export interface GraphWithScaleParameters<K extends string = 'default'> extends GraphParameters<K> {
+export interface GraphWithScaleParameters<K extends string = 'default', EK extends string = K>
+  extends GraphParameters<K, EK> {
   scaleTitle?: string
   scaleStep?: number
   scaleColor?: string
@@ -17,7 +18,10 @@ export interface SkipScaleSegmentParameters {
   segments: Array<ScaleSegment>
 }
 
-export abstract class GraphWithScale<K extends string = 'default'> extends Graph<K> {
+export abstract class GraphWithScale<
+  K extends string = 'default',
+  EK extends string = K
+> extends Graph<K, EK> {
   private scaleStepParameter: number
   protected readonly scaleSegments: Array<ScaleSegment>
   protected readonly scaleTitle: string
@@ -26,7 +30,7 @@ export abstract class GraphWithScale<K extends string = 'default'> extends Graph
   public gridColor: string | undefined
   protected scaleScatter: number
 
-  constructor(parameters: GraphWithScaleParameters<K>) {
+  constructor(parameters: GraphWithScaleParameters<K, EK>) {
     super(parameters)
 
     this.scaleStepParameter = parameters.scaleStep || 5
@@ -153,5 +157,7 @@ export abstract class GraphWithScale<K extends string = 'default'> extends Graph
     renderer.context.restore()
   }
 
-  protected abstract skipScaleSegment(data: SkipScaleSegmentParameters): boolean
+  protected skipScaleSegment(data: SkipScaleSegmentParameters) {
+    return data.index % 2 !== 0
+  }
 }

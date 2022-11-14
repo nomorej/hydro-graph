@@ -86,12 +86,12 @@ export class Phase extends Object {
   }
 
   public onRender() {
-    const { renderer, scene } = this.complexGraph
+    const { renderer } = this.complexGraph
 
     this.complexGraph.calculator.clip(renderer, () => {
       renderer.context.fillStyle = this.backgroundColor
 
-      if (!this.complexGraph.calculator.isSegmentVisible(scene, this.start, this.end)) return
+      if (!this.complexGraph.calculator.isSegmentVisible(this.start, this.end)) return
 
       const delta = (this.fillEndSegment ? this.end.x2 : this.end.x1) - this.start.x1
 

@@ -2,6 +2,7 @@ import { ComplexGraph } from './ComplexGraph'
 
 export interface ObjectParameters {
   name?: string
+  unactive?: true
 }
 
 export abstract class Object {
@@ -11,7 +12,7 @@ export abstract class Object {
 
   constructor(parameters?: ObjectParameters) {
     this.name = parameters?.name
-    this.isActive = true
+    this.isActive = parameters?.unactive ? false : true
   }
 
   public abstract onRender(): void

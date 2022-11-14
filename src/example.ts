@@ -1,4 +1,5 @@
-import { qwikStart } from './qwikStart'
+import { monthsData, qwikStart } from './qwikStart'
+import { testData } from './utils/testData'
 
 export function example() {
   /**
@@ -9,63 +10,6 @@ export function example() {
      * Элемент в который вставляется график
      */
     wrapper: document.getElementById('graph')!,
-    /**
-     * Исходя из количества месяцев и количества дней в месяцах строятся все графики
-     */
-    months: [
-      {
-        title: 'Октябрь',
-        daysNumber: 31,
-      },
-      {
-        title: 'Ноябрь',
-        daysNumber: 30,
-      },
-      {
-        title: 'Декабрь',
-        daysNumber: 31,
-      },
-      {
-        title: 'Январь',
-        daysNumber: 31,
-      },
-      {
-        title: 'Февраль',
-        daysNumber: 28,
-      },
-      {
-        title: 'Март',
-        daysNumber: 31,
-      },
-      {
-        title: 'Апрель',
-        daysNumber: 30,
-      },
-      {
-        title: 'Май',
-        daysNumber: 31,
-      },
-      {
-        title: 'Июнь',
-        daysNumber: 30,
-      },
-      {
-        title: 'Июль',
-        daysNumber: 31,
-      },
-      {
-        title: 'Август',
-        daysNumber: 31,
-      },
-      {
-        title: 'Сентябрь',
-        daysNumber: 30,
-      },
-      {
-        title: 'Октябрь',
-        daysNumber: 31,
-      },
-    ],
     /**
      * Данные для графиков и фаз
      */
@@ -155,186 +99,57 @@ export function example() {
           },
         },
       ],
-      /**
-       * Данные для графиков
-       */
       airTemperature: {
-        /**
-         * Кривая минимальной температуры
-         * Первый индекс массива соотвествует первому
-         * месяцу указанному выше в параметре "months"
-         */
-        min: [
-          /**
-           * Месяц 1
-           */
-          [
-            {
-              day: 1,
-              value: -10,
-            },
-            {
-              day: 25,
-              value: 10,
-            },
-          ],
-          /**
-           * Месяц 2
-           */
-          [
-            {
-              day: 15,
-              value: 33,
-            },
-          ],
-        ],
-        middle: [
-          [
-            {
-              day: 1,
-              value: -5,
-            },
-            {
-              day: 25,
-              value: 5,
-            },
-          ],
-        ],
-        max: [
-          [
-            {
-              day: 1,
-              value: -10,
-            },
-            {
-              day: 25,
-              value: 20,
-            },
-          ],
-        ],
+        min: monthsData(testData({ minus: true })),
+        middle: monthsData(testData({ minus: true })),
+        max: monthsData(testData({ minus: true })),
       },
       precipitation: {
-        liquid: [
-          [
-            {
-              day: 1,
-              value: 15,
-            },
-          ],
-        ],
-        solid: [
-          [
-            {
-              day: 1,
-              value: 35,
-            },
-          ],
-        ],
+        liquid: monthsData(testData({ minus: false, skip: 0.5 })),
+        solid: monthsData(testData({ minus: false, skip: 0.5 })),
       },
       waterTemperature: {
-        default: [
-          [
-            {
-              day: 1,
-              value: 10,
-            },
-            {
-              day: 30,
-              value: 55,
-            },
-          ],
-        ],
+        default: monthsData(testData({ minus: false, skip: 0 })),
       },
       snowLevel: {
-        default: [
-          [],
-          [],
-          [],
-          [],
-          [],
-          [],
-          [],
-          [],
-          [],
-          [],
-          [],
-          [
-            {
-              day: 1,
-              value: 10,
-            },
-            {
-              day: 30,
-              value: -10,
-            },
-          ],
-          [
-            {
-              day: 31,
-              value: 10,
-            },
-          ],
-        ],
-      },
-      waterlevel: {
-        default: [
-          [
-            {
-              day: 1,
-              value: 10,
-            },
-            {
-              day: 30,
-              value: 55,
-            },
-          ],
-        ],
-      },
-      waterСonsumption: {
-        qh: [
-          [
+        default: monthsData({
+          10: [
             {
               day: 1,
               value: 10,
             },
             {
               day: 10,
-              value: 50,
+              value: 5,
+            },
+            {
+              day: 25,
+              value: 11,
             },
           ],
-        ],
-        measured: [
-          [
+          11: [
             {
-              day: 13,
-              value: 10,
-            },
-            {
-              day: 30,
-              /**
-               * Можно указать данные по часам
-               */
-              value: [
-                {
-                  hour: 15,
-                  value: 333,
-                },
-              ],
-            },
-          ],
-        ],
-        calculated: [
-          [
-            {
-              day: 12,
-              value: 10,
+              day: 5,
+              value: 5,
             },
             {
               day: 18,
               value: 13,
             },
+            {
+              day: 26,
+              value: 7,
+            },
           ],
-        ],
+        }),
+      },
+      waterlevel: {
+        default: monthsData(testData({ minus: false, skip: 0, max: 300 })),
+      },
+      waterСonsumption: {
+        qh: monthsData(testData({ minus: false, skip: 0.9, max: 250 })),
+        measured: monthsData(testData({ minus: false, skip: 0.8, max: 200 })),
+        calculated: monthsData(testData({ minus: false, skip: 0.9, max: 200 })),
       },
     },
   })

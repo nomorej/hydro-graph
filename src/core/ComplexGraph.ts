@@ -8,6 +8,7 @@ import { Rows } from './Rows'
 import { Calculator } from './Calculator'
 import { Object } from './Object'
 import { Graph } from './Graph'
+import { Plugin } from '../plugins/Plugin'
 
 export interface Parameters {
   wrapper: CanvasParameters['container']
@@ -26,11 +27,6 @@ export class ComplexGraph {
   public readonly container: HTMLElement
   public readonly scene: Scene
   public readonly renderer: Renderer
-  private readonly toggleViewButton: HTMLElement
-  private readonly statuses: {
-    scaleButtonPressed: boolean
-    fullView: boolean
-  }
 
   public readonly calculator: Calculator
   public readonly timeline: Timeline
@@ -41,6 +37,13 @@ export class ComplexGraph {
   public wheelTranlationSpeed: number
   public fontSize: number
   public font: string
+
+  private readonly statuses: {
+    scaleButtonPressed: boolean
+    fullView: boolean
+  }
+
+  private readonly plugins: Set<Plugin>
 
   constructor(parameters: Parameters) {
     this.wrapper = parameters.wrapper
@@ -67,24 +70,6 @@ export class ComplexGraph {
       clearColor: 'white',
     })
 
-    this.toggleViewButton = document.createElement('div')
-    this.toggleViewButton.style.cssText = `
-      position: absolute;
-      top: 0;
-      right: 0;
-      z-index: 2;
-      width: 2vmin;
-      height: 2vmin;
-      cursor: pointer;
-      background-color: black;
-    `
-    this.container.appendChild(this.toggleViewButton)
-
-    this.statuses = {
-      scaleButtonPressed: false,
-      fullView: false,
-    }
-
     this.timeline = new Timeline(parameters.months)
     this.rows = new Rows()
     this.calculator = new Calculator()
@@ -96,13 +81,19 @@ export class ComplexGraph {
     this.fontSize = parameters.maxZoom || 0.02
     this.font = parameters.font || 'sans-serif'
 
+    this.statuses = {
+      scaleButtonPressed: false,
+      fullView: false,
+    }
+
+    this.plugins = new Set()
+
     this.scene.addObject(this.calculator)
 
     this.container.addEventListener('wheel', this.handleWheel)
     this.container.addEventListener('pointerdown', this.handlePointerDown)
     this.container.addEventListener('pointerup', this.handleMouseUp)
     this.container.addEventListener('contextmenu', this.handleContextMenu)
-    this.toggleViewButton.addEventListener('click', this.toggleView)
   }
 
   public destroy() {
@@ -110,7 +101,6 @@ export class ComplexGraph {
     this.container.removeEventListener('pointerdown', this.handlePointerDown)
     this.container.removeEventListener('pointerup', this.handleMouseUp)
     this.container.removeEventListener('contextmenu', this.handleContextMenu)
-    this.toggleViewButton.removeEventListener('click', this.toggleView)
 
     this.renderer.destroy()
 
@@ -118,33 +108,56 @@ export class ComplexGraph {
   }
 
   public hide(graph: Graph<any>) {
-    this.rows.removeGraph(graph)
     graph.isActive = false
+    this.rows.removeGraph(graph)
     this.renderer.redraw()
   }
 
   public show(graph: Graph<any>) {
-    this.rows.addGraph(graph)
     graph.isActive = true
+    this.rows.addGraph(graph)
     this.renderer.redraw()
   }
 
-  public add<T extends Object>(object: T) {
-    object.complexGraph = this
-    if (object instanceof Graph) {
-      this.rows.addGraph(object)
+  public add<T extends Object | Plugin>(object: T) {
+    if (object instanceof Object) {
+      object.complexGraph = this
+      if (object instanceof Graph) {
+        this.rows.addGraph(object)
+      }
+      this.scene.addObject(object)
+      this.renderer.redraw()
+    } else {
+      this.plugins.add(object)
+      object.complexGraph = this
+      object.onCreate?.()
     }
-    this.scene.addObject(object)
-    this.renderer.redraw()
     return object
   }
 
-  public remove<T extends Object>(object: T) {
-    if (object instanceof Graph) {
-      this.rows.removeGraph(object)
+  public remove<T extends Object | Plugin>(object: T) {
+    if (object instanceof Object) {
+      if (object instanceof Graph) {
+        this.rows.removeGraph(object)
+      }
+      this.scene.removeObject(object)
+      this.renderer.redraw()
+    } else {
+      this.plugins.delete(object)
+      object.onDestroy?.()
     }
-    this.scene.removeObject(object)
-    this.renderer.redraw()
+  }
+
+  public toggleView = () => {
+    this.renderer.stopTick()
+
+    if (this.statuses.fullView) {
+      this.container.style.position = 'relative'
+    } else {
+      this.container.style.position = 'fixed'
+    }
+
+    this.statuses.fullView = !this.statuses.fullView
   }
 
   private handleWheel = (event: WheelEvent) => {
@@ -189,19 +202,5 @@ export class ComplexGraph {
     this.renderer.withTicker(() => {
       this.scene.translate(event.deltaY * this.wheelTranlationSpeed)
     })
-  }
-
-  private toggleView = () => {
-    this.renderer.stopTick()
-
-    if (this.statuses.fullView) {
-      this.container.style.position = 'relative'
-      this.toggleViewButton.style.backgroundColor = 'black'
-    } else {
-      this.container.style.position = 'fixed'
-      this.toggleViewButton.style.backgroundColor = 'red'
-    }
-
-    this.statuses.fullView = !this.statuses.fullView
   }
 }

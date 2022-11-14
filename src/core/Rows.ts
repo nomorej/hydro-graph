@@ -10,7 +10,7 @@ export class Rows {
   public readonly graphs: Map<number, Set<Graph>>
 
   constructor() {
-    this.segmentator = new Segmentator({ scale: 1, gap: 0.04 })
+    this.segmentator = new Segmentator({ scale: 1, gap: 0.05 })
     this.rows = []
     this.graphs = new Map()
   }
@@ -20,10 +20,12 @@ export class Rows {
       this.rows[graph.rowParameter] = new Primitive()
     }
 
-    if (!this.graphs.has(graph.rowParameter)) {
-      this.graphs.set(graph.rowParameter, new Set([graph]))
-    } else {
-      this.graphs.get(graph.rowParameter)!.add(graph)
+    if (graph.isActive) {
+      if (!this.graphs.has(graph.rowParameter)) {
+        this.graphs.set(graph.rowParameter, new Set([graph]))
+      } else {
+        this.graphs.get(graph.rowParameter)!.add(graph)
+      }
     }
 
     this.segmentate()
