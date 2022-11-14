@@ -43,13 +43,55 @@ export class Precipitation extends GraphWithScale<PrecipitationGraphsTypes, 'mix
     super.onCreate()
 
     setTimeout(() => {
+      this.createColumns()
+    }, 0)
+
+    const { renderer } = this.complexGraph
+    //@ts-ignore
+    renderer.context.roundRect = renderer.context.roundRect || renderer.context.rect
+  }
+
+  protected renderGraph() {
+    const { renderer } = this.complexGraph
+
+    const cornerRound = renderer.minSize * 0.005
+
+    for (const key in this.columns) {
+      const columns = this.columns[key as PrecipitationGraphsTypes]
+      if (this.visibility[key as PrecipitationGraphsTypes]) {
+        columns.forEach((column) => {
+          const point = column.point
+          if (!this.complexGraph.calculator.isPointVisible(point)) return
+          renderer.context.beginPath()
+          renderer.context.fillStyle = column.type === 'liquid' ? this.liquidColor : this.solidColor
+          //@ts-ignore
+          renderer.context.roundRect(point.x, point.y - 1, point.width, point.height, [
+            cornerRound,
+            cornerRound,
+            0,
+            0,
+          ])
+          renderer.context.fill()
+        })
+      }
+    }
+  }
+
+  public override show(key?: PrecipitationGraphsTypes | 'mixed' | undefined) {
+    this.createColumns()
+    super.show(key)
+  }
+
+  private createColumns() {
+    setTimeout(() => {
       this.columns = {
         liquid: [],
         solid: [],
         mixed: [],
       }
 
-      this.points.liquid.forEach((liquidPoint) => {
+      this.points.liquid.forEach((liquidPoint, index) => {
+        this.data.liquid[index].segment
         const same = this.points.solid.find((solidPoint) => solidPoint.x === liquidPoint.x)
 
         if (same) {
@@ -72,37 +114,5 @@ export class Precipitation extends GraphWithScale<PrecipitationGraphsTypes, 'mix
       this.columns.mixed.sort((a, b) => b.point.height - a.point.height)
       this.renderGraph()
     }, 0)
-
-    const { renderer } = this.complexGraph
-
-    //@ts-ignore
-    renderer.context.roundRect = renderer.context.roundRect || renderer.context.rect
-  }
-
-  protected renderGraph() {
-    const { renderer } = this.complexGraph
-
-    const cornerRound = renderer.minSize * 0.005
-
-    for (const key in this.columns) {
-      const columns = this.columns[key as PrecipitationGraphsTypes]
-
-      if (this.visibility[key as PrecipitationGraphsTypes]) {
-        columns.forEach((column) => {
-          const point = column.point
-          if (!this.complexGraph.calculator.isPointVisible(point)) return
-          renderer.context.beginPath()
-          renderer.context.fillStyle = column.type === 'liquid' ? this.liquidColor : this.solidColor
-          //@ts-ignore
-          renderer.context.roundRect(point.x, point.y - 1, point.width, point.height, [
-            cornerRound,
-            cornerRound,
-            0,
-            0,
-          ])
-          renderer.context.fill()
-        })
-      }
-    }
   }
 }
