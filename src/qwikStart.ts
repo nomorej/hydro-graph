@@ -287,7 +287,7 @@ export function qwikStart(parameters: QwikStartParameters) {
 
   const waterСonsumption = cg.add(
     new WaterСonsumption({
-      name: 'Расход воды',
+      name: 'Расходы воды',
       row: 3,
       scale: {
         title: 'Расход м / c',
@@ -304,12 +304,17 @@ export function qwikStart(parameters: QwikStartParameters) {
         measured: {
           months: parameters.data.waterСonsumption.measured || [],
           title: 'Измеренные',
-          color: '#863688',
+          color: '#397634',
         },
         qh: {
           months: parameters.data.waterСonsumption.qh || [],
           title: 'QH',
           color: '#397634',
+        },
+        operational: {
+          months: parameters.data.waterСonsumption.operational || [],
+          title: 'Операционные',
+          color: '#FFB74E',
         },
       },
       unactive: true,

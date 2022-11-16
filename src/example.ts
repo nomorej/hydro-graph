@@ -196,6 +196,7 @@ export function example() {
         qh: monthsData(testData({ minus: false, skip: 0.9, max: 250 })),
         measured: monthsData(testData({ minus: false, skip: 0.8, max: 200 })),
         calculated: monthsData(testData({ minus: false, skip: 0.9, max: 200 })),
+        operational: monthsData(testData({ minus: false, skip: 0.7, max: 200 })),
       },
     },
   })

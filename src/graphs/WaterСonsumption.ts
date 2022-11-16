@@ -1,7 +1,7 @@
 import { Graph } from '../core/Graph'
 import { PointsParameters } from '../core/Points'
 
-export type WaterСonsumptionGroupsNames = 'qh' | 'measured' | 'calculated'
+export type WaterСonsumptionGroupsNames = 'qh' | 'measured' | 'calculated' | 'operational'
 
 export class WaterСonsumption extends Graph<WaterСonsumptionGroupsNames> {
   constructor(parameters: PointsParameters<WaterСonsumptionGroupsNames>) {
@@ -9,12 +9,12 @@ export class WaterСonsumption extends Graph<WaterСonsumptionGroupsNames> {
   }
 
   protected override renderWithClip() {
-    const { renderer, calculator } = this.complexGraph
+    const { renderer } = this.complexGraph
 
     this.drawGroup('qh', {
       beforeStroke() {
         renderer.context.save()
-        renderer.context.setLineDash([calculator.clipArea.width * 0.01])
+        renderer.context.setLineDash([10])
       },
       afterStroke() {
         renderer.context.restore()
@@ -22,6 +22,7 @@ export class WaterСonsumption extends Graph<WaterСonsumptionGroupsNames> {
     })
 
     this.drawGroup('calculated')
+    this.drawGroup('operational')
 
     const measuredGroup = this.groups.get('measured')
 
