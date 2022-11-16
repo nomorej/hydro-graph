@@ -103,6 +103,7 @@ export function example() {
         min: monthsData(testData({ minus: true })),
         middle: monthsData(testData({ minus: true })),
         max: monthsData(testData({ minus: true })),
+        post: monthsData(testData({ minus: true })),
       },
       precipitation: {
         liquid: monthsData(testData({ minus: false, skip: 0.5 })),

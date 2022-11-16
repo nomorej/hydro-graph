@@ -17,7 +17,7 @@ export abstract class Graph<K extends string = 'default'> extends Points<K> {
   ) {
     const { renderer } = this.complexGraph
     const group = this.groups.get(key)
-    if (group?.isVisible) {
+    if (group?.elements.length && group.isVisible) {
       parameters?.beforeLines?.(group)
       this.drawLinear(group.elements)
       parameters?.beforeStroke?.(group)

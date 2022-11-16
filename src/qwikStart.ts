@@ -185,6 +185,11 @@ export function qwikStart(parameters: QwikStartParameters) {
           title: 'Минимальная',
           color: '#D72929',
         },
+        post: {
+          months: parameters.data.airTemperature.post || [],
+          title: 'С поста',
+          color: '#B016C9',
+        },
       },
     })
   )
