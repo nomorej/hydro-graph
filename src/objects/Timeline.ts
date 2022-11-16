@@ -129,6 +129,17 @@ export class Timeline extends Object {
           renderer.context.restore()
         },
       })
+      renderer.context.beginPath()
+      renderer.context.moveTo(
+        this.complexGraph.calculator.clipArea.x1,
+        this.complexGraph.calculator.area.y2
+      )
+      renderer.context.lineTo(
+        this.complexGraph.calculator.clipArea.x1 + this.complexGraph.calculator.clipArea.width,
+        this.complexGraph.calculator.area.y2
+      )
+      renderer.context.strokeStyle = this.scaleColor
+      renderer.context.stroke()
     })
   }
 

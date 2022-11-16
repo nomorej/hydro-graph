@@ -107,38 +107,84 @@ export function example() {
       precipitation: {
         liquid: monthsData(testData({ minus: false, skip: 0.5 })),
         solid: monthsData(testData({ minus: false, skip: 0.5 })),
+        mixed: [
+          [
+            {
+              day: 15,
+              value: { value: 30, type: 'liquid' },
+            },
+            {
+              day: 15,
+              value: { value: 15, type: 'solid' },
+            },
+            {
+              day: 30,
+              value: { value: 15, type: 'liquid' },
+            },
+            {
+              day: 30,
+              value: { value: 30, type: 'solid' },
+            },
+          ],
+        ],
       },
       waterTemperature: {
         default: monthsData(testData({ minus: false, skip: 0 })),
       },
-      snowLevel: {
-        default: monthsData({
-          10: [
+      snowIce: {
+        snow: monthsData({
+          3: [
             {
               day: 1,
+              value: 5,
+            },
+            {
+              day: 5,
               value: 10,
             },
             {
               day: 10,
-              value: 5,
+              value: 8,
+            },
+            {
+              day: 15,
+              value: 15,
+            },
+            {
+              day: 20,
+              value: 3,
             },
             {
               day: 25,
-              value: 11,
+              value: 7,
             },
           ],
-          11: [
+        }),
+        ice: monthsData({
+          3: [
+            {
+              day: 1,
+              value: -2,
+            },
             {
               day: 5,
-              value: 5,
+              value: -5,
             },
             {
-              day: 18,
-              value: 13,
+              day: 10,
+              value: 0,
             },
             {
-              day: 26,
-              value: 7,
+              day: 15,
+              value: -8,
+            },
+            {
+              day: 20,
+              value: -10,
+            },
+            {
+              day: 25,
+              value: -2,
             },
           ],
         }),
@@ -154,36 +200,9 @@ export function example() {
     },
   })
 
-  /**
-   * Прячет весь график
-   */
-  graph.airTemperature.hide()
-
-  /**
-   * Показывает весь график обратно
-   */
-  graph.airTemperature.show()
-
-  /**
-   * Прячет только кривую "max"
-   */
-  graph.airTemperature.hide('max')
-
-  /**
-   * Показывает кривую "max" обратно
-   */
-  graph.airTemperature.show('max')
-
-  /**
-   * hide/show аналогично работает и для остальных графиков
-   */
-
-  /**
-   * Вызвать "destroy" когда график больше не нужен
-   */
   addEventListener('keydown', (e) => {
     if (e.key === 'd') {
-      graph.destroy() // <---
+      graph.destroy()
     }
   })
 }

@@ -7,7 +7,7 @@ import { Timeline, TimelineMonthsData } from './Timeline'
 import { Rows } from './Rows'
 import { Calculator } from './Calculator'
 import { Object } from './Object'
-import { Graph } from './Graph'
+import { Visualizer } from './Visualizer'
 import { Plugin } from '../plugins/Plugin'
 
 export interface Parameters {
@@ -107,23 +107,23 @@ export class ComplexGraph {
     this.wrapper.removeChild(this.container)
   }
 
-  public hide(graph: Graph<any>) {
-    graph.isActive = false
-    this.rows.removeGraph(graph)
+  public hide(dr: Visualizer<any, any>) {
+    dr.isActive = false
+    this.rows.removeVisualizer(dr)
     this.renderer.redraw()
   }
 
-  public show(graph: Graph<any>) {
-    graph.isActive = true
-    this.rows.addGraph(graph)
+  public show(dr: Visualizer<any, any>) {
+    dr.isActive = true
+    this.rows.addVisualizer(dr)
     this.renderer.redraw()
   }
 
   public add<T extends Object | Plugin>(object: T) {
     if (object instanceof Object) {
       object.complexGraph = this
-      if (object instanceof Graph) {
-        this.rows.addGraph(object)
+      if (object instanceof Visualizer) {
+        this.rows.addVisualizer(object)
       }
       this.scene.addObject(object)
       this.renderer.redraw()
@@ -137,8 +137,8 @@ export class ComplexGraph {
 
   public remove<T extends Object | Plugin>(object: T) {
     if (object instanceof Object) {
-      if (object instanceof Graph) {
-        this.rows.removeGraph(object)
+      if (object instanceof Visualizer) {
+        this.rows.removeVisualizer(object)
       }
       this.scene.removeObject(object)
       this.renderer.redraw()

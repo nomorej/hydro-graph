@@ -1,27 +1,12 @@
-import { LinearGraph, LinearGraphParameters } from '../core/LinearGraph'
+import { Graph } from '../core/Graph'
+import { PointsParameters } from '../core/Points'
 
-export type WaterLevelGraphsTypes = 'default'
-
-export interface WaterLevelParameters extends LinearGraphParameters<WaterLevelGraphsTypes> {
-  color?: string
-}
-
-export class WaterLevel extends LinearGraph<WaterLevelGraphsTypes> {
-  private color: string
-
-  constructor(parameters: WaterLevelParameters) {
-    super({
-      scaleColor: 'black',
-      gridColor: 'black',
-      ...parameters,
-    })
-
-    this.color = parameters.color || '#0066FF'
+export class WaterLevel extends Graph {
+  constructor(parameters: PointsParameters) {
+    super(parameters)
   }
 
-  protected renderGraph() {
-    if (this.visibility.default) {
-      this.drawPoints(this.points.default, this.color)
-    }
+  protected override renderWithClip() {
+    this.drawGroup('default')
   }
 }

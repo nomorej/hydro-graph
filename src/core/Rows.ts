@@ -1,13 +1,13 @@
 import { Primitive } from '../core/Primitive'
 import { Segmentator } from '../tools/Segmentator'
-import { Graph } from './Graph'
+import { Visualizer } from './Visualizer'
 
 export type RowsFactors = Array<number>
 
 export class Rows {
   private segmentator: Segmentator<number>
   public rows: Array<Primitive>
-  public readonly graphs: Map<number, Set<Graph>>
+  public readonly graphs: Map<number, Set<Visualizer<any, any>>>
 
   constructor() {
     this.segmentator = new Segmentator({ scale: 1, gap: 0.05 })
@@ -15,7 +15,7 @@ export class Rows {
     this.graphs = new Map()
   }
 
-  public addGraph(graph: Graph) {
+  public addVisualizer(graph: Visualizer<any, any>) {
     if (!this.rows[graph.rowParameter]) {
       this.rows[graph.rowParameter] = new Primitive()
     }
@@ -31,7 +31,7 @@ export class Rows {
     this.segmentate()
   }
 
-  public removeGraph(graph: Graph) {
+  public removeVisualizer(graph: Visualizer<any, any>) {
     if (this.graphs.has(graph.rowParameter)) {
       this.graphs.get(graph.rowParameter)!.delete(graph)
     }
@@ -52,9 +52,9 @@ export class Rows {
 
   private segmentate() {
     for (let index = 0; index < this.rows.length; index++) {
-      const rowGraphs = this.graphs.get(index)
+      const rowVisualizers = this.graphs.get(index)
       let maxFactor = 0
-      rowGraphs?.forEach(
+      rowVisualizers?.forEach(
         (g) => g.rowFactorParameter > maxFactor && (maxFactor = g.rowFactorParameter)
       )
       this.segmentator.cut(index, maxFactor)

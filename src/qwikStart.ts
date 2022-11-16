@@ -1,11 +1,11 @@
 import { ComplexGraph, Parameters } from './core/ComplexGraph'
-import { GraphMonthData } from './core/Graph'
-import { AirTemperature, AirTemperatureParameters } from './graphs/AirTemperature'
-import { Precipitation, PrecipitationParameters } from './graphs/Precipitation'
-import { SnowLevel, SnowLevelParameters } from './graphs/SnowLevel'
-import { WaterLevel, WaterLevelParameters } from './graphs/WaterLevel'
-import { WaterTemperature, WaterTemperatureParameters } from './graphs/WaterTemperature'
-import { WaterСonsumption, WaterСonsumptionParameters } from './graphs/WaterСonsumption'
+import { VisualizerGroupData } from './core/Visualizer'
+import { AirTemperature, AirTemperatureGroupsNames } from './graphs/AirTemperature'
+import { Precipitation, PrecipitationGroupsNames, PrecipitationValue } from './graphs/Precipitation'
+import { SnowIce, SnowIceGroupsNames } from './graphs/SnowIce'
+import { WaterLevel } from './graphs/WaterLevel'
+import { WaterTemperature } from './graphs/WaterTemperature'
+import { WaterСonsumption, WaterСonsumptionGroupsNames } from './graphs/WaterСonsumption'
 import { Content } from './objects/Content'
 import { Phase, PhaseParameters } from './objects/Phase'
 import { Scrollbar } from './objects/Scrollbar'
@@ -100,13 +100,11 @@ type MonthsLength = ReturnType<typeof monthsSettings>['length']
 
 export function monthsData(
   data: Partial<{
-    [KEY in Exclude<Range<MonthsLength>, MonthsLength>]: GraphMonthData<
-      Exclude<Range<ReturnType<typeof monthsSettings>[KEY]['daysNumber']>, 0>
-    >
+    [KEY in Exclude<Range<MonthsLength>, MonthsLength>]: VisualizerGroupData<any>[number]
   }>
 ) {
   const months = monthsSettings()
-  const preparedData: Array<GraphMonthData> = new Array(months.length)
+  const preparedData: VisualizerGroupData<any> = new Array(months.length)
 
   for (const key in data) {
     const monthData = data[key as '0']!
@@ -123,12 +121,14 @@ export function monthsData(
 export interface QwikStartParameters extends Pick<Parameters, 'wrapper' | 'font'> {
   leapYear?: boolean
   data: {
-    airTemperature: AirTemperatureParameters['data']
-    precipitation: PrecipitationParameters['data']
-    waterTemperature: WaterTemperatureParameters['data']
-    snowLevel: SnowLevelParameters['data']
-    waterlevel: WaterLevelParameters['data']
-    waterСonsumption: WaterСonsumptionParameters['data']
+    airTemperature: { [key in AirTemperatureGroupsNames]?: VisualizerGroupData<number> }
+    precipitation: {
+      [key in PrecipitationGroupsNames]?: VisualizerGroupData<PrecipitationValue>
+    }
+    waterTemperature: { default: VisualizerGroupData<number> }
+    snowIce: { [key in SnowIceGroupsNames]?: VisualizerGroupData<number> }
+    waterlevel: { default: VisualizerGroupData<number> }
+    waterСonsumption: { [key in WaterСonsumptionGroupsNames]?: VisualizerGroupData<number> }
     phases?: Array<{
       type: keyof typeof phasesSettings
       start: PhaseParameters['start']
@@ -164,12 +164,27 @@ export function qwikStart(parameters: QwikStartParameters) {
       name: 'Температура воздуха',
       row: 0,
       rowFactor: 1.5,
-      scaleTitle: 't воздуха °C',
-      data: parameters.data.airTemperature,
-      titles: {
-        max: 'Максимальная',
-        middle: 'Средняя',
-        min: 'Минимальная',
+      scale: {
+        title: 't воздуха °C',
+        color: '#B13007',
+        gridColor: '#B13007',
+      },
+      groups: {
+        min: {
+          months: parameters.data.airTemperature.min || [],
+          title: 'Минимальная',
+          color: '#0066FF',
+        },
+        middle: {
+          months: parameters.data.airTemperature.middle || [],
+          title: 'Средняя',
+          color: '#6B6C7E',
+        },
+        max: {
+          months: parameters.data.airTemperature.max || [],
+          title: 'Минимальная',
+          color: '#D72929',
+        },
       },
     })
   )
@@ -178,12 +193,54 @@ export function qwikStart(parameters: QwikStartParameters) {
     new Precipitation({
       name: 'Осадки',
       row: 1,
-      scaleTitle: 'Осадки, мм',
-      data: parameters.data.precipitation,
-      titles: {
-        liquid: 'Жидкие',
-        solid: 'Твердые',
-        mixed: 'Смешанные',
+      scale: {
+        title: 'Осадки, мм',
+        color: 'darkgreen',
+        gridColor: 'darkgreen',
+      },
+      groups: {
+        solid: {
+          months: parameters.data.precipitation.solid || [],
+          title: 'Твердые',
+          color: '#1351CE',
+        },
+        liquid: {
+          months: parameters.data.precipitation.liquid || [],
+          title: 'Жидкие',
+          color: '#23C180',
+        },
+        mixed: {
+          months: parameters.data.precipitation.mixed || [],
+          title: 'Смешанные',
+        },
+      },
+      unactive: true,
+    })
+  )
+
+  const snowIce = cg.add(
+    new SnowIce({
+      name: 'Снег, Лед',
+      row: 2,
+      scale: {
+        title: 'Снег, лед см',
+        color: '#A7C7E0',
+        position: 'right',
+        abs: true,
+      },
+      snowFillColor: '#a6d9ff',
+      iceFillColor: '#00b1ff',
+      groups: {
+        snow: {
+          months: parameters.data.snowIce.snow || [],
+          color: '#80c8ff',
+          title: 'Снег',
+        },
+        ice: {
+          months: parameters.data.snowIce.ice || [],
+          color: '#1588ff',
+          title: 'Лед',
+        },
       },
       unactive: true,
     })
@@ -193,18 +250,16 @@ export function qwikStart(parameters: QwikStartParameters) {
     new WaterTemperature({
       name: 'Температура воды',
       row: 2,
-      scaleTitle: 't воды °C',
-      data: parameters.data.waterTemperature,
-      unactive: true,
-    })
-  )
-
-  const snowLevel = cg.add(
-    new SnowLevel({
-      name: 'Снег, Лед',
-      row: 2,
-      scaleTitle: 'Снег, лед см',
-      data: parameters.data.snowLevel,
+      scale: {
+        title: 't воды °C',
+        color: '#B13007',
+      },
+      groups: {
+        default: {
+          months: parameters.data.waterTemperature.default || [],
+          color: '#EF543F',
+        },
+      },
       unactive: true,
     })
   )
@@ -214,9 +269,18 @@ export function qwikStart(parameters: QwikStartParameters) {
       name: 'Уровень воды',
       row: 3,
       rowFactor: 2,
-      scaleTitle: 'Ур. воды, см',
-      scaleStep: 50,
-      data: parameters.data.waterlevel,
+      scale: {
+        title: 'Ур. воды, см',
+        step: 50,
+        color: 'black',
+        gridColor: 'black',
+      },
+      groups: {
+        default: {
+          months: parameters.data.waterlevel.default || [],
+          color: '#0066FF',
+        },
+      },
       unactive: true,
     })
   )
@@ -225,14 +289,28 @@ export function qwikStart(parameters: QwikStartParameters) {
     new WaterСonsumption({
       name: 'Расход воды',
       row: 3,
-      scaleTitle: 'Расход м / c',
-      scalePosition: 'right',
-      scaleStep: 50,
-      data: parameters.data.waterСonsumption,
-      titles: {
-        calculated: 'Рассчитанные',
-        measured: 'Измеренные',
-        qh: 'QH',
+      scale: {
+        title: 'Расход м / c',
+        position: 'right',
+        step: 50,
+        color: 'black',
+      },
+      groups: {
+        calculated: {
+          months: parameters.data.waterСonsumption.calculated || [],
+          title: 'Рассчитанные',
+          color: 'brown',
+        },
+        measured: {
+          months: parameters.data.waterСonsumption.measured || [],
+          title: 'Измеренные',
+          color: '#863688',
+        },
+        qh: {
+          months: parameters.data.waterСonsumption.qh || [],
+          title: 'QH',
+          color: '#397634',
+        },
       },
       unactive: true,
     })
@@ -244,7 +322,7 @@ export function qwikStart(parameters: QwikStartParameters) {
     airTemperature,
     precipitation,
     waterTemperature,
-    snowLevel,
+    snowIce,
     waterlevel,
     waterСonsumption,
     destroy() {

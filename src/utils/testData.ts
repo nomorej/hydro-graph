@@ -1,4 +1,4 @@
-import { GraphMonthData } from '../core/Graph'
+import { VisualizerGroupData } from '../core/Visualizer'
 import { monthsData, monthsSettings } from '../qwikStart'
 
 export interface TestDataParameters {
@@ -28,14 +28,14 @@ export function testData({
           ? Math.floor(Math.random() * max * 2 - max)
           : Math.floor(Math.random() * max)
 
-        const d: GraphMonthData[number] = {
+        const d: VisualizerGroupData<number>[number][number] = {
           day: (dayIndex + 1) as 1,
           value: value,
         }
 
         data[monthIndex as 0]!.push(d as any)
       } else {
-        const d: GraphMonthData[number] = {
+        const d: VisualizerGroupData<number>[number][number] = {
           day: (dayIndex + 1) as 1,
           value: [],
         }

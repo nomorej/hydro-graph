@@ -27,6 +27,8 @@ export class Calculator extends Object {
   public onRender() {
     const { renderer, scene } = this.complexGraph
 
+    renderer.context.lineJoin = 'round'
+
     const offsetX = renderer.minSize * 0.15
     const offsetY = renderer.minSize * 0.03
 

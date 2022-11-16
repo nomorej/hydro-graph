@@ -1,14 +1,14 @@
-import { Graph } from '../core/Graph'
+import { Visualizer, VisualizerGroup } from '../core/Visualizer'
 import { Plugin } from './Plugin'
 
 class SubButton {
   public readonly subButton: HTMLElement
 
-  constructor(public readonly graph: Graph<any>, public readonly key: string) {
+  constructor(public readonly drg: VisualizerGroup<any>) {
     this.subButton = document.createElement('div')
-    this.subButton.className = 'complex-graph-button '
+    this.subButton.className = 'complex-graph-button'
     this.subButton.addEventListener('click', this.toggle)
-    this.subButton.innerText = graph.titles[key]
+    this.subButton.innerText = drg.title || 'unnamed'
   }
 
   public destroy() {
@@ -28,11 +28,11 @@ class SubButton {
   }
 
   private toggle = () => {
-    if (this.graph.visibility[this.key]) {
-      this.graph.hide(this.key)
+    if (this.drg.isVisible) {
+      this.drg.hide()
       this.unactive()
     } else {
-      this.graph.show(this.key)
+      this.drg.show()
       this.active()
     }
   }
@@ -75,12 +75,12 @@ class Button {
   public readonly button: HTMLElement
   public readonly subButtons: SubButtons
 
-  constructor(public readonly graph: Graph<any>) {
+  constructor(public readonly dr: Visualizer<any>) {
     this.wrapper = document.createElement('div')
     this.wrapper.className = 'complex-graph-button-wrapper '
 
     this.button = document.createElement('div')
-    this.button.innerText = graph.name || ''
+    this.button.innerText = dr.name || ''
     this.button.className = 'complex-graph-button'
 
     this.wrapper.appendChild(this.button)
@@ -88,13 +88,13 @@ class Button {
     this.subButtons = new SubButtons()
     this.subButtons.appendTo(this.wrapper)
 
-    for (const key in graph.visibility) {
-      if (key !== 'default') {
-        this.subButtons.add(new SubButton(graph, key))
+    dr.groups.forEach((group) => {
+      if (group.name !== 'default') {
+        this.subButtons.add(new SubButton(group))
       }
-    }
+    })
 
-    if (!graph.isActive) {
+    if (!dr.isActive) {
       this.unactive()
     }
 
@@ -121,11 +121,11 @@ class Button {
   }
 
   private toggle = () => {
-    if (this.graph.isActive) {
-      this.graph.hide()
+    if (this.dr.isActive) {
+      this.dr.hide()
       this.unactive()
     } else {
-      this.graph.show()
+      this.dr.show()
       this.active()
     }
   }
@@ -157,7 +157,7 @@ export class Buttons extends Plugin {
     this.complexGraph.container.appendChild(this.container)
 
     this.complexGraph.scene.objects.forEach((object) => {
-      if (object instanceof Graph) {
+      if (object instanceof Visualizer) {
         const button = new Button(object)
         this.buttons.push(button)
         button.appendTo(this.container)
@@ -167,7 +167,6 @@ export class Buttons extends Plugin {
     this.styles.innerText = `
 
       .complex-graph-buttons {
-
         position: absolute;
         top: -4vmin;
         left: 0;
@@ -179,6 +178,7 @@ export class Buttons extends Plugin {
 
       .complex-graph-button-wrapper {
         position: relative;
+        pointer-events: none;
       }
 
       .complex-graph-button {
@@ -191,6 +191,7 @@ export class Buttons extends Plugin {
         display: flex;
         align-items: center;
         justify-content: center;
+        pointer-events: auto;
       }
 
       .complex-graph-button-wrapper:not(:first-child) > .complex-graph-button {
@@ -222,9 +223,12 @@ export class Buttons extends Plugin {
 
       .complex-graph-sub-buttons {
         position: relative;
-        width: 100% ;
+        width: 100%;
+      }
+
+      .complex-graph-sub-buttons .complex-graph-button {
         opacity: 0;
-        pointer-events: none;
+        pointer-events: none
       }
 
       .complex-graph-button-wrapper:not(:first-child) .complex-graph-sub-buttons {
@@ -232,7 +236,7 @@ export class Buttons extends Plugin {
         width: calc(100% - 0.1vmin);
       }
 
-      .complex-graph-button-wrapper:not(.unactive):hover .complex-graph-sub-buttons {
+      .complex-graph-button-wrapper:not(.unactive):hover .complex-graph-sub-buttons .complex-graph-button {
         opacity: 1;
         pointer-events: auto;
       }
@@ -240,11 +244,6 @@ export class Buttons extends Plugin {
       .complex-graph-sub-buttons .complex-graph-button {
         font-size: 1.5vmin;
       }
-
-      .complex-graph-button-wrapper.unactive .complex-graph-sub-buttons {
-        pointer-events: none;
-      }
-
     `
   }
 }
