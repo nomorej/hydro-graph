@@ -1,3 +1,4 @@
+import { IceRulerValue } from './graphs/IceRuler'
 import { monthsData, qwikStart } from './qwikStart'
 import { testData } from './utils/testData'
 
@@ -186,6 +187,125 @@ export function example() {
             {
               day: 25,
               value: -2,
+            },
+          ],
+        }),
+      },
+      iceRuler: {
+        shoreIceSludge: monthsData<IceRulerValue>({
+          '2': [
+            {
+              day: 5,
+              value: {},
+            },
+          ],
+        }),
+        frazilDrift1: monthsData<IceRulerValue>({
+          '2': [
+            {
+              day: 10,
+              value: {},
+            },
+          ],
+        }),
+        frazilDrift2: monthsData<IceRulerValue>({
+          '2': [
+            {
+              day: 11,
+              value: {},
+            },
+          ],
+        }),
+        frazilDrift3: monthsData<IceRulerValue>({
+          '2': [
+            {
+              day: 12,
+              value: {},
+            },
+          ],
+        }),
+        iceDrift1: monthsData<IceRulerValue>({
+          '2': [
+            {
+              day: 15,
+              value: {},
+            },
+          ],
+        }),
+        iceDrift2: monthsData<IceRulerValue>({
+          '2': [
+            {
+              day: 16,
+              value: {},
+            },
+          ],
+        }),
+        iceDrift3: monthsData<IceRulerValue>({
+          '2': [
+            {
+              day: 17,
+              value: {},
+            },
+            {
+              day: 23,
+              value: {
+                upperSign: 'iceJamBelow',
+              },
+            },
+            {
+              day: 24,
+              value: {
+                upperSign: 'iceJamAbove',
+              },
+            },
+          ],
+        }),
+        freezing: monthsData<IceRulerValue>({
+          '2': [
+            {
+              day: 18,
+              value: {},
+            },
+            {
+              day: 19,
+              value: {
+                upperSign: 'waterOnIce',
+              },
+            },
+            {
+              day: 20,
+              value: {},
+            },
+            {
+              day: 21,
+              value: {},
+            },
+            {
+              day: 22,
+              value: {
+                upperSign: 'waterOnIce',
+                iceShove: true,
+              },
+            },
+          ],
+        }),
+        flangeIce: monthsData<IceRulerValue>({
+          '2': [
+            {
+              day: 20,
+              value: {},
+            },
+            {
+              day: 22,
+              value: {},
+            },
+          ],
+        }),
+        iceClearing: monthsData<IceRulerValue>({
+          '2': [
+            {
+              day: 21,
+              value: {},
             },
           ],
         }),

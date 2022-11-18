@@ -15,6 +15,9 @@ export class Renderer extends Canvas {
       clearColor: parameters.clearColor,
     })
 
+    //@ts-ignore
+    this.context.roundRect = this.context.roundRect || this.context.rect
+
     this.scene = parameters.scene
     this.scene.renderer = this
     this.drawFunction = this.render

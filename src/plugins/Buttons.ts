@@ -243,6 +243,8 @@ export class Buttons extends Plugin {
 
       .complex-graph-sub-buttons .complex-graph-button {
         font-size: 1.5vmin;
+        text-align:left;
+        justify-content: flex-start;
       }
     `
   }

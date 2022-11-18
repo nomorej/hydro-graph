@@ -22,9 +22,9 @@ export class Timeline extends Object {
 
     this.scaleColor = parameters?.scaleColor || 'black'
     this.fontColor = parameters?.fontColor || 'black'
-    this.monthColor = parameters?.monthColor || 'lightblue'
-    this.dayColor = parameters?.dayColor || 'lightblue'
-    this.hourColor = parameters?.hourColor || 'lightblue'
+    this.monthColor = parameters?.monthColor || 'grey'
+    this.dayColor = parameters?.dayColor || 'grey'
+    this.hourColor = parameters?.hourColor || 'grey'
   }
 
   public onRender() {
@@ -51,8 +51,8 @@ export class Timeline extends Object {
 
     const segmentHeight = axisY - this.complexGraph.calculator.clipArea.height - contentOffsetY
 
-    renderer.context.lineWidth = scaleThickness
     renderer.context.strokeStyle = this.scaleColor
+    renderer.context.lineWidth = scaleThickness
 
     renderer.context.beginPath()
     renderer.context.moveTo(axisX1, axisY)
@@ -99,6 +99,7 @@ export class Timeline extends Object {
     })
 
     this.complexGraph.calculator.clip(renderer, () => {
+      renderer.context.lineWidth = 1
       this.renderMonths({
         scene,
         month: (_, x) => {
@@ -129,6 +130,7 @@ export class Timeline extends Object {
           renderer.context.restore()
         },
       })
+
       renderer.context.beginPath()
       renderer.context.moveTo(
         this.complexGraph.calculator.clipArea.x1,

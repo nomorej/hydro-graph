@@ -1,6 +1,7 @@
 import { ComplexGraph, Parameters } from './core/ComplexGraph'
 import { VisualizerGroupData } from './core/Visualizer'
 import { AirTemperature, AirTemperatureGroupsNames } from './graphs/AirTemperature'
+import { IceRuler, IceRulerGroupsNames, IceRulerValue } from './graphs/IceRuler'
 import { Precipitation, PrecipitationGroupsNames, PrecipitationValue } from './graphs/Precipitation'
 import { SnowIce, SnowIceGroupsNames } from './graphs/SnowIce'
 import { WaterLevel } from './graphs/WaterLevel'
@@ -98,9 +99,9 @@ export const monthsSettings = (leapYear = false) =>
 
 type MonthsLength = ReturnType<typeof monthsSettings>['length']
 
-export function monthsData(
+export function monthsData<T = any>(
   data: Partial<{
-    [KEY in Exclude<Range<MonthsLength>, MonthsLength>]: VisualizerGroupData<any>[number]
+    [KEY in Exclude<Range<MonthsLength>, MonthsLength>]: VisualizerGroupData<T>[number]
   }>
 ) {
   const months = monthsSettings()
@@ -127,6 +128,7 @@ export interface QwikStartParameters extends Pick<Parameters, 'wrapper' | 'font'
     }
     waterTemperature: { default: VisualizerGroupData<number> }
     snowIce: { [key in SnowIceGroupsNames]?: VisualizerGroupData<number> }
+    iceRuler: { [key in IceRulerGroupsNames]?: VisualizerGroupData<IceRulerValue> }
     waterlevel: { default: VisualizerGroupData<number> }
     waterСonsumption: { [key in WaterСonsumptionGroupsNames]?: VisualizerGroupData<number> }
     phases?: Array<{
@@ -269,10 +271,76 @@ export function qwikStart(parameters: QwikStartParameters) {
     })
   )
 
+  const iceRuler = cg.add(
+    new IceRuler({
+      name: 'Ледовая линейка',
+      row: 3,
+      rowFactor: 0.5,
+      rectInsideColor: '#D5F2FA',
+      strokeColor: 'black',
+      fillColor: 'black',
+      groups: {
+        sludge: {
+          months: parameters.data.iceRuler.sludge || [],
+          title: 'Сало',
+        },
+        shoreIce: {
+          months: parameters.data.iceRuler.shoreIce || [],
+          title: 'Заберег',
+        },
+        shoreIceSludge: {
+          months: parameters.data.iceRuler.shoreIceSludge || [],
+          title: 'Сало при забереге',
+        },
+        frazilDrift1: {
+          months: parameters.data.iceRuler.frazilDrift1 || [],
+          title: 'Редкий шугоход',
+        },
+        frazilDrift2: {
+          months: parameters.data.iceRuler.frazilDrift2 || [],
+          title: 'Средний шугоход',
+        },
+        frazilDrift3: {
+          months: parameters.data.iceRuler.frazilDrift3 || [],
+          title: 'Густой шугоход',
+        },
+        iceDrift1: {
+          months: parameters.data.iceRuler.iceDrift1 || [],
+          title: 'Редкий ледоход',
+        },
+        iceDrift2: {
+          months: parameters.data.iceRuler.iceDrift2 || [],
+          title: 'Средний ледоход',
+        },
+        iceDrift3: {
+          months: parameters.data.iceRuler.iceDrift3 || [],
+          title: 'Густой ледоход',
+        },
+        freezing: {
+          months: parameters.data.iceRuler.freezing || [],
+          title: 'Ледостав',
+        },
+        flangeIce: {
+          months: parameters.data.iceRuler.flangeIce || [],
+          title: 'Закраины',
+        },
+        iceClearing: {
+          months: parameters.data.iceRuler.iceClearing || [],
+          title: 'Разводья',
+        },
+        error: {
+          months: parameters.data.iceRuler.error || [],
+          title: 'Ошибки',
+        },
+      },
+      // unactive: true,
+    })
+  )
+
   const waterlevel = cg.add(
     new WaterLevel({
       name: 'Уровень воды',
-      row: 3,
+      row: 4,
       rowFactor: 2,
       scale: {
         title: 'Ур. воды, см',
@@ -293,7 +361,7 @@ export function qwikStart(parameters: QwikStartParameters) {
   const waterСonsumption = cg.add(
     new WaterСonsumption({
       name: 'Расходы воды',
-      row: 3,
+      row: 4,
       scale: {
         title: 'Расход м / c',
         position: 'right',
@@ -333,6 +401,7 @@ export function qwikStart(parameters: QwikStartParameters) {
     precipitation,
     waterTemperature,
     snowIce,
+    iceRuler,
     waterlevel,
     waterСonsumption,
     destroy() {

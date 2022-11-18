@@ -8,7 +8,7 @@ export abstract class Points<K extends string = 'default'> extends Visualizer<nu
     super(parameters)
   }
 
-  protected calclulateMinMax() {
+  protected override calclulateMinMax() {
     this.groups.forEach((group) => {
       group.elements.forEach((element) => {
         this.min = element.value < this.min ? element.value : this.min

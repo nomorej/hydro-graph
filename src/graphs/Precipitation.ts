@@ -9,14 +9,6 @@ export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationG
     super(parameters)
   }
 
-  public override onCreate() {
-    super.onCreate()
-
-    const { renderer } = this.complexGraph
-    //@ts-ignore
-    renderer.context.roundRect = renderer.context.roundRect || renderer.context.rect
-  }
-
   protected override renderWithClip() {
     const { renderer } = this.complexGraph
 
@@ -52,7 +44,7 @@ export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationG
     })
   }
 
-  protected calclulateMinMax() {
+  protected override calclulateMinMax() {
     this.groups.forEach((group) => {
       group.elements.forEach((element) => {
         if (typeof element.value === 'object') {

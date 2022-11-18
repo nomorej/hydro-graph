@@ -159,7 +159,7 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
     this.min = 0
     this.max = -999999999
 
-    this.calclulateMinMax()
+    this.calclulateMinMax?.()
 
     if (this.scale) {
       const { min, max } = this.scale.create(this.min, this.max)
@@ -210,7 +210,7 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
     }
   }
 
-  protected abstract calclulateMinMax(): void
+  protected calclulateMinMax?(): void
   protected abstract resizeElements(heightStep: number): void
 
   protected renderWithoutClip?(): void
