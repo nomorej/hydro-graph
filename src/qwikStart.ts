@@ -156,6 +156,7 @@ export function qwikStart(parameters: QwikStartParameters) {
         title: 'Осадки, мм',
         color: 'darkgreen',
         gridColor: 'darkgreen',
+        step: 10,
       },
       groups: {
         solid: {
@@ -227,7 +228,7 @@ export function qwikStart(parameters: QwikStartParameters) {
     new IceRuler({
       name: 'Ледовая линейка',
       row: 3,
-      rowFactor: 1,
+      rowFactor: 0.5,
       rectInsideColor: '#D5F2FA',
       strokeColor: '#333333',
       groups: {
@@ -305,7 +306,6 @@ export function qwikStart(parameters: QwikStartParameters) {
     new WaterLevel({
       name: 'Уровень воды',
       row: 4,
-      rowFactor: 2,
       scale: {
         title: 'Ур. воды, см',
         step: 50,
