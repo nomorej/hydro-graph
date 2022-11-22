@@ -11,11 +11,11 @@ export function precipitationData(months: Months): QwikStartPrecipitation {
 }
 
 function solid(months: Months): QwikStartPrecipitation['solid'] {
-  return testData(months, { minus: true, skip: 0.5 })
+  return testData(months, { skip: 0.5 })
 }
 
 function liquid(months: Months): QwikStartPrecipitation['liquid'] {
-  return testData(months, { minus: true, skip: 0.5 })
+  return testData(months, { skip: 0.5 })
 }
 
 function mixed(): QwikStartPrecipitation['mixed'] {

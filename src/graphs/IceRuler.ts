@@ -338,18 +338,21 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
   }
 
   private handleMouseMove = (_mouse: XY, mouseZoomed: XY) => {
-    let collisionsCount = 0
-    this.groups.forEach((g) => {
-      g.elements.forEach((item) => {
-        if (item.value.text && pointRectCollision(mouseZoomed, item)) {
-          collisionsCount++
-          this.complexGraph.tooltip.show(item.value.text.join(','))
-        }
-      })
-    })
+    if (this.isActive) {
+      let collisionsCount = 0
 
-    if (!collisionsCount) {
-      this.complexGraph.tooltip.hide()
+      this.groups.forEach((g) => {
+        g.elements.forEach((item) => {
+          if (item.value.text && pointRectCollision(mouseZoomed, item)) {
+            collisionsCount++
+            this.complexGraph.tooltip.show(item.value.text.join(','))
+          }
+        })
+      })
+
+      if (!collisionsCount) {
+        this.complexGraph.tooltip.hide()
+      }
     }
   }
 

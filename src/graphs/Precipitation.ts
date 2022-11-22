@@ -1,4 +1,7 @@
 import { Visualizer, VisualizerElement, VisualizerParameters } from '../core/Visualizer'
+import { throttle } from '../utils/function'
+import { pointRectCollision } from '../utils/pointRectCollision'
+import { XY } from '../utils/ts'
 
 export type PrecipitationGroupsNames = 'liquid' | 'solid' | 'mixed'
 
@@ -7,6 +10,15 @@ export type PrecipitationValue = number | { value: number; type: 'liquid' | 'sol
 export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationGroupsNames> {
   constructor(parameters: VisualizerParameters<PrecipitationValue, PrecipitationGroupsNames>) {
     super(parameters)
+  }
+
+  public override onCreate() {
+    super.onCreate()
+    this.complexGraph.events.listen('mousemove', this.handleMouseMove)
+  }
+
+  public override onDestroy(): void {
+    this.complexGraph.events.unlisten('mousemove', this.handleMouseMove)
   }
 
   protected override renderWithClip() {
@@ -78,4 +90,29 @@ export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationG
       })
     })
   }
+
+  private handleMouseMove = throttle((_mouse: XY, mouseZoomed: XY) => {
+    if (this.isActive && mouseZoomed.y > this.row.y1 && mouseZoomed.y < this.row.y2) {
+      let collisionsCount = 0
+
+      this.groups.forEach((group) => {
+        if (group?.elements.length && group.isVisible) {
+          group.elements.forEach((el) => {
+            if (pointRectCollision(mouseZoomed, el)) {
+              collisionsCount++
+              if (typeof el.value === 'number') {
+                this.complexGraph.tooltip.show(el.value + '')
+              } else {
+                this.complexGraph.tooltip.show(el.value.value + '')
+              }
+            }
+          })
+        }
+      })
+
+      if (!collisionsCount) {
+        this.complexGraph.tooltip.hide()
+      }
+    }
+  }, 0)
 }
