@@ -1,4 +1,4 @@
-import { Primitive } from '../core/Primitive'
+import { Primitive } from './Primitive'
 import { Segmentator } from '../tools/Segmentator'
 import { Visualizer } from './Visualizer'
 

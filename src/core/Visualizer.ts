@@ -6,7 +6,7 @@ import { Timeline, TimelineSegment } from './Timeline'
 export interface VisualizerElementParameters<V> {
   segment: TimelineSegment
   value: V
-  isNew?: boolean
+  new?: boolean
 }
 
 export class VisualizerElement<V> {
@@ -23,19 +23,25 @@ export class VisualizerElement<V> {
     this.y = 0
     this.width = 0
     this.height = 0
-    this.new = parameters.isNew
+    this.new = parameters.new
     this.segment = parameters.segment
     this.value = parameters.value
   }
 }
 
-export type VisualizerGroupData<V> = Array<
-  Array<{
-    day: number
-    value: V | Array<{ hour: number; value: V; new?: boolean }>
-    new?: boolean
-  }>
->
+export type VisualizerGroupData<V> = Array<Array<VisualizerDayData<V>>>
+
+export type VisualizerDayData<V, H = VisualizerHourData<V>> = {
+  day: number
+  value: V | Array<H>
+  new?: boolean
+}
+
+export type VisualizerHourData<V> = {
+  hour: number
+  value: V
+  new?: boolean
+}
 
 export interface VisualizerGroupParametersData<V> {
   title?: string
@@ -163,7 +169,6 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
 
     if (this.scale) {
       const { min, max } = this.scale.create(this.min, this.max)
-
       this.min = min
       this.max = max
     }

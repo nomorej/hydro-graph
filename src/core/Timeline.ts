@@ -41,22 +41,26 @@ export abstract class TimelineSegment {
 
 export class TimelineHour extends TimelineSegment {
   public readonly day: TimelineDay
+  public hoursBefore: number
 
   constructor(parameters: TimelineSegmentParameters & { day: TimelineDay }) {
     super(parameters)
     this.day = parameters.day
+    this.hoursBefore = 0
   }
 }
 
 export class TimelineDay extends TimelineSegment {
   public readonly hours: Array<TimelineHour>
   public readonly month: TimelineMonth
+  public daysBefore: number
 
   constructor(parameters: TimelineSegmentParameters & { month: TimelineMonth }) {
     super(parameters)
 
     this.hours = []
     this.month = parameters.month
+    this.daysBefore = 0
 
     for (let index = 0; index < this.divider!; index++) {
       this.hours[index] = new TimelineHour({
@@ -135,6 +139,18 @@ export class Timeline {
         })
       })
     })
+
+    let daysBefore = 0
+    this.forEveryDay((data) => {
+      data.day.daysBefore = daysBefore
+      daysBefore++
+    })
+
+    let hoursBefore = 0
+    this.forEveryHour((data) => {
+      data.hour.hoursBefore = hoursBefore
+      hoursBefore++
+    })
   }
 
   public resize(width: number) {
@@ -177,7 +193,15 @@ export class Timeline {
     return segment
   }
 
-  public forEvery(
+  public forEveryDay(callback: (data: { month: TimelineMonth; day: TimelineDay }) => void) {
+    this.months.forEach((month) => {
+      month.days.forEach((day) => {
+        callback({ month, day })
+      })
+    })
+  }
+
+  public forEveryHour(
     callback: (data: { month: TimelineMonth; day: TimelineDay; hour: TimelineHour }) => void
   ) {
     this.months.forEach((month) => {
@@ -192,18 +216,6 @@ export class Timeline {
   public forEveryMonth(callback: (month: TimelineMonth) => void) {
     this.months.forEach((month) => {
       callback(month)
-    })
-  }
-
-  public forEveryDay(month: number, callback: (day: TimelineDay) => void) {
-    this.months[month - 1].days.forEach((day) => {
-      callback(day)
-    })
-  }
-
-  public forEveryHour(month: number, day: number, callback: (hour: TimelineHour) => void) {
-    this.months[month - 1].days[day - 1].hours.forEach((hour) => {
-      callback(hour)
     })
   }
 }

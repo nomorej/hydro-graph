@@ -12,7 +12,7 @@ import { Phase, PhaseParameters } from './objects/Phase'
 import { Scrollbar } from './objects/Scrollbar'
 import { Timeline } from './objects/Timeline'
 import { Buttons } from './plugins/Buttons'
-import { Range } from './utils/ts'
+import { Months } from './utils/getMonths'
 
 const phasesSettings = {
   ОР: {
@@ -24,7 +24,7 @@ const phasesSettings = {
   ОПП: {
     fontColor: '#C86546',
     backgroundColor: '#FBE9DD',
-    name: 'Полное название',
+    name: 'Осенний переходный',
     shortName: 'ОПП',
   },
   ЛД: {
@@ -36,113 +36,63 @@ const phasesSettings = {
   ВПП: {
     fontColor: '#2F7B3A',
     backgroundColor: '#E0FFDF',
-    name: 'Полное название',
+    name: 'Весенний переходный',
     shortName: 'ВПП',
+  },
+  ЗАР: {
+    fontColor: '#128B8C',
+    backgroundColor: '#BFD4D0',
+    name: 'Зарастание',
+    shortName: 'ЗАР',
   },
 }
 
-export const monthsSettings = (leapYear = false) =>
-  [
-    {
-      title: 'Октябрь',
-      daysNumber: 31,
-    },
-    {
-      title: 'Ноябрь',
-      daysNumber: 30,
-    },
-    {
-      title: 'Декабрь',
-      daysNumber: 31,
-    },
-    {
-      title: 'Январь',
-      daysNumber: 31,
-    },
-    {
-      title: 'Февраль',
-      daysNumber: leapYear ? 29 : 28,
-    },
-    {
-      title: 'Март',
-      daysNumber: 31,
-    },
-    {
-      title: 'Апрель',
-      daysNumber: 30,
-    },
-    {
-      title: 'Май',
-      daysNumber: 31,
-    },
-    {
-      title: 'Июнь',
-      daysNumber: 30,
-    },
-    {
-      title: 'Июль',
-      daysNumber: 31,
-    },
-    {
-      title: 'Август',
-      daysNumber: 31,
-    },
-    {
-      title: 'Сентябрь',
-      daysNumber: 30,
-    },
-    {
-      title: 'Октябрь',
-      daysNumber: 31,
-    },
-  ] as const
-
-type MonthsLength = ReturnType<typeof monthsSettings>['length']
-
-export function monthsData<T = any>(
-  data: Partial<{
-    [KEY in Exclude<Range<MonthsLength>, MonthsLength>]: VisualizerGroupData<T>[number]
-  }>
-) {
-  const months = monthsSettings()
-  const preparedData: VisualizerGroupData<any> = new Array(months.length)
-
-  for (const key in data) {
-    const monthData = data[key as '0']!
-    preparedData[key as '0'] = monthData
-  }
-
-  for (let index = 0; index < preparedData.length; index++) {
-    if (!preparedData[index]) preparedData[index] = []
-  }
-
-  return preparedData
+export type QwikStartAirTemperature = {
+  [key in AirTemperatureGroupsNames]?: VisualizerGroupData<number>
 }
+
+export type QwikStartPrecipitation = {
+  [key in PrecipitationGroupsNames]?: VisualizerGroupData<PrecipitationValue>
+}
+
+export type QwikStartWaterTemperature = { default?: VisualizerGroupData<number> }
+
+export type QwikStartSnowIce = { [key in SnowIceGroupsNames]?: VisualizerGroupData<number> }
+
+export type QwikStartIceRuler = {
+  [key in IceRulerGroupsNames]?: VisualizerGroupData<IceRulerValue>
+}
+
+export type QwikStartWaterLevel = { default?: VisualizerGroupData<number> }
+
+export type QwikStartWaterConsumption = {
+  [key in WaterСonsumptionGroupsNames]?: VisualizerGroupData<number>
+}
+
+export type QwikStartPhases = Array<{
+  type: keyof typeof phasesSettings
+  start: PhaseParameters['start']
+  end: PhaseParameters['end']
+}>
 
 export interface QwikStartParameters extends Pick<Parameters, 'wrapper' | 'font'> {
   leapYear?: boolean
+  months: Months
   data: {
-    airTemperature: { [key in AirTemperatureGroupsNames]?: VisualizerGroupData<number> }
-    precipitation: {
-      [key in PrecipitationGroupsNames]?: VisualizerGroupData<PrecipitationValue>
-    }
-    waterTemperature: { default: VisualizerGroupData<number> }
-    snowIce: { [key in SnowIceGroupsNames]?: VisualizerGroupData<number> }
-    iceRuler: { [key in IceRulerGroupsNames]?: VisualizerGroupData<IceRulerValue> }
-    waterlevel: { default: VisualizerGroupData<number> }
-    waterСonsumption: { [key in WaterСonsumptionGroupsNames]?: VisualizerGroupData<number> }
-    phases?: Array<{
-      type: keyof typeof phasesSettings
-      start: PhaseParameters['start']
-      end: PhaseParameters['end']
-    }>
+    airTemperature: QwikStartAirTemperature
+    precipitation: QwikStartPrecipitation
+    waterTemperature: QwikStartWaterTemperature
+    snowIce: QwikStartSnowIce
+    iceRuler: QwikStartIceRuler
+    waterlevel: QwikStartWaterLevel
+    waterСonsumption: QwikStartWaterConsumption
+    phases?: QwikStartPhases
   }
 }
 
 export function qwikStart(parameters: QwikStartParameters) {
   const cg = new ComplexGraph({
     smoothness: 5,
-    months: monthsSettings(parameters.leapYear) as any,
     ...parameters,
   })
 
@@ -193,6 +143,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           color: '#B016C9',
         },
       },
+      // unactive: true,
     })
   )
 
@@ -200,6 +151,7 @@ export function qwikStart(parameters: QwikStartParameters) {
     new Precipitation({
       name: 'Осадки',
       row: 1,
+      rowFactor: 0.7,
       scale: {
         title: 'Осадки, мм',
         color: 'darkgreen',
@@ -221,7 +173,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           title: 'Смешанные',
         },
       },
-      unactive: true,
+      // unactive: true,
     })
   )
 
@@ -249,7 +201,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           title: 'Лед',
         },
       },
-      unactive: true,
+      // unactive: true,
     })
   )
 
@@ -267,7 +219,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           color: '#EF543F',
         },
       },
-      unactive: true,
+      // unactive: true,
     })
   )
 
@@ -275,62 +227,74 @@ export function qwikStart(parameters: QwikStartParameters) {
     new IceRuler({
       name: 'Ледовая линейка',
       row: 3,
-      rowFactor: 0.5,
+      rowFactor: 1,
       rectInsideColor: '#D5F2FA',
-      strokeColor: 'black',
-      fillColor: 'black',
+      strokeColor: '#333333',
       groups: {
         sludge: {
           months: parameters.data.iceRuler.sludge || [],
-          title: 'Сало',
+          // title: 'Сало',
+          color: 'lightgrey',
         },
         shoreIce: {
           months: parameters.data.iceRuler.shoreIce || [],
-          title: 'Заберег',
+          // title: 'Заберег',
+          color: 'lightgrey',
         },
         shoreIceSludge: {
           months: parameters.data.iceRuler.shoreIceSludge || [],
-          title: 'Сало при забереге',
+          // title: 'Сало при забереге',
+          color: 'lightgrey',
         },
         frazilDrift1: {
           months: parameters.data.iceRuler.frazilDrift1 || [],
-          title: 'Редкий шугоход',
+          // title: 'Редкий шугоход',
+          color: 'lightgrey',
         },
         frazilDrift2: {
           months: parameters.data.iceRuler.frazilDrift2 || [],
-          title: 'Средний шугоход',
+          // title: 'Средний шугоход',
+          color: 'lightgrey',
         },
         frazilDrift3: {
           months: parameters.data.iceRuler.frazilDrift3 || [],
-          title: 'Густой шугоход',
+          // title: 'Густой шугоход',
+          color: 'lightgrey',
         },
         iceDrift1: {
           months: parameters.data.iceRuler.iceDrift1 || [],
-          title: 'Редкий ледоход',
+          // title: 'Редкий ледоход',
+          color: 'lightgrey',
         },
         iceDrift2: {
           months: parameters.data.iceRuler.iceDrift2 || [],
-          title: 'Средний ледоход',
+          // title: 'Средний ледоход',
+          color: 'lightgrey',
         },
         iceDrift3: {
           months: parameters.data.iceRuler.iceDrift3 || [],
-          title: 'Густой ледоход',
+          // title: 'Густой ледоход',
+          color: 'lightgrey',
         },
         freezing: {
           months: parameters.data.iceRuler.freezing || [],
-          title: 'Ледостав',
+          // title: 'Ледостав',
+          color: 'lightgrey',
         },
         flangeIce: {
           months: parameters.data.iceRuler.flangeIce || [],
-          title: 'Закраины',
+          // title: 'Закраины',
+          color: 'grey',
         },
         iceClearing: {
           months: parameters.data.iceRuler.iceClearing || [],
-          title: 'Разводья',
+          // title: 'Разводья',
+          color: 'grey',
         },
         error: {
           months: parameters.data.iceRuler.error || [],
-          title: 'Ошибки',
+          // title: 'Ошибки',
+          color: 'grey',
         },
       },
       // unactive: true,
@@ -354,7 +318,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           color: '#0066FF',
         },
       },
-      unactive: true,
+      // unactive: true,
     })
   )
 
@@ -390,7 +354,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           color: '#FFB74E',
         },
       },
-      unactive: true,
+      // unactive: true,
     })
   )
 

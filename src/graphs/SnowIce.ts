@@ -34,13 +34,13 @@ export class SnowIce extends Graph<SnowIceGroupsNames> {
     if (this.scaleZeroSegment) {
       this.drawGroup('snow', {
         lineWidth,
-        afterStroke: (group) => {
+        beforeLines: (group) => {
           this.fillGroup(group, this.snowFillColor, offset)
         },
       })
       this.drawGroup('ice', {
         lineWidth,
-        afterStroke: (group) => {
+        beforeLines: (group) => {
           this.fillGroup(group, this.iceFillColor, offset * -1)
         },
       })
@@ -54,7 +54,6 @@ export class SnowIce extends Graph<SnowIceGroupsNames> {
     const le = group.elements[group.elements.length - 1]
     if (!calculator.isPointVisible(fe, (fe.x - le.x) * -1)) return
 
-    renderer.context.save()
     renderer.context.beginPath()
     renderer.context.moveTo(fe.x, this.scaleZeroSegment!.y)
 
@@ -65,6 +64,5 @@ export class SnowIce extends Graph<SnowIceGroupsNames> {
     renderer.context.lineTo(le.x, this.scaleZeroSegment!.y)
     renderer.context.fillStyle = color
     renderer.context.fill()
-    renderer.context.restore()
   }
 }

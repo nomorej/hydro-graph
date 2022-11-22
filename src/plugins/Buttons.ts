@@ -89,7 +89,7 @@ class Button {
     this.subButtons.appendTo(this.wrapper)
 
     dr.groups.forEach((group) => {
-      if (group.name !== 'default') {
+      if (group.name !== 'default' && group.title) {
         this.subButtons.add(new SubButton(group))
       }
     })

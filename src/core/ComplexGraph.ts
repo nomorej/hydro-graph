@@ -103,6 +103,7 @@ export class ComplexGraph {
     this.container.removeEventListener('contextmenu', this.handleContextMenu)
 
     this.renderer.destroy()
+    this.plugins.forEach((p) => p.onDestroy?.())
 
     this.wrapper.removeChild(this.container)
   }

@@ -34,7 +34,6 @@ export class Scale {
     this.step = parameters.step || 5
     this.abs = parameters.abs || false
     this.segments = []
-
     this.title = parameters.title || ''
     this.position = parameters.position || 'left'
     this.gridColor = parameters.gridColor
