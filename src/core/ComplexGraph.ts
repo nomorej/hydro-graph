@@ -9,6 +9,9 @@ import { Calculator } from './Calculator'
 import { Object } from './Object'
 import { Visualizer } from './Visualizer'
 import { Plugin } from '../plugins/Plugin'
+import { XY } from '../utils/ts'
+import { Events } from '../tools/Events'
+import { Tooltip } from './Tooltip'
 
 export interface Parameters {
   wrapper: CanvasParameters['container']
@@ -31,6 +34,12 @@ export class ComplexGraph {
   public readonly calculator: Calculator
   public readonly timeline: Timeline
   public readonly rows: Rows
+  public readonly tooltip: Tooltip
+  public readonly events: Events<{
+    mousemove(mouse: XY, mouseZoomed: XY): void
+  }>
+  public readonly mouse: XY
+  public readonly mouseZoomed: XY
 
   public zoomMouseButton: number
   public wheelZoomAcceleration: number
@@ -72,8 +81,13 @@ export class ComplexGraph {
 
     this.timeline = new Timeline(parameters.months)
     this.rows = new Rows()
+    this.tooltip = new Tooltip(this)
     this.calculator = new Calculator()
     this.calculator.complexGraph = this
+
+    this.events = new Events()
+    this.mouse = { x: 0, y: 0 }
+    this.mouseZoomed = { x: 0, y: 0 }
 
     this.zoomMouseButton = parameters.zoomMouseButton || 0
     this.wheelZoomAcceleration = parameters.wheelZoomAcceleration || 1
@@ -94,6 +108,7 @@ export class ComplexGraph {
     this.container.addEventListener('pointerdown', this.handlePointerDown)
     this.container.addEventListener('pointerup', this.handleMouseUp)
     this.container.addEventListener('contextmenu', this.handleContextMenu)
+    this.container.addEventListener('mousemove', this.handleMouseMove)
   }
 
   public destroy() {
@@ -101,6 +116,7 @@ export class ComplexGraph {
     this.container.removeEventListener('pointerdown', this.handlePointerDown)
     this.container.removeEventListener('pointerup', this.handleMouseUp)
     this.container.removeEventListener('contextmenu', this.handleContextMenu)
+    this.container.removeEventListener('mousemove', this.handleMouseMove)
 
     this.renderer.destroy()
     this.plugins.forEach((p) => p.onDestroy?.())
@@ -185,6 +201,17 @@ export class ComplexGraph {
 
   private handleContextMenu = (event: MouseEvent) => {
     event.preventDefault()
+  }
+
+  private handleMouseMove = (event: MouseEvent) => {
+    const c = cursorPosition(event, this.container)
+    this.mouse.x = c.x
+    this.mouse.y = c.y
+
+    this.mouseZoomed.x = c.x + this.calculator.clipArea.x1 - this.calculator.area.x1
+    this.mouseZoomed.y = c.y
+
+    this.events.notify('mousemove', this.mouse, this.mouseZoomed)
   }
 
   private scale = (event: WheelEvent) => {

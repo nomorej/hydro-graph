@@ -7,6 +7,8 @@ import {
 } from '../core/Visualizer'
 import { Segmentator } from '../tools/Segmentator'
 import { clamp } from '../utils/math'
+import { pointRectCollision } from '../utils/pointRectCollision'
+import { XY } from '../utils/ts'
 
 export type IceRulerGroupsNames =
   | 'sludge'
@@ -228,6 +230,12 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
 
     groupDam(iceDamAbove, this.iceDamAboveGroups)
     groupDam(iceDamBelow, this.iceDamBelowGroups)
+
+    this.complexGraph.events.listen('mousemove', this.handleMouseMove)
+  }
+
+  public override onDestroy(): void {
+    this.complexGraph.events.unlisten('mousemove', this.handleMouseMove)
   }
 
   protected override renderWithClip() {
@@ -316,11 +324,33 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
         } else if (group.name === 'freezing') {
           element.height = this.lines[2].y - this.lines[8].y - this.lines[8].height
           element.y = this.lines[2].y
+        } else if (group.name === 'iceClearing') {
+          element.height = this.lines[2].y - this.lines[4].y
+          element.y = this.lines[2].y
+        } else if (group.name === 'flangeIce') {
+          element.height = this.lines[3].height
+          element.y = this.lines[2].y
         }
 
         element.y -= element.height
       })
     })
+  }
+
+  private handleMouseMove = (_mouse: XY, mouseZoomed: XY) => {
+    let collisionsCount = 0
+    this.groups.forEach((g) => {
+      g.elements.forEach((item) => {
+        if (item.value.text && pointRectCollision(mouseZoomed, item)) {
+          collisionsCount++
+          this.complexGraph.tooltip.show(item.value.text.join(','))
+        }
+      })
+    })
+
+    if (!collisionsCount) {
+      this.complexGraph.tooltip.hide()
+    }
   }
 
   private drawDamGroups(
