@@ -151,6 +151,6 @@ export class Scale {
   }
 
   public skip(data: SkipScaleSegmentParameters) {
-    return data.index % 2 !== 0
+    return data.segments.length === 2 ? false : data.index % 2 !== 0
   }
 }
