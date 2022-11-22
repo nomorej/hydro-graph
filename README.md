@@ -2,7 +2,7 @@
 
 `npm run dev` - запускает код из [example](/example/index.ts)
 
-`npm run build` - собирает код(если нужно) из [src](/src)
+`npm run build:lib` - собирает код(если нужно) из [src](/src)
 
 ## Общее
 

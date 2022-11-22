@@ -14,7 +14,7 @@ import { Timeline } from './objects/Timeline'
 import { Buttons } from './plugins/Buttons'
 import { Months } from './utils/getMonths'
 
-const phasesSettings = {
+const phasesPresets = {
   ОР: {
     fontColor: '#C08C50',
     backgroundColor: '#FEFFD7',
@@ -70,7 +70,7 @@ export type QwikStartWaterConsumption = {
 }
 
 export type QwikStartPhases = Array<{
-  type: keyof typeof phasesSettings
+  type: keyof typeof phasesPresets
   start: PhaseParameters['start']
   end: PhaseParameters['end']
 }>
@@ -101,7 +101,7 @@ export function qwikStart(parameters: QwikStartParameters) {
   parameters.data.phases?.forEach((phase) => {
     cg.add(
       new Phase({
-        ...phasesSettings[phase.type],
+        ...phasesPresets[phase.type],
         start: phase.start,
         end: phase.end,
       })

@@ -17,11 +17,16 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build:site": "tsc && vite build",
+    "build:lib": "ts-node --esm build.ts",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "typescript": "^4.6.4",
     "vite": "^3.2.0",
     "vite-plugin-dts": "^1.7.1"
+  },
+  "dependencies": {
+    "ts-node": "^10.9.1"
   }
 }
