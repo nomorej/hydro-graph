@@ -143,7 +143,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           color: '#B016C9',
         },
       },
-      // unactive: true,
+      unactive: true,
     })
   )
 
@@ -174,7 +174,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           title: 'Смешанные',
         },
       },
-      // unactive: true,
+      unactive: true,
     })
   )
 
@@ -202,7 +202,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           title: 'Лед',
         },
       },
-      // unactive: true,
+      unactive: true,
     })
   )
 
@@ -220,7 +220,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           color: '#EF543F',
         },
       },
-      // unactive: true,
+      unactive: true,
     })
   )
 
@@ -229,73 +229,63 @@ export function qwikStart(parameters: QwikStartParameters) {
       name: 'Ледовая линейка',
       row: 3,
       rowFactor: 0.5,
-      rectInsideColor: '#D5F2FA',
-      strokeColor: '#333333',
+      darkColor: '#343a40',
+      middleColor: '#495057',
+      lightColor: '#6c757d',
+      specialColor: '#adb5bd',
+
       groups: {
         sludge: {
           months: parameters.data.iceRuler.sludge || [],
           // title: 'Сало',
-          color: 'lightgrey',
         },
         shoreIce: {
           months: parameters.data.iceRuler.shoreIce || [],
           // title: 'Заберег',
-          color: 'lightgrey',
         },
         shoreIceSludge: {
           months: parameters.data.iceRuler.shoreIceSludge || [],
           // title: 'Сало при забереге',
-          color: 'lightgrey',
         },
         frazilDrift1: {
           months: parameters.data.iceRuler.frazilDrift1 || [],
           // title: 'Редкий шугоход',
-          color: 'lightgrey',
         },
         frazilDrift2: {
           months: parameters.data.iceRuler.frazilDrift2 || [],
           // title: 'Средний шугоход',
-          color: 'lightgrey',
         },
         frazilDrift3: {
           months: parameters.data.iceRuler.frazilDrift3 || [],
           // title: 'Густой шугоход',
-          color: 'lightgrey',
         },
         iceDrift1: {
           months: parameters.data.iceRuler.iceDrift1 || [],
           // title: 'Редкий ледоход',
-          color: 'lightgrey',
         },
         iceDrift2: {
           months: parameters.data.iceRuler.iceDrift2 || [],
           // title: 'Средний ледоход',
-          color: 'lightgrey',
         },
         iceDrift3: {
           months: parameters.data.iceRuler.iceDrift3 || [],
           // title: 'Густой ледоход',
-          color: 'lightgrey',
         },
         freezing: {
           months: parameters.data.iceRuler.freezing || [],
           // title: 'Ледостав',
-          color: 'lightgrey',
         },
         flangeIce: {
           months: parameters.data.iceRuler.flangeIce || [],
           // title: 'Закраины',
-          color: 'grey',
         },
         iceClearing: {
           months: parameters.data.iceRuler.iceClearing || [],
           // title: 'Разводья',
-          color: 'grey',
         },
         error: {
           months: parameters.data.iceRuler.error || [],
           // title: 'Ошибки',
-          color: 'grey',
         },
       },
       // unactive: true,
@@ -318,7 +308,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           color: '#0066FF',
         },
       },
-      // unactive: true,
+      unactive: true,
     })
   )
 
@@ -354,7 +344,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           color: '#FFB74E',
         },
       },
-      // unactive: true,
+      unactive: true,
     })
   )
 

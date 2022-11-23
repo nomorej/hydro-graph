@@ -40,8 +40,10 @@ export type IceRulerValue = {
 
 export interface IceRulerParameters
   extends VisualizerParameters<IceRulerValue, IceRulerGroupsNames> {
-  strokeColor?: string
-  rectInsideColor?: string
+  darkColor?: string
+  middleColor?: string
+  lightColor?: string
+  specialColor?: string
 }
 
 export type IceRulerLinesNames = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10'
@@ -57,10 +59,17 @@ interface IceRulerSaved {
 
 type DamGroups = Array<Array<IceRulerSaved>>
 
+type DamType = 'start' | 'end' | 'intermediate'
+
+interface SpecialRectOptions {
+  offset?: number
+  stroke?: string | false
+  fill?: string | false
+}
+
 export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
   private readonly segmentator: Segmentator
   private readonly lines: IceRulerLines
-  private lineWidth: number
 
   private readonly drawFunctionsMap: {
     [key in IceRulerGroupsNames | IceRulerValueUpperSign]:
@@ -81,8 +90,10 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
       | IceRuler['drawIceJamBelowSign']
       | IceRuler['drawWaterOnIceSign']
   }
-  private strokeColor: string
-  private rectInsideColor: string
+  private darkColor: string
+  private middleColor: string
+  private lightColor: string
+  private specialColor: string
   private minSegment?: TimelineSegment
   private maxSegment?: TimelineSegment
   private iceDamBelowGroups: DamGroups
@@ -133,10 +144,10 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
       waterOnIce: this.drawWaterOnIceSign,
     }
 
-    this.strokeColor = parameters.strokeColor || 'black'
-    this.rectInsideColor = parameters.rectInsideColor || 'black'
-
-    this.lineWidth = 0
+    this.darkColor = parameters.darkColor || 'black'
+    this.middleColor = parameters.middleColor || 'black'
+    this.lightColor = parameters.lightColor || 'black'
+    this.specialColor = parameters.specialColor || 'black'
 
     this.iceDamBelowGroups = []
     this.iceDamAboveGroups = []
@@ -241,12 +252,10 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
   protected override renderWithClip() {
     const { renderer } = this.complexGraph
 
-    this.lineWidth = 1
-
     renderer.context.lineJoin = 'miter'
 
     if (this.minSegment && this.maxSegment) {
-      renderer.context.fillStyle = this.strokeColor
+      renderer.context.fillStyle = this.darkColor
       const x = this.complexGraph.calculator.area.x1 + this.minSegment.x1
       const w = this.maxSegment.x2 - this.minSegment.x1
       renderer.context.fillRect(x, this.lines[2].y, w, this.lines[2].height)
@@ -257,14 +266,14 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
       if (!group.isVisible) return
 
       group.elements.forEach((element) => {
-        this.drawFunctionsMap[group.name](element, group)
+        this.drawFunctionsMap[group.name](element)
 
         if (
           element.value.upperSign &&
           element.value.upperSign !== 'iceDamAbove' &&
           element.value.upperSign !== 'iceDamBelow'
         ) {
-          this.drawFunctionsMap[element.value.upperSign](element, group)
+          this.drawFunctionsMap[element.value.upperSign](element)
         }
       })
     })
@@ -363,14 +372,10 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     groups.forEach((g) => {
       g.forEach((item, i) => {
         if (g.length === 1) {
-          d(item.element, item.group, 'start')
-          d(item.element, item.group, 'end')
+          d(item.element, 'start')
+          d(item.element, 'end')
         } else {
-          d(
-            item.element,
-            item.group,
-            i === g.length - 1 ? 'end' : i === 0 ? 'start' : 'intermediate'
-          )
+          d(item.element, i === g.length - 1 ? 'end' : i === 0 ? 'start' : 'intermediate')
         }
       })
     })
@@ -387,63 +392,56 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     {}
 
   private drawShoreIceSludge = (element: VisualizerElement<IceRulerValue>) => {
-    this.drawRect(element.x, element.y, element.width, element.height * 0.1, this.strokeColor)
+    this.drawRect(element.x, element.y, element.width, element.height * 0.1, {
+      fill: this.darkColor,
+    })
   }
 
-  private drawFrazilDrift = (
-    element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-  ) => {
-    const w = element.width * 0.2
+  private drawFrazilDrift = (element: VisualizerElement<IceRulerValue>) => {
+    const { renderer, scene } = this.complexGraph
 
-    for (let index = 0; index < 3; index++) {
-      const x = element.x + ((element.width - w * 2) / 2) * index
-      this.drawRect(x, element.y, w, element.height, group.color)
+    let w = renderer.minSize * (0.001 + scene.size.pointer.current * 0.0000001)
+
+    const step = Math.floor(element.width / 3 / w)
+
+    for (let index = 0; index < step; index++) {
+      const x = element.x + w * index * 3
+      this.drawRect(x, element.y, w, element.height, { fill: this.lightColor })
     }
   }
 
-  private drawIceDrift1 = (
-    element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-  ) => {
-    this.drawRect(element.x, element.y, element.width, element.height, group.color)
+  private drawIceDrift1 = (element: VisualizerElement<IceRulerValue>) => {
+    this.drawRect(element.x, element.y, element.width, element.height, {
+      fill: this.lightColor,
+    })
   }
 
-  private drawIceDrift2 = (
-    element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-  ) => {
-    this.drawRect(element.x, element.y, element.width, element.height, group.color)
+  private drawIceDrift2 = (element: VisualizerElement<IceRulerValue>) => {
+    this.drawRect(element.x, element.y, element.width, element.height, {
+      fill: this.lightColor,
+    })
   }
 
-  private drawIceDrift3 = (
-    element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-  ) => {
-    this.drawRect(element.x, element.y, element.width, element.height, group.color)
-    this.drawSpecialRect(element, group, this.lines[7])
+  private drawIceDrift3 = (element: VisualizerElement<IceRulerValue>) => {
+    this.drawRect(element.x, element.y, element.width, element.height, {
+      fill: this.lightColor,
+    })
+    this.drawSpecialRect(element, this.lines[7], { fill: this.specialColor })
   }
 
-  private drawFreezing = (
-    element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-  ) => {
-    this.drawRect(element.x, element.y, element.width, element.height, group.color)
+  private drawFreezing = (element: VisualizerElement<IceRulerValue>) => {
+    this.drawRect(element.x, element.y, element.width, element.height, {
+      fill: this.lightColor,
+    })
   }
 
-  private drawFlangeIce = (
-    element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-  ) => {
-    this.drawSpecialRect(element, group, this.lines[3])
+  private drawFlangeIce = (element: VisualizerElement<IceRulerValue>) => {
+    this.drawSpecialRect(element, this.lines[3], { fill: this.specialColor })
   }
 
-  private drawIceClearing = (
-    element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-  ) => {
-    this.drawSpecialRect(element, group, this.lines[3])
-    this.drawSpecialRect(element, group, this.lines[4])
+  private drawIceClearing = (element: VisualizerElement<IceRulerValue>) => {
+    this.drawSpecialRect(element, this.lines[3], { fill: this.specialColor })
+    this.drawSpecialRect(element, this.lines[4], { fill: this.specialColor, offset: -0.1 })
   }
 
   private drawIceShove = (element: VisualizerElement<IceRulerValue>) => {
@@ -454,7 +452,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     const y = this.lines[10].y
     const h = this.lines[1].y - this.lines[10].y + this.lines[1].height
 
-    this.drawRect(x, y, w, h, this.strokeColor)
+    this.drawRect(x, y, w, h, { fill: this.darkColor })
   }
 
   private drawError = () =>
@@ -462,32 +460,19 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     // group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
     {}
 
-  private drawWaterOnIceSign = (
-    element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-  ) => {
-    this.drawSpecialRect(element, group, this.lines[9])
+  private drawWaterOnIceSign = (element: VisualizerElement<IceRulerValue>) => {
+    this.drawSpecialRect(element, this.lines[9], { fill: this.specialColor })
   }
 
-  private drawIceJamBelowSign = (
-    element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-  ) => {
-    this.drawIceJam(element, group, true)
+  private drawIceJamBelowSign = (element: VisualizerElement<IceRulerValue>) => {
+    this.drawIceJam(element, true)
   }
 
-  private drawIceJamAboveSign = (
-    element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-  ) => {
-    this.drawIceJam(element, group, false)
+  private drawIceJamAboveSign = (element: VisualizerElement<IceRulerValue>) => {
+    this.drawIceJam(element, false)
   }
 
-  private drawIceJam(
-    element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>,
-    r: boolean = false
-  ) {
+  private drawIceJam(element: VisualizerElement<IceRulerValue>, r: boolean = false) {
     const { calculator } = this.complexGraph
 
     const x = element.x + element.width / 2
@@ -499,22 +484,16 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     )
     const o = this.lines[9].height - s
 
-    this.drawTriangle(x, y + o, s, group.color, r)
+    this.drawTriangle(x, y + o, s, this.middleColor, r)
   }
 
   private drawIceDamBelowSign = (
     element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>,
-    type: 'start' | 'end' | 'intermediate' = 'start'
+    type: DamType = 'start'
   ) => {
     const { renderer } = this.complexGraph
 
-    const { x, s, y, offset } = this.setupDam(element, type)
-
-    renderer.context.beginPath()
-    renderer.context.moveTo(element.x + offset, y)
-    renderer.context.lineTo(element.x + element.width - offset, y)
-    renderer.context.stroke()
+    const { x, s, y } = this.setupDam(element, type)
 
     if (type !== 'intermediate') {
       renderer.context.beginPath()
@@ -523,23 +502,17 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
       renderer.context.lineTo(x + s, y + s)
       renderer.context.stroke()
 
-      this.drawTriangle(x, y - s, s, group.color, true)
+      this.drawTriangle(x, y - s, s, this.middleColor, true)
     }
   }
 
   private drawIceDamAboveSign = (
     element: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>,
-    type: 'start' | 'end' | 'intermediate' = 'start'
+    type: DamType = 'start'
   ) => {
     const { renderer } = this.complexGraph
 
-    const { x, s, y, offset } = this.setupDam(element, type)
-
-    renderer.context.beginPath()
-    renderer.context.moveTo(element.x + offset, y)
-    renderer.context.lineTo(element.x + element.width - offset, y)
-    renderer.context.stroke()
+    const { x, s, y } = this.setupDam(element, type)
 
     if (type !== 'intermediate') {
       renderer.context.beginPath()
@@ -548,17 +521,13 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
       renderer.context.lineTo(x + s, y - s)
       renderer.context.stroke()
 
-      this.drawTriangle(x, y, s, group.color)
+      this.drawTriangle(x, y, s, this.middleColor)
     }
   }
 
-  private setupDam = (
-    element: VisualizerElement<IceRulerValue>,
-    type: 'start' | 'end' | 'intermediate'
-  ) => {
+  private setupDam = (element: VisualizerElement<IceRulerValue>, type: DamType) => {
     const { calculator, renderer } = this.complexGraph
 
-    renderer.context.strokeStyle = this.strokeColor
     const s =
       clamp(
         calculator.area.width * 0.001 + calculator.area.width * 0.0001,
@@ -571,7 +540,13 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     const y = this.lines[9].y + o1
     const offset = element.width * 0.25
 
-    return { x, y, s, offset }
+    renderer.context.strokeStyle = this.middleColor
+    renderer.context.beginPath()
+    renderer.context.moveTo(element.x + offset, y)
+    renderer.context.lineTo(element.x + element.width - offset, y)
+    renderer.context.stroke()
+
+    return { x, y, s }
   }
 
   private drawTriangle(
@@ -584,7 +559,6 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     const { renderer } = this.complexGraph
 
     renderer.context.fillStyle = color
-    renderer.context.strokeStyle = this.strokeColor
     renderer.context.beginPath()
     if (r) {
       renderer.context.moveTo(x, y + s)
@@ -598,41 +572,38 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
       renderer.context.lineTo(x, y)
     }
     renderer.context.fill()
-    renderer.context.stroke()
   }
 
   private drawSpecialRect(
     element: VisualizerElement<IceRulerValue>,
-    _group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>,
     line: IceRulerLines[IceRulerLinesNames],
-    offset = 0
+    options: SpecialRectOptions = {}
+  ) {
+    const x = element.x
+    const w = element.width
+    const h = line.height
+    const y = line.y + h * (options.offset || 0)
+
+    this.drawRect(x, y, w, h, options)
+  }
+
+  private drawRect(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    { stroke = false, fill = false }: SpecialRectOptions = {}
   ) {
     const { renderer } = this.complexGraph
 
-    renderer.context.strokeStyle = this.strokeColor
-    renderer.context.fillStyle = this.rectInsideColor
-    renderer.context.lineWidth = this.lineWidth
+    if (fill) {
+      renderer.context.fillStyle = fill
+      renderer.context.fillRect(x, y, w, h)
+    }
 
-    const lw = this.lineWidth / 2
-
-    const x = element.x
-    const w = element.width - lw
-    const h = line.height - lw
-    const y = line.y + h * offset
-
-    renderer.context.fillRect(x + lw, y + lw, w - this.lineWidth, h - this.lineWidth)
-    renderer.context.strokeRect(x + lw, y + lw, w - lw, h - lw)
-  }
-
-  private drawRect(x: number, y: number, w: number, h: number, color: string = 'black') {
-    const { renderer } = this.complexGraph
-
-    const lw = this.lineWidth / 2
-    renderer.context.strokeStyle = this.strokeColor
-    renderer.context.fillStyle = color
-    renderer.context.lineWidth = 1
-
-    renderer.context.fillRect(x + lw, y + lw, w - this.lineWidth, h - this.lineWidth)
-    renderer.context.strokeRect(x + lw, y + lw, w - lw, h - lw)
+    if (stroke) {
+      renderer.context.strokeStyle = stroke
+      renderer.context.strokeRect(x, y, w, h)
+    }
   }
 }
