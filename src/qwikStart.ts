@@ -115,7 +115,7 @@ export function qwikStart(parameters: QwikStartParameters) {
     new AirTemperature({
       name: 'Температура воздуха',
       row: 0,
-      rowFactor: 1.5,
+      rowFactor: 1,
       scale: {
         title: 't воздуха °C',
         color: '#B13007',
@@ -151,7 +151,7 @@ export function qwikStart(parameters: QwikStartParameters) {
     new Precipitation({
       name: 'Осадки',
       row: 1,
-      rowFactor: 0.7,
+      rowFactor: 0.5,
       scale: {
         title: 'Осадки, мм',
         color: 'darkgreen',
@@ -182,6 +182,7 @@ export function qwikStart(parameters: QwikStartParameters) {
     new SnowIce({
       name: 'Снег, Лед',
       row: 2,
+      rowFactor: 0.5,
       scale: {
         title: 'Снег, лед см',
         color: '#A7C7E0',
@@ -210,6 +211,7 @@ export function qwikStart(parameters: QwikStartParameters) {
     new WaterTemperature({
       name: 'Температура воды',
       row: 2,
+      rowFactor: 0.5,
       scale: {
         title: 't воды °C',
         color: '#B13007',

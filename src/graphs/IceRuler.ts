@@ -104,13 +104,13 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
 
     this.segmentator = new Segmentator({ scale: 1 })
     this.segmentator.cut('1', 0.5)
-    this.segmentator.cut('2', 0.2)
+    this.segmentator.cut('2', 0.05)
     this.segmentator.cut('3', 1)
     this.segmentator.cut('4', 1)
     this.segmentator.cut('5', 1)
     this.segmentator.cut('6', 1)
     this.segmentator.cut('7', 1)
-    this.segmentator.cut('8', 0.2)
+    this.segmentator.cut('8', 0.05)
     this.segmentator.cut('9', 1)
     this.segmentator.cut('10', 0.5)
 
@@ -255,11 +255,14 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     renderer.context.lineJoin = 'miter'
 
     if (this.minSegment && this.maxSegment) {
-      renderer.context.fillStyle = this.darkColor
+      renderer.context.save()
+      renderer.context.globalAlpha = 0.3
+      renderer.context.fillStyle = this.lightColor
       const x = this.complexGraph.calculator.area.x1 + this.minSegment.x1
       const w = this.maxSegment.x2 - this.minSegment.x1
       renderer.context.fillRect(x, this.lines[2].y, w, this.lines[2].height)
       renderer.context.fillRect(x, this.lines[8].y, w, this.lines[8].height)
+      renderer.context.restore()
     }
 
     this.groups.forEach((group) => {
@@ -310,7 +313,10 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
         element.x = this.complexGraph.calculator.area.x1 + element.segment.x1
 
         if (group.name === 'sludge' || group.name === 'shoreIceSludge') {
-          element.height = this.lines[4].height
+          element.height = Math.max(
+            this.complexGraph.renderer.minSize * 0.003,
+            this.lines[4].height * 0.09
+          )
           element.y = this.lines[4].y
         } else if (group.name === 'frazilDrift1') {
           element.height = this.lines[3].height
@@ -339,6 +345,12 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
         } else if (group.name === 'flangeIce') {
           element.height = this.lines[3].height
           element.y = this.lines[2].y
+        } else if (group.name === 'shoreIce') {
+          element.height = Math.max(
+            this.complexGraph.renderer.minSize * 0.003,
+            this.lines[2].height
+          )
+          element.y = this.lines[1].y
         }
 
         element.y -= element.height
@@ -352,7 +364,20 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
 
       this.groups.forEach((g) => {
         g.elements.forEach((item) => {
-          if (item.value.text && pointRectCollision(mouseZoomed, item)) {
+          let collision = pointRectCollision(mouseZoomed, item)
+
+          if (g.name === 'shoreIce') {
+            collision =
+              collision ||
+              pointRectCollision(mouseZoomed, {
+                x: item.x,
+                y: this.lines[7].y - item.height,
+                width: item.width,
+                height: item.height,
+              })
+          }
+
+          if (item.value.text && collision) {
             collisionsCount++
             this.complexGraph.tooltip.show(item.value.text.join(','))
           }
@@ -381,18 +406,23 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     })
   }
 
-  private drawSludge = () =>
-    // element: VisualizerElement<IceRulerValue>,
-    // group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-    {}
+  private drawShoreIce = (element: VisualizerElement<IceRulerValue>) => {
+    this.drawRect(element.x, element.y, element.width, element.height, {
+      fill: this.darkColor,
+    })
+    this.drawRect(element.x, this.lines[8].y, element.width, element.height, {
+      fill: this.darkColor,
+    })
+  }
 
-  private drawShoreIce = () =>
-    // element: VisualizerElement<IceRulerValue>,
-    // group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-    {}
+  private drawSludge = (element: VisualizerElement<IceRulerValue>) => {
+    this.drawRect(element.x, element.y, element.width, element.height, {
+      fill: this.darkColor,
+    })
+  }
 
   private drawShoreIceSludge = (element: VisualizerElement<IceRulerValue>) => {
-    this.drawRect(element.x, element.y, element.width, element.height * 0.1, {
+    this.drawRect(element.x, element.y, element.width, element.height, {
       fill: this.darkColor,
     })
   }

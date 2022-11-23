@@ -19,11 +19,29 @@ export function iceRulerData(): QwikStartIceRuler {
 }
 
 function sludge(): QwikStartIceRuler['sludge'] {
-  return distributeData<IceRulerValue>([])
+  return distributeData<IceRulerValue>([
+    {
+      date: [2, 27],
+      data: {
+        value: {
+          text: ['????'],
+        },
+      },
+    },
+  ])
 }
 
 function shoreIce(): QwikStartIceRuler['shoreIce'] {
-  return distributeData<IceRulerValue>([])
+  return distributeData<IceRulerValue>([
+    {
+      date: [3, 2],
+      data: {
+        value: {
+          text: ['Опасное явление !!!'],
+        },
+      },
+    },
+  ])
 }
 
 function shoreIceSludge(): QwikStartIceRuler['shoreIceSludge'] {
