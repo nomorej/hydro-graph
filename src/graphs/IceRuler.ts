@@ -160,8 +160,6 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     const iceDamBelow: Array<IceRulerSaved> = []
 
     this.groups.forEach((group) => {
-      if (group.name === 'sludge') return
-
       group.elements.forEach((element) => {
         if (!this.minSegment) {
           this.minSegment = element.segment
@@ -256,7 +254,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
 
     if (this.minSegment && this.maxSegment) {
       renderer.context.save()
-      renderer.context.globalAlpha = 0.3
+      renderer.context.globalAlpha = 0.2
       renderer.context.fillStyle = this.lightColor
       const x = this.complexGraph.calculator.area.x1 + this.minSegment.x1
       const w = this.maxSegment.x2 - this.minSegment.x1
