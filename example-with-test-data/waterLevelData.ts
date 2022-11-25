@@ -5,6 +5,8 @@ import { testData } from '../src/utils/testData'
 export function waterLevelData(months: Months): QwikStartWaterLevel {
   return {
     default: def(months),
+    adverse: 100,
+    dangerous: 150,
   }
 }
 

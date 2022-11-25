@@ -63,7 +63,11 @@ export type QwikStartIceRuler = {
   [key in IceRulerGroupsNames]?: VisualizerGroupData<IceRulerValue>
 }
 
-export type QwikStartWaterLevel = { default?: VisualizerGroupData<number> }
+export type QwikStartWaterLevel = {
+  default?: VisualizerGroupData<number>
+  adverse?: number
+  dangerous?: number
+}
 
 export type QwikStartWaterConsumption = {
   [key in WaterСonsumptionGroupsNames]?: VisualizerGroupData<number>
@@ -306,8 +310,8 @@ export function qwikStart(parameters: QwikStartParameters) {
       },
       adverseEventColor: 'orange',
       dangerousEventColor: 'red',
-      adverseEventValue: 100,
-      dangerousEventValue: 150,
+      adverseEventValue: parameters.data.waterlevel.adverse,
+      dangerousEventValue: parameters.data.waterlevel.dangerous,
       groups: {
         default: {
           months: parameters.data.waterlevel.default || [],
