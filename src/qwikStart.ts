@@ -143,7 +143,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           color: '#B016C9',
         },
       },
-      unactive: true,
+      // unactive: true,
     })
   )
 
@@ -174,7 +174,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           title: 'Смешанные',
         },
       },
-      unactive: true,
+      // unactive: true,
     })
   )
 
@@ -203,7 +203,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           title: 'Лед',
         },
       },
-      unactive: true,
+      // unactive: true,
     })
   )
 
@@ -222,7 +222,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           color: '#EF543F',
         },
       },
-      unactive: true,
+      // unactive: true,
     })
   )
 
@@ -304,13 +304,17 @@ export function qwikStart(parameters: QwikStartParameters) {
         color: 'black',
         gridColor: 'black',
       },
+      adverseEventColor: 'orange',
+      dangerousEventColor: 'red',
+      adverseEventValue: 100,
+      dangerousEventValue: 150,
       groups: {
         default: {
           months: parameters.data.waterlevel.default || [],
           color: '#0066FF',
         },
       },
-      unactive: true,
+      // unactive: true,
     })
   )
 
@@ -346,7 +350,7 @@ export function qwikStart(parameters: QwikStartParameters) {
           color: '#FFB74E',
         },
       },
-      unactive: true,
+      // unactive: true,
     })
   )
 
