@@ -11,6 +11,7 @@ import { Content } from './objects/Content'
 import { Phase, PhaseParameters } from './objects/Phase'
 import { Scrollbar } from './objects/Scrollbar'
 import { Timeline } from './objects/Timeline'
+import { Print } from './plugins/Print'
 import { Tooltips } from './plugins/Tooltips'
 import { Valves } from './plugins/Valves'
 import { Months } from './utils/getMonths'
@@ -364,6 +365,7 @@ export function qwikStart(parameters: QwikStartParameters) {
 
   cg.add(new Valves())
   cg.add(new Tooltips())
+  cg.add(new Print())
 
   return {
     airTemperature,
