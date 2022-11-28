@@ -15,6 +15,7 @@ export abstract class TimelineSegment {
   public readonly index: number
   public readonly title: number | string
   public readonly divider: number | undefined
+  public abstract date: string
 
   public x1: number
   public x2: number
@@ -40,23 +41,30 @@ export abstract class TimelineSegment {
 }
 
 export class TimelineHour extends TimelineSegment {
+  public readonly date: string
   public readonly day: TimelineDay
   public hoursBefore: number
 
   constructor(parameters: TimelineSegmentParameters & { day: TimelineDay }) {
     super(parameters)
+
+    this.date = `${parameters.day.date} ${parameters.title.toString().padStart(2, '0')}ч`
+
     this.day = parameters.day
     this.hoursBefore = 0
   }
 }
 
 export class TimelineDay extends TimelineSegment {
+  public readonly date: string
   public readonly hours: Array<TimelineHour>
   public readonly month: TimelineMonth
   public daysBefore: number
 
   constructor(parameters: TimelineSegmentParameters & { month: TimelineMonth }) {
     super(parameters)
+
+    this.date = `${parameters.title.toString().padStart(2, '0')}.${parameters.month.date}`
 
     this.hours = []
     this.month = parameters.month
@@ -80,10 +88,12 @@ export class TimelineDay extends TimelineSegment {
 
 export class TimelineMonth extends TimelineSegment {
   public readonly days: Array<TimelineDay>
+  public readonly date: string
 
   constructor(parameters: TimelineSegmentParameters) {
     super(parameters)
 
+    this.date = (parameters.index + 1).toString().padStart(2, '0')
     this.days = []
 
     for (let index = 0; index < this.divider!; index++) {

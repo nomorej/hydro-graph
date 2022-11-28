@@ -3,7 +3,7 @@ import { VisualizerGroupData } from './core/Visualizer'
 import { AirTemperature, AirTemperatureGroupsNames } from './graphs/AirTemperature'
 import { IceRuler, IceRulerGroupsNames, IceRulerValue } from './graphs/IceRuler'
 import { Precipitation, PrecipitationGroupsNames, PrecipitationValue } from './graphs/Precipitation'
-import { SnowIce, SnowIceGroupsNames } from './graphs/SnowIce'
+import { SnowIce, SnowIceValue } from './graphs/SnowIce'
 import { WaterLevel } from './graphs/WaterLevel'
 import { WaterTemperature } from './graphs/WaterTemperature'
 import { WaterСonsumption, WaterСonsumptionGroupsNames } from './graphs/WaterСonsumption'
@@ -11,7 +11,8 @@ import { Content } from './objects/Content'
 import { Phase, PhaseParameters } from './objects/Phase'
 import { Scrollbar } from './objects/Scrollbar'
 import { Timeline } from './objects/Timeline'
-import { Buttons } from './plugins/Buttons'
+import { Tooltips } from './plugins/Tooltips'
+import { Valves } from './plugins/Valves'
 import { Months } from './utils/getMonths'
 
 const phasesPresets = {
@@ -57,7 +58,7 @@ export type QwikStartPrecipitation = {
 
 export type QwikStartWaterTemperature = { default?: VisualizerGroupData<number> }
 
-export type QwikStartSnowIce = { [key in SnowIceGroupsNames]?: VisualizerGroupData<number> }
+export type QwikStartSnowIce = { default?: VisualizerGroupData<SnowIceValue> }
 
 export type QwikStartIceRuler = {
   [key in IceRulerGroupsNames]?: VisualizerGroupData<IceRulerValue>
@@ -124,6 +125,7 @@ export function qwikStart(parameters: QwikStartParameters) {
         title: 't воздуха °C',
         color: '#B13007',
         gridColor: '#B13007',
+        gridActive: true,
       },
       groups: {
         min: {
@@ -160,18 +162,18 @@ export function qwikStart(parameters: QwikStartParameters) {
         title: 'Осадки, мм',
         color: 'darkgreen',
         gridColor: 'darkgreen',
-        step: 10,
+        gridActive: true,
       },
       groups: {
         solid: {
           months: parameters.data.precipitation.solid || [],
           title: 'Твердые',
-          color: '#1351CE',
+          color: '#00b1ff',
         },
         liquid: {
           months: parameters.data.precipitation.liquid || [],
           title: 'Жидкие',
-          color: '#23C180',
+          color: '#136945',
         },
         mixed: {
           months: parameters.data.precipitation.mixed || [],
@@ -190,21 +192,19 @@ export function qwikStart(parameters: QwikStartParameters) {
       scale: {
         title: 'Снег, лед см',
         color: '#A7C7E0',
+        gridColor: '#A7C7E0',
         position: 'right',
         abs: true,
       },
       snowFillColor: '#a6d9ff',
       iceFillColor: '#00b1ff',
+      snowStrokeColor: '#80c8ff',
+      iceStrokeColor: '#1588ff',
       groups: {
-        snow: {
-          months: parameters.data.snowIce.snow || [],
+        default: {
+          months: parameters.data.snowIce.default || [],
           color: '#80c8ff',
           title: 'Снег',
-        },
-        ice: {
-          months: parameters.data.snowIce.ice || [],
-          color: '#1588ff',
-          title: 'Лед',
         },
       },
       // unactive: true,
@@ -219,6 +219,8 @@ export function qwikStart(parameters: QwikStartParameters) {
       scale: {
         title: 't воды °C',
         color: '#B13007',
+        gridColor: '#B13007',
+        gridActive: true,
       },
       groups: {
         default: {
@@ -304,9 +306,10 @@ export function qwikStart(parameters: QwikStartParameters) {
       row: 4,
       scale: {
         title: 'Ур. воды, см',
-        step: 50,
+        step: 25,
         color: 'black',
         gridColor: 'black',
+        gridActive: true,
       },
       adverseEventColor: 'orange',
       dangerousEventColor: 'red',
@@ -329,8 +332,9 @@ export function qwikStart(parameters: QwikStartParameters) {
       scale: {
         title: 'Расход м / c',
         position: 'right',
-        step: 50,
+        step: 25,
         color: 'black',
+        gridColor: 'black',
       },
       groups: {
         calculated: {
@@ -358,7 +362,8 @@ export function qwikStart(parameters: QwikStartParameters) {
     })
   )
 
-  cg.add(new Buttons())
+  cg.add(new Valves())
+  cg.add(new Tooltips())
 
   return {
     airTemperature,

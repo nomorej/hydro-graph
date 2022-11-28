@@ -122,12 +122,12 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
   public readonly rowFactorParameter: number
 
   public readonly groups: Map<K, VisualizerGroup<V, K>>
-  protected row: Primitive = null!
+  public readonly row: Primitive = null!
 
   protected min: number = null!
   protected max: number = null!
 
-  protected scale?: Scale
+  public readonly scale?: Scale
 
   constructor(parameters: VisualizerParameters<V, K>) {
     super(parameters)
@@ -156,6 +156,7 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
   public override onCreate() {
     const { timeline } = this.complexGraph
 
+    // @ts-ignore
     this.row = this.complexGraph.rows.rows[this.rowParameter!]
 
     this.groups.forEach((group) => {
@@ -186,7 +187,7 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
     this.renderWithoutClip?.()
 
     this.complexGraph.calculator.clip(this.complexGraph.renderer, () => {
-      this.renderWithClip?.()
+      this.renderWithClip?.(heightStep)
     })
   }
 
@@ -215,9 +216,23 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
     }
   }
 
+  public showGrid() {
+    if (this.scale) {
+      this.scale.gridActive = true
+      this.complexGraph.renderer.redraw()
+    }
+  }
+
+  public hideGrid() {
+    if (this.scale) {
+      this.scale.gridActive = false
+      this.complexGraph.renderer.redraw()
+    }
+  }
+
   protected calclulateMinMax?(): void
   protected abstract resizeElements(heightStep: number): void
 
   protected renderWithoutClip?(): void
-  protected renderWithClip?(): void
+  protected renderWithClip?(heightStep: number): void
 }

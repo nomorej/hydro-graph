@@ -1,33 +1,44 @@
 import { Visualizer, VisualizerGroup } from '../core/Visualizer'
 import { Plugin } from './Plugin'
 
-class SubButton {
-  public readonly subButton: HTMLElement
+abstract class Button {
+  public readonly element: HTMLElement
 
-  constructor(public readonly drg: VisualizerGroup<any>) {
-    this.subButton = document.createElement('div')
-    this.subButton.className = 'complex-graph-button'
-    this.subButton.addEventListener('click', this.toggle)
-    this.subButton.innerText = drg.title || 'unnamed'
+  constructor() {
+    this.element = document.createElement('div')
+    this.element.className = 'cg-button'
+
+    setTimeout(() => {
+      this.element.addEventListener('click', this.toggle)
+    }, 0)
   }
 
   public destroy() {
-    this.subButton.removeEventListener('click', this.toggle)
+    this.element.removeEventListener('click', this.toggle)
   }
 
   public appendTo(container: HTMLElement) {
-    container.appendChild(this.subButton)
+    container.appendChild(this.element)
   }
 
   public unactive() {
-    this.subButton.classList.add('unactive')
+    this.element.classList.add('unactive')
   }
 
   public active() {
-    this.subButton.classList.remove('unactive')
+    this.element.classList.remove('unactive')
   }
 
-  private toggle = () => {
+  protected abstract toggle(): void
+}
+
+class GraphButton extends Button {
+  constructor(public readonly drg: VisualizerGroup<any>) {
+    super()
+    this.element.innerText = drg.title!
+  }
+
+  protected toggle = () => {
     if (this.drg.isVisible) {
       this.drg.hide()
       this.unactive()
@@ -38,22 +49,43 @@ class SubButton {
   }
 }
 
-class SubButtons {
-  public readonly subButtons: Array<SubButton>
+class GridButton extends Button {
+  constructor(public readonly dr: Visualizer<any>) {
+    super()
+    this.element.innerText = 'Сетка'
+
+    if (!this.dr.scale!.gridActive) {
+      this.unactive()
+    }
+  }
+
+  protected override toggle = () => {
+    if (this.dr.scale!.gridActive) {
+      this.dr.hideGrid()
+      this.unactive()
+    } else {
+      this.dr.showGrid()
+      this.active()
+    }
+  }
+}
+
+class Buttons {
+  public readonly buttons: Array<Button>
   public readonly container: HTMLElement
 
   constructor() {
-    this.subButtons = []
+    this.buttons = []
     this.container = document.createElement('div')
-    this.container.className = 'complex-graph-sub-buttons'
+    this.container.className = 'cg-graphs-buttons'
   }
 
   public destroy() {
-    this.subButtons.forEach((subButton) => subButton.destroy())
+    this.buttons.forEach((subButton) => subButton.destroy())
   }
 
-  public add(subButton: SubButton) {
-    this.subButtons.push(subButton)
+  public add(subButton: Button) {
+    this.buttons.push(subButton)
     subButton.appendTo(this.container)
   }
 
@@ -62,35 +94,47 @@ class SubButtons {
   }
 
   public active() {
-    this.subButtons.forEach((b) => b.active())
+    this.buttons.forEach((b) => {
+      if (b instanceof GraphButton) {
+        b.active()
+      }
+    })
   }
 
   public unactive() {
-    this.subButtons.forEach((b) => b.unactive())
+    this.buttons.forEach((b) => {
+      if (b instanceof GraphButton) {
+        b.unactive()
+      }
+    })
   }
 }
 
-class Button {
+class Category {
   public readonly wrapper: HTMLElement
-  public readonly button: HTMLElement
-  public readonly subButtons: SubButtons
+  public readonly categoryButton: HTMLElement
+  public readonly buttons: Buttons
 
   constructor(public readonly dr: Visualizer<any>) {
     this.wrapper = document.createElement('div')
-    this.wrapper.className = 'complex-graph-button-wrapper '
+    this.wrapper.className = 'cg-button-wrapper'
 
-    this.button = document.createElement('div')
-    this.button.innerText = dr.name || ''
-    this.button.className = 'complex-graph-button'
+    this.categoryButton = document.createElement('div')
+    this.categoryButton.innerText = dr.name || ''
+    this.categoryButton.className = 'cg-button'
 
-    this.wrapper.appendChild(this.button)
+    this.wrapper.appendChild(this.categoryButton)
 
-    this.subButtons = new SubButtons()
-    this.subButtons.appendTo(this.wrapper)
+    this.buttons = new Buttons()
+    this.buttons.appendTo(this.wrapper)
+
+    if (dr.scale) {
+      this.buttons.add(new GridButton(dr))
+    }
 
     dr.groups.forEach((group) => {
       if (group.name !== 'default' && group.title) {
-        this.subButtons.add(new SubButton(group))
+        this.buttons.add(new GraphButton(group))
       }
     })
 
@@ -98,12 +142,12 @@ class Button {
       this.unactive()
     }
 
-    this.button.addEventListener('click', this.toggle)
+    this.categoryButton.addEventListener('click', this.toggle)
   }
 
   public destroy() {
-    this.subButtons.destroy()
-    this.button.removeEventListener('click', this.toggle)
+    this.buttons.destroy()
+    this.categoryButton.removeEventListener('click', this.toggle)
   }
 
   public appendTo(container: HTMLElement) {
@@ -112,12 +156,12 @@ class Button {
 
   private unactive() {
     this.wrapper.classList.add('unactive')
-    this.subButtons.unactive()
+    this.buttons.unactive()
   }
 
   private active() {
     this.wrapper.classList.remove('unactive')
-    this.subButtons.active()
+    this.buttons.active()
   }
 
   private toggle = () => {
@@ -131,18 +175,18 @@ class Button {
   }
 }
 
-export class Buttons extends Plugin {
-  private buttons: Array<Button>
+export class Valves extends Plugin {
+  private categories: Array<Category>
   private readonly container: HTMLElement
   private readonly styles: HTMLStyleElement
 
   constructor() {
     super()
 
-    this.buttons = []
+    this.categories = []
 
     this.container = document.createElement('div')
-    this.container.className = 'complex-graph-buttons'
+    this.container.className = 'cg-buttons'
 
     this.styles = document.createElement('style')
 
@@ -158,15 +202,15 @@ export class Buttons extends Plugin {
 
     this.complexGraph.scene.objects.forEach((object) => {
       if (object instanceof Visualizer) {
-        const button = new Button(object)
-        this.buttons.push(button)
+        const button = new Category(object)
+        this.categories.push(button)
         button.appendTo(this.container)
       }
     })
 
     this.styles.innerText = `
 
-      .complex-graph-buttons {
+      .cg-buttons {
         position: absolute;
         top: -4vmin;
         left: 0;
@@ -176,12 +220,12 @@ export class Buttons extends Plugin {
         user-select: none;
       }
 
-      .complex-graph-button-wrapper {
+      .cg-button-wrapper {
         position: relative;
         pointer-events: none;
       }
 
-      .complex-graph-button {
+      .cg-button {
         font-size: 1.4vmin;
         padding: 0 1.5vmin;
         height: 4vmin;
@@ -194,54 +238,54 @@ export class Buttons extends Plugin {
         pointer-events: auto;
       }
 
-      .complex-graph-button-wrapper:not(:first-child) > .complex-graph-button {
+      .cg-button-wrapper:not(:first-child) > .cg-button {
         border-left: 0.1vmin solid white;
       }
 
-      .complex-graph-buttons .complex-graph-button-wrapper:first-child > .complex-graph-button  {
+      .cg-buttons .cg-button-wrapper:first-child > .cg-button  {
         border-top-left-radius: 0.5vmin;
       }
 
-      .complex-graph-buttons .complex-graph-button-wrapper:last-child > .complex-graph-button  {
+      .cg-buttons .cg-button-wrapper:last-child > .cg-button  {
         border-top-right-radius: 0.5vmin;
       }
 
-      .complex-graph-button-wrapper.unactive .complex-graph-button,
-      .complex-graph-button.unactive {
+      .cg-button-wrapper.unactive .cg-button,
+      .cg-button.unactive {
         background-color:  #f4f4f4;
         color: #bfbfbf;
       }
 
-      .complex-graph-button:hover {
+      .cg-button:hover {
         background-color: #8099ff;
       }
 
-      .complex-graph-button-wrapper.unactive:hover .complex-graph-button,
-      .complex-graph-button.unactive:hover {
+      .cg-button-wrapper.unactive:hover .cg-button,
+      .cg-button.unactive:hover {
         background-color: #e7e7e7;
       }
 
-      .complex-graph-sub-buttons {
+      .cg-graphs-buttons {
         position: relative;
         width: 100%;
       }
 
-      .complex-graph-sub-buttons .complex-graph-button {
+      .cg-graphs-buttons .cg-button {
         opacity: 0;
         pointer-events: none
       }
 
-      .complex-graph-button-wrapper:not(:first-child) .complex-graph-sub-buttons {
+      .cg-button-wrapper:not(:first-child) .cg-graphs-buttons {
         left: 0.1vmin;
         width: calc(100% - 0.1vmin);
       }
 
-      .complex-graph-button-wrapper:not(.unactive):hover .complex-graph-sub-buttons .complex-graph-button {
+      .cg-button-wrapper:not(.unactive):hover .cg-graphs-buttons .cg-button {
         opacity: 1;
         pointer-events: auto;
       }
 
-      .complex-graph-sub-buttons .complex-graph-button {
+      .cg-graphs-buttons .cg-button {
         font-size: 1.5vmin;
         text-align:left;
         justify-content: flex-start;

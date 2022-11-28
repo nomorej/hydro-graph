@@ -16,7 +16,7 @@ function qh(months: Months): QwikStartWaterConsumption['qh'] {
 }
 
 function measured(months: Months): QwikStartWaterConsumption['measured'] {
-  return testData(months, { max: 300, skip: 0.8 })
+  return testData(months, { max: 300, skip: 0.9, hours: true })
 }
 
 function calculated(months: Months): QwikStartWaterConsumption['calculated'] {

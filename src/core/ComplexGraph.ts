@@ -11,7 +11,6 @@ import { Visualizer } from './Visualizer'
 import { Plugin } from '../plugins/Plugin'
 import { XY } from '../utils/ts'
 import { Events } from '../tools/Events'
-import { Tooltip } from './Tooltip'
 
 export interface Parameters {
   wrapper: CanvasParameters['container']
@@ -34,7 +33,6 @@ export class ComplexGraph {
   public readonly calculator: Calculator
   public readonly timeline: Timeline
   public readonly rows: Rows
-  public readonly tooltip: Tooltip
   public readonly events: Events<{
     mousemove(mouse: XY, mouseZoomed: XY): void
   }>
@@ -81,7 +79,6 @@ export class ComplexGraph {
 
     this.timeline = new Timeline(parameters.months)
     this.rows = new Rows()
-    this.tooltip = new Tooltip(this)
     this.calculator = new Calculator()
     this.calculator.complexGraph = this
 

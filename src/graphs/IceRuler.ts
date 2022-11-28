@@ -7,8 +7,6 @@ import {
 } from '../core/Visualizer'
 import { Segmentator } from '../tools/Segmentator'
 import { clamp } from '../utils/math'
-import { pointRectCollision } from '../utils/pointRectCollision'
-import { XY } from '../utils/ts'
 
 export type IceRulerGroupsNames =
   | 'sludge'
@@ -68,8 +66,8 @@ interface SpecialRectOptions {
 }
 
 export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
+  public readonly lines: IceRulerLines
   private readonly segmentator: Segmentator
-  private readonly lines: IceRulerLines
 
   private readonly drawFunctionsMap: {
     [key in IceRulerGroupsNames | IceRulerValueUpperSign]:
@@ -239,12 +237,6 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
 
     groupDam(iceDamAbove, this.iceDamAboveGroups)
     groupDam(iceDamBelow, this.iceDamBelowGroups)
-
-    this.complexGraph.events.listen('mousemove', this.handleMouseMove)
-  }
-
-  public override onDestroy(): void {
-    this.complexGraph.events.unlisten('mousemove', this.handleMouseMove)
   }
 
   protected override renderWithClip() {
@@ -354,38 +346,6 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
         element.y -= element.height
       })
     })
-  }
-
-  private handleMouseMove = (_mouse: XY, mouseZoomed: XY) => {
-    if (this.isActive) {
-      let collisionsCount = 0
-
-      this.groups.forEach((g) => {
-        g.elements.forEach((item) => {
-          let collision = pointRectCollision(mouseZoomed, item)
-
-          if (g.name === 'shoreIce') {
-            collision =
-              collision ||
-              pointRectCollision(mouseZoomed, {
-                x: item.x,
-                y: this.lines[7].y - item.height,
-                width: item.width,
-                height: item.height,
-              })
-          }
-
-          if (item.value.text && collision) {
-            collisionsCount++
-            this.complexGraph.tooltip.show(item.value.text.join(','))
-          }
-        })
-      })
-
-      if (!collisionsCount) {
-        this.complexGraph.tooltip.hide()
-      }
-    }
   }
 
   private drawDamGroups(

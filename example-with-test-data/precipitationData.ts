@@ -24,17 +24,26 @@ function mixed(): QwikStartPrecipitation['mixed'] {
       date: [2, 15],
       data: {
         value: {
-          value: 25,
-          type: 'liquid',
+          liquid: 2,
+          solid: 30,
         },
       },
     },
     {
-      date: [2, 15],
+      date: [2, 25],
       data: {
         value: {
-          value: 13,
-          type: 'solid',
+          liquid: 10,
+          solid: 10,
+        },
+      },
+    },
+    {
+      date: [5, 14],
+      data: {
+        value: {
+          liquid: 22,
+          solid: 10,
         },
       },
     },

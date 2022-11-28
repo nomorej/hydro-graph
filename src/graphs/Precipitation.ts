@@ -1,30 +1,20 @@
-import { Visualizer, VisualizerElement, VisualizerParameters } from '../core/Visualizer'
-import { throttle } from '../utils/function'
-import { pointRectCollision } from '../utils/pointRectCollision'
-import { XY } from '../utils/ts'
+import { Visualizer, VisualizerParameters } from '../core/Visualizer'
 
 export type PrecipitationGroupsNames = 'liquid' | 'solid' | 'mixed'
 
-export type PrecipitationValue = number | { value: number; type: 'liquid' | 'solid' }
+export type PrecipitationValue = number | { liquid: number; solid: number }
 
 export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationGroupsNames> {
   constructor(parameters: VisualizerParameters<PrecipitationValue, PrecipitationGroupsNames>) {
     super(parameters)
   }
 
-  public override onCreate() {
-    super.onCreate()
-    this.complexGraph.events.listen('mousemove', this.handleMouseMove)
-  }
-
-  public override onDestroy(): void {
-    this.complexGraph.events.unlisten('mousemove', this.handleMouseMove)
-  }
-
   protected override renderWithClip() {
     const { renderer } = this.complexGraph
 
-    const cornerRound = renderer.minSize * 0.005
+    const cornerRound = renderer.minSize * 0.002
+
+    const radii = [cornerRound, cornerRound, 0, 0]
 
     this.groups.forEach((group) => {
       if (!group.isVisible) return
@@ -32,26 +22,34 @@ export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationG
       group.elements.forEach((element) => {
         if (!this.complexGraph.calculator.isPointVisible(element)) return
 
-        renderer.context.beginPath()
-
         if (typeof element.value === 'object') {
-          renderer.context.fillStyle =
-            element.value.type === 'liquid'
-              ? this.groups.get('liquid')!.color
-              : this.groups.get('solid')!.color
+          const step = element.height / (element.value.solid + element.value.liquid)
+          const liquidHeight = step * element.value.liquid
+          const solidHeight = step * element.value.solid
+          renderer.context.beginPath()
+          renderer.context.fillStyle = this.groups.get('liquid')!.color
+          //@ts-ignore
+          renderer.context.roundRect(
+            element.x,
+            element.y + solidHeight,
+            element.width,
+            liquidHeight,
+            radii
+          )
+          renderer.context.fill()
+
+          renderer.context.beginPath()
+          renderer.context.fillStyle = this.groups.get('solid')!.color
+          //@ts-ignore
+          renderer.context.roundRect(element.x, element.y, element.width, solidHeight, radii)
+          renderer.context.fill()
         } else {
+          renderer.context.beginPath()
           renderer.context.fillStyle = group.color
+          //@ts-ignore
+          renderer.context.roundRect(element.x, element.y, element.width, element.height, radii)
+          renderer.context.fill()
         }
-
-        //@ts-ignore
-        renderer.context.roundRect(element.x, element.y - 1, element.width, element.height, [
-          cornerRound,
-          cornerRound,
-          0,
-          0,
-        ])
-
-        renderer.context.fill()
       })
     })
   }
@@ -60,19 +58,15 @@ export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationG
     this.groups.forEach((group) => {
       group.elements.forEach((element) => {
         if (typeof element.value === 'object') {
-          this.min = element.value.value < this.min ? element.value.value : this.min
-          this.max = element.value.value > this.max ? element.value.value : this.max
+          const acc = element.value.liquid + element.value.solid
+          this.min = acc < this.min ? acc : this.min
+          this.max = acc > this.max ? acc : this.max
         } else {
           this.min = element.value < this.min ? element.value : this.min
           this.max = element.value > this.max ? element.value : this.max
         }
       })
     })
-    ;(
-      this.groups.get('mixed')!.elements as Array<
-        VisualizerElement<Exclude<PrecipitationValue, number>>
-      >
-    ).sort((a, b) => b.value.value - a.value.value)
   }
 
   protected resizeElements(heightStep: number) {
@@ -81,7 +75,8 @@ export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationG
       group.elements.forEach((element) => {
         element.width = element.segment.width
         if (typeof element.value === 'object') {
-          element.height = heightStep * (element.value.value - this.min)
+          const acc = element.value.liquid + element.value.solid
+          element.height = heightStep * (acc - this.min)
         } else {
           element.height = heightStep * (element.value - this.min)
         }
@@ -90,29 +85,4 @@ export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationG
       })
     })
   }
-
-  private handleMouseMove = throttle((_mouse: XY, mouseZoomed: XY) => {
-    if (this.isActive && mouseZoomed.y > this.row.y1 && mouseZoomed.y < this.row.y2) {
-      let collisionsCount = 0
-
-      this.groups.forEach((group) => {
-        if (group?.elements.length && group.isVisible) {
-          group.elements.forEach((el) => {
-            if (pointRectCollision(mouseZoomed, el)) {
-              collisionsCount++
-              if (typeof el.value === 'number') {
-                this.complexGraph.tooltip.show(el.value + '')
-              } else {
-                this.complexGraph.tooltip.show(el.value.value + '')
-              }
-            }
-          })
-        }
-      })
-
-      if (!collisionsCount) {
-        this.complexGraph.tooltip.hide()
-      }
-    }
-  }, 0)
 }

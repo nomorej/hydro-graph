@@ -8,6 +8,7 @@ export interface TimelineParameters {
   monthColor?: string
   dayColor?: string
   hourColor?: string
+  decadeColor?: string
 }
 
 export class Timeline extends Object {
@@ -16,15 +17,17 @@ export class Timeline extends Object {
   public monthColor: string
   public dayColor: string
   public hourColor: string
+  public decadeColor: string
 
   constructor(parameters?: TimelineParameters) {
     super()
 
     this.scaleColor = parameters?.scaleColor || 'black'
     this.fontColor = parameters?.fontColor || 'black'
-    this.monthColor = parameters?.monthColor || 'grey'
-    this.dayColor = parameters?.dayColor || 'grey'
-    this.hourColor = parameters?.hourColor || 'grey'
+    this.monthColor = parameters?.monthColor || '#a5a4a4'
+    this.dayColor = parameters?.dayColor || '#d1d1d1'
+    this.hourColor = parameters?.hourColor || '#d1d1d1'
+    this.decadeColor = parameters?.decadeColor || '#FF5370'
   }
 
   public onRender() {
@@ -36,7 +39,7 @@ export class Timeline extends Object {
     const axisX1 = sceneOffsetX
     const axisX2 = scene.size.pointer.current - sceneOffsetX
     const axisY = this.complexGraph.calculator.clipArea.y2 + contentOffsetY
-    const gridY = this.complexGraph.calculator.area.y2
+    const gridY = this.complexGraph.calculator.clipArea.y2
 
     const scaleThickness = renderer.minSize * 0.003
 
@@ -66,6 +69,8 @@ export class Timeline extends Object {
     this.renderMonths({
       scene,
       month: (month, x) => {
+        renderer.context.fillStyle = this.fontColor
+        renderer.context.strokeStyle = this.fontColor
         renderer.context.beginPath()
         renderer.context.moveTo(x, axisY - monthDashSize)
         renderer.context.lineTo(x, axisY + monthDashSize)
@@ -75,6 +80,14 @@ export class Timeline extends Object {
         renderer.context.fillText(month.title.toString(), x, axisY + monthDashSize * 2)
       },
       day: (day, x, visible) => {
+        if (day.title == 11 || day.title == 21) {
+          renderer.context.fillStyle = this.decadeColor
+          renderer.context.strokeStyle = this.decadeColor
+        } else {
+          renderer.context.fillStyle = this.fontColor
+          renderer.context.strokeStyle = this.fontColor
+        }
+
         renderer.context.beginPath()
         renderer.context.moveTo(x, axisY - dayDashSize)
         renderer.context.lineTo(x, axisY + dayDashSize)
@@ -86,6 +99,9 @@ export class Timeline extends Object {
         }
       },
       hour: (hour, x, visible) => {
+        renderer.context.fillStyle = this.fontColor
+        renderer.context.strokeStyle = this.fontColor
+
         renderer.context.beginPath()
         renderer.context.moveTo(x, axisY - hourDashSize)
         renderer.context.lineTo(x, axisY + hourDashSize)
@@ -99,10 +115,10 @@ export class Timeline extends Object {
     })
 
     this.complexGraph.calculator.clip(renderer, () => {
-      renderer.context.lineWidth = 1
       this.renderMonths({
         scene,
         month: (_, x) => {
+          renderer.context.lineWidth = 1
           renderer.context.strokeStyle = this.monthColor
           renderer.context.beginPath()
           renderer.context.moveTo(x, gridY)
@@ -111,6 +127,7 @@ export class Timeline extends Object {
         },
         day: (_, x, visible) => {
           renderer.context.save()
+          renderer.context.lineWidth = 1
           renderer.context.strokeStyle = this.dayColor
           renderer.context.globalAlpha = visible ? 0.5 : 0.3
           renderer.context.beginPath()
@@ -121,8 +138,20 @@ export class Timeline extends Object {
         },
         hour: (_, x, visible) => {
           renderer.context.save()
+          renderer.context.lineWidth = 1
           renderer.context.strokeStyle = this.hourColor
           renderer.context.globalAlpha = visible ? 0.3 : 0.1
+          renderer.context.beginPath()
+          renderer.context.moveTo(x, gridY)
+          renderer.context.lineTo(x, segmentHeight)
+          renderer.context.stroke()
+          renderer.context.restore()
+        },
+        decade: (_, x) => {
+          renderer.context.save()
+          renderer.context.lineWidth = 1
+          renderer.context.strokeStyle = this.decadeColor
+          renderer.context.globalAlpha = 0.3
           renderer.context.beginPath()
           renderer.context.moveTo(x, gridY)
           renderer.context.lineTo(x, segmentHeight)
@@ -150,6 +179,7 @@ export class Timeline extends Object {
     month: (month: TimelineMonth, x: number) => void
     day: (day: TimelineDay, x: number, visible: boolean) => void
     hour: (hour: TimelineHour, x: number, visible: boolean) => void
+    decade?: (day: TimelineDay, x: number, visible: boolean) => void
   }) {
     this.complexGraph.timeline.forEveryMonth((month) => {
       if (!this.complexGraph.calculator.isSegmentVisible(month)) return
@@ -162,24 +192,32 @@ export class Timeline extends Object {
         month.forEveryDay((day) => {
           const dayVisible =
             day.index > 0 &&
-            ((+day.title % 5 === 0 &&
+            ((+day.title % 5 === 1 &&
               !this.complexGraph.calculator.isDaysFullZoom &&
-              day.title != 30) ||
+              day.title != 31) ||
               this.complexGraph.calculator.isDaysFullZoom)
 
           parameters.day(day, this.complexGraph.calculator.area.x1 + day.x1, dayVisible)
 
           if (this.complexGraph.calculator.isHoursZoom) {
             day.forEveryHour((hour) => {
-              const hourVisible =
-                hour.index > 0 &&
-                ((+hour.title % 4 === 0 && !this.complexGraph.calculator.isHoursFullZoom) ||
-                  this.complexGraph.calculator.isHoursFullZoom)
-              parameters.hour(hour, this.complexGraph.calculator.area.x1 + hour.x1, hourVisible)
+              if (hour.title !== 1 && hour.title !== 24) {
+                const hourVisible =
+                  hour.index > 0 &&
+                  ((+hour.title % 4 === 0 && !this.complexGraph.calculator.isHoursFullZoom) ||
+                    this.complexGraph.calculator.isHoursFullZoom)
+                parameters.hour(hour, this.complexGraph.calculator.area.x1 + hour.x1, hourVisible)
+              }
             })
           }
         })
       }
+
+      month.forEveryDay((day) => {
+        if (day.title == 11 || day.title == 21) {
+          parameters.decade?.(day, this.complexGraph.calculator.area.x1 + day.x1, true)
+        }
+      })
     })
   }
 }

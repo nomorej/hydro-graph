@@ -12,6 +12,7 @@ export interface ScaleParameters {
   position?: ScalePosition
   gridColor?: string
   abs?: boolean
+  gridActive?: boolean
 }
 
 export interface SkipScaleSegmentParameters {
@@ -29,6 +30,7 @@ export class Scale {
   public readonly title: string
   public readonly position: ScalePosition
   public scaleScatter: number
+  public gridActive: boolean
 
   constructor(parameters: ScaleParameters) {
     this.step = parameters.step || 5
@@ -40,6 +42,7 @@ export class Scale {
     this.color = parameters.color || 'black'
 
     this.scaleScatter = null!
+    this.gridActive = parameters.gridActive || false
   }
 
   public create(min: number, max: number) {
@@ -116,7 +119,7 @@ export class Scale {
       )
     })
 
-    if (this.gridColor) {
+    if (this.gridColor && this.gridActive) {
       renderer.context.strokeStyle = this.gridColor
 
       calculator.clip(renderer, () => {
