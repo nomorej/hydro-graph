@@ -52,7 +52,7 @@ export class Phase extends Object {
 
     this.fontColor = parameters.fontColor || 'darkblue'
     this.backgroundColor = parameters.backgroundColor || 'lightblue'
-    this.edgeColor = parameters.edgeColor || 'grey'
+    this.edgeColor = parameters.edgeColor || 'darkgrey'
   }
 
   public override onCreate() {
@@ -130,16 +130,16 @@ export class Phase extends Object {
       renderer.context.fillText(title, middle, this.complexGraph.calculator.clipArea.y2 - offsetY)
 
       renderer.context.save()
-      renderer.context.setLineDash([10])
+      renderer.context.setLineDash([5])
       renderer.context.strokeStyle = this.edgeColor
       renderer.context.lineWidth = 1
       renderer.context.beginPath()
       renderer.context.moveTo(
-        this.complexGraph.calculator.area.x1 + this.start.x1 + 0.5,
+        this.complexGraph.calculator.area.x1 + this.start.x1,
         this.complexGraph.calculator.clipArea.y1
       )
       renderer.context.lineTo(
-        this.complexGraph.calculator.area.x1 + this.start.x1 + 0.5,
+        this.complexGraph.calculator.area.x1 + this.start.x1,
         this.complexGraph.calculator.clipArea.y2
       )
       renderer.context.stroke()

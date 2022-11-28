@@ -118,12 +118,15 @@ export class Timeline extends Object {
       this.renderMonths({
         scene,
         month: (_, x) => {
+          renderer.context.save()
           renderer.context.lineWidth = 1
           renderer.context.strokeStyle = this.monthColor
+          renderer.context.globalAlpha = 0.7
           renderer.context.beginPath()
           renderer.context.moveTo(x, gridY)
           renderer.context.lineTo(x, segmentHeight)
           renderer.context.stroke()
+          renderer.context.restore()
         },
         day: (_, x, visible) => {
           renderer.context.save()

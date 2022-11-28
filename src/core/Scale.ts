@@ -129,8 +129,12 @@ export class Scale {
           renderer.context.save()
           renderer.context.globalAlpha = segment.value == 0 ? 1 : !skip ? 0.3 : 0.1
           renderer.context.beginPath()
-          renderer.context.moveTo(calculator.clipArea.x1, segment.y)
-          renderer.context.lineTo(calculator.clipArea.x2, segment.y)
+
+          let y = Math.ceil(segment.y)
+          y = y % 2 === 0 ? y : y + 0.5
+
+          renderer.context.moveTo(calculator.clipArea.x1, y)
+          renderer.context.lineTo(calculator.clipArea.x2, y)
           renderer.context.stroke()
           renderer.context.restore()
         })
