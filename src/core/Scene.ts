@@ -82,12 +82,18 @@ export class Scene {
   }
 
   public resize(renderer: Renderer) {
+    const positionProgress = this.position.progress.target || 0
+    const sizeProgress = this.size.progress.target || 0
+
     this.viewportSize = renderer.size.x
     this.objects.forEach((object) => {
       if (object.isActive) {
         object.onResize?.()
       }
     })
+
+    this.position.calibrateProgress(positionProgress)
+    this.size.calibrateProgress(sizeProgress)
   }
 
   public render(renderer: Renderer, _: number, dt: number) {
