@@ -241,7 +241,7 @@ export function qwikStart(parameters: QwikStartParameters) {
       darkColor: '#343a40',
       middleColor: '#495057',
       lightColor: '#6c757d',
-      specialColor: '#adb5bd',
+      specialColor: '#e3eef9',
 
       groups: {
         sludge: {
