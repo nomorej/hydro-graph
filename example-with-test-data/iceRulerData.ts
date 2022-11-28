@@ -297,5 +297,38 @@ function iceClearing(): QwikStartIceRuler['iceClearing'] {
 }
 
 function error(): QwikStartIceRuler['error'] {
-  return distributeData<IceRulerValue>([])
+  return distributeData<IceRulerValue>([
+    {
+      date: [4, 10],
+      data: {
+        value: {
+          text: ['Ошибка 1'],
+        },
+      },
+    },
+    {
+      date: [4, 11],
+      data: {
+        value: {
+          text: ['Ошибка'],
+        },
+      },
+    },
+    {
+      date: [4, 12],
+      data: {
+        value: {
+          text: ['Ошибка'],
+        },
+      },
+    },
+    {
+      date: [4, 15],
+      data: {
+        value: {
+          text: ['Ошибка'],
+        },
+      },
+    },
+  ])
 }

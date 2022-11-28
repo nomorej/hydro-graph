@@ -42,6 +42,7 @@ export interface IceRulerParameters
   middleColor?: string
   lightColor?: string
   specialColor?: string
+  errorColor?: string
 }
 
 export type IceRulerLinesNames = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10'
@@ -92,6 +93,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
   private middleColor: string
   private lightColor: string
   private specialColor: string
+  private errorColor: string
   private minSegment?: TimelineSegment
   private maxSegment?: TimelineSegment
   private iceDamBelowGroups: DamGroups
@@ -146,6 +148,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     this.middleColor = parameters.middleColor || 'black'
     this.lightColor = parameters.lightColor || 'black'
     this.specialColor = parameters.specialColor || 'black'
+    this.errorColor = parameters.errorColor || '#ea7060'
 
     this.iceDamBelowGroups = []
     this.iceDamAboveGroups = []
@@ -341,6 +344,9 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
             this.lines[2].height
           )
           element.y = this.lines[1].y
+        } else if (group.name === 'error') {
+          element.height = this.lines[2].y - this.lines[3].y
+          element.y = this.lines[2].y
         }
 
         element.y -= element.height
@@ -442,10 +448,37 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     this.drawRect(x, y, w, h, { fill: this.darkColor })
   }
 
-  private drawError = () =>
-    // element: VisualizerElement<IceRulerValue>
-    // group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
-    {}
+  private drawError = (element: VisualizerElement<IceRulerValue>) => {
+    const { renderer } = this.complexGraph
+    renderer.context.strokeStyle = this.errorColor
+    renderer.context.lineWidth = 1 / renderer.pixelRatio
+
+    const hw = element.width / 2
+    const hh = element.height / 2
+
+    renderer.context.beginPath()
+    renderer.context.moveTo(element.x, element.y)
+    renderer.context.lineTo(element.x + hw, element.y + hh)
+    renderer.context.moveTo(element.x + hw, element.y)
+    renderer.context.lineTo(element.x, element.y + hh)
+
+    renderer.context.moveTo(element.x + hw, element.y + hh)
+    renderer.context.lineTo(element.x + hw * 2, element.y + hh * 2)
+    renderer.context.moveTo(element.x + hw * 2, element.y + hh)
+    renderer.context.lineTo(element.x + hw, element.y + hh * 2)
+
+    renderer.context.moveTo(element.x + hw, element.y)
+    renderer.context.lineTo(element.x + hw * 2, element.y + hh)
+    renderer.context.moveTo(element.x + hw * 2, element.y)
+    renderer.context.lineTo(element.x + hw, element.y + hh)
+
+    renderer.context.moveTo(element.x, element.y + hh)
+    renderer.context.lineTo(element.x + hw, element.y + hh * 2)
+    renderer.context.moveTo(element.x + hw, element.y + hh)
+    renderer.context.lineTo(element.x, element.y + hh * 2)
+
+    renderer.context.stroke()
+  }
 
   private drawWaterOnIceSign = (element: VisualizerElement<IceRulerValue>) => {
     this.drawSpecialRect(element, this.lines[9], { stroke: this.lightColor })
