@@ -585,12 +585,12 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
 
     if (fill) {
       renderer.context.fillStyle = fill
-      renderer.context.fillRect(x, y, w, h)
+      renderer.context.fillRect(x, y, w + 1, h)
     }
 
     if (stroke) {
       renderer.context.strokeStyle = stroke
-      renderer.context.strokeRect(x, y, w, h)
+      renderer.context.strokeRect(x, y, w + 1, h)
     }
   }
 }
