@@ -19,6 +19,7 @@ export interface PhaseParameters extends ObjectParameters {
 
   fontColor?: string
   backgroundColor?: string
+  edgeColor?: string
 }
 
 export class Phase extends Object {
@@ -32,8 +33,9 @@ export class Phase extends Object {
 
   private readonly fillEndSegment: boolean
 
-  public fontColor: string
-  public backgroundColor: string
+  private readonly fontColor: string
+  private readonly backgroundColor: string
+  private readonly edgeColor: string
 
   constructor(parameters: PhaseParameters) {
     super({ name: '', ...parameters })
@@ -50,6 +52,7 @@ export class Phase extends Object {
 
     this.fontColor = parameters.fontColor || 'darkblue'
     this.backgroundColor = parameters.backgroundColor || 'lightblue'
+    this.edgeColor = parameters.edgeColor || 'grey'
   }
 
   public override onCreate() {
@@ -125,6 +128,22 @@ export class Phase extends Object {
       }
 
       renderer.context.fillText(title, middle, this.complexGraph.calculator.clipArea.y2 - offsetY)
+
+      renderer.context.save()
+      renderer.context.setLineDash([10])
+      renderer.context.strokeStyle = this.edgeColor
+      renderer.context.lineWidth = 1
+      renderer.context.beginPath()
+      renderer.context.moveTo(
+        this.complexGraph.calculator.area.x1 + this.start.x1 + 0.5,
+        this.complexGraph.calculator.clipArea.y1
+      )
+      renderer.context.lineTo(
+        this.complexGraph.calculator.area.x1 + this.start.x1 + 0.5,
+        this.complexGraph.calculator.clipArea.y2
+      )
+      renderer.context.stroke()
+      renderer.context.restore()
     })
   }
 }

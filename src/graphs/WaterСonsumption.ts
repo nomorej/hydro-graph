@@ -28,6 +28,7 @@ export class WaterСonsumption extends Graph<WaterСonsumptionGroupsNames> {
 
     if (measuredGroup && measuredGroup.isVisible) {
       renderer.context.fillStyle = measuredGroup.color
+
       measuredGroup.elements.forEach((element) => {
         if (!this.complexGraph.calculator.isPointVisible(element)) return
         renderer.context.beginPath()
