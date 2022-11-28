@@ -44,9 +44,9 @@ export class Print extends Plugin {
   }
 
   private handleClick = () => {
-    this.complexGraph.renderer.clear()
-    this.complexGraph.renderer.resize(innerWidth, innerHeight)
-    this.complexGraph.renderer.draw()
+    // this.complexGraph.renderer.clear()
+    // this.complexGraph.renderer.resize(innerWidth, innerHeight)
+    // this.complexGraph.renderer.draw()
 
     const url = this.complexGraph.renderer.canvasElement.toDataURL(undefined, 1)
 
@@ -72,12 +72,5 @@ export class Print extends Plugin {
       `)
       win.setTimeout(() => win.print(), 0)
     }
-
-    this.complexGraph.renderer.clear()
-    this.complexGraph.renderer.resize(
-      this.complexGraph.renderer.containerElement.offsetWidth,
-      this.complexGraph.renderer.containerElement.offsetHeight
-    )
-    this.complexGraph.renderer.draw()
   }
 }
