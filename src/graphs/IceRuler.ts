@@ -414,7 +414,6 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     this.drawRect(element.x, element.y, element.width, element.height, {
       fill: this.lightColor,
     })
-    this.drawSpecialRect(element, this.lines[7], { fill: this.specialColor })
   }
 
   private drawFreezing = (element: VisualizerElement<IceRulerValue>) => {
