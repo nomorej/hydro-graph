@@ -88,24 +88,28 @@ export class Tooltips extends Plugin {
       (v) => v instanceof Visualizer
     ) as Array<Visualizer<any>>
     this.complexGraph.events.listen('mousemove', this.handleMouseMove)
+    this.complexGraph.events.listen('mouseleave', this.handleMouseLeave)
   }
 
   public override onDestroy() {
     this.tooltip.destroy()
     this.complexGraph.events.unlisten('mousemove', this.handleMouseMove)
+    this.complexGraph.events.unlisten('mouseleave', this.handleMouseLeave)
   }
 
-  private handleMouseMove = (mouse: XY<number>, mouseZoomed: XY<number>) => {
+  private handleMouseLeave = () => {
+    this.tooltip.hide()
+  }
+
+  private handleMouseMove = (_mouse: XY<number>, mouseZoomed: XY<number>) => {
     let collisionsCount = 0
-    let visibleGroupsCount = 0
+
     this.visualizers.forEach((visualizer) => {
-      const { isActive, row, groups, complexGraph } = visualizer
+      const { isActive, row, groups } = visualizer
 
       if (isActive && mouseZoomed.y > row.y1 && mouseZoomed.y < row.y2) {
         groups.forEach((group) => {
           if (group?.elements.length && group.isVisible) {
-            visibleGroupsCount++
-
             group.elements.forEach((el) => {
               if (visualizer instanceof AirTemperature) {
                 collisionsCount += this.airTemperature(el, group)
@@ -126,10 +130,11 @@ export class Tooltips extends Plugin {
           }
         })
       }
-      if (!collisionsCount && visibleGroupsCount) {
-        this.tooltip.hide()
-      }
     })
+
+    if (!collisionsCount) {
+      this.tooltip.hide()
+    }
   }
 
   private graphPointCollision(element: VisualizerElement<number>) {

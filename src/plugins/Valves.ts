@@ -218,6 +218,7 @@ export class Valves extends Plugin {
         display: flex;
         font-family: ${this.complexGraph.font};
         user-select: none;
+        pointer-events: none;
       }
 
       .cg-button-wrapper {

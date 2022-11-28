@@ -34,7 +34,8 @@ export class ComplexGraph {
   public readonly timeline: Timeline
   public readonly rows: Rows
   public readonly events: Events<{
-    mousemove(mouse: XY, mouseZoomed: XY): void
+    mousemove(mouse: XY, mouseZoomed: XY, event: MouseEvent): void
+    mouseleave(event: MouseEvent): void
   }>
   public readonly mouse: XY
   public readonly mouseZoomed: XY
@@ -105,7 +106,8 @@ export class ComplexGraph {
     this.container.addEventListener('pointerdown', this.handlePointerDown)
     this.container.addEventListener('pointerup', this.handleMouseUp)
     this.container.addEventListener('contextmenu', this.handleContextMenu)
-    this.container.addEventListener('mousemove', this.handleMouseMove)
+    this.renderer.canvasElement.addEventListener('mousemove', this.handleMouseMove)
+    this.renderer.canvasElement.addEventListener('mouseleave', this.handleMouseLeave)
   }
 
   public destroy() {
@@ -113,7 +115,8 @@ export class ComplexGraph {
     this.container.removeEventListener('pointerdown', this.handlePointerDown)
     this.container.removeEventListener('pointerup', this.handleMouseUp)
     this.container.removeEventListener('contextmenu', this.handleContextMenu)
-    this.container.removeEventListener('mousemove', this.handleMouseMove)
+    this.renderer.canvasElement.removeEventListener('mousemove', this.handleMouseMove)
+    this.renderer.canvasElement.removeEventListener('mouseleave', this.handleMouseLeave)
 
     this.renderer.destroy()
     this.plugins.forEach((p) => p.onDestroy?.())
@@ -208,7 +211,11 @@ export class ComplexGraph {
     this.mouseZoomed.x = c.x + this.calculator.clipArea.x1 - this.calculator.area.x1
     this.mouseZoomed.y = c.y
 
-    this.events.notify('mousemove', this.mouse, this.mouseZoomed)
+    this.events.notify('mousemove', this.mouse, this.mouseZoomed, event)
+  }
+
+  private handleMouseLeave = (event: MouseEvent) => {
+    this.events.notify('mouseleave', event)
   }
 
   private scale = (event: WheelEvent) => {
