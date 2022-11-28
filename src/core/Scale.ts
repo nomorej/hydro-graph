@@ -127,11 +127,11 @@ export class Scale {
           const skip = this.skip({ segment, index, segments })
 
           renderer.context.save()
+          renderer.context.lineWidth = 1
           renderer.context.globalAlpha = segment.value == 0 ? 1 : !skip ? 0.3 : 0.1
           renderer.context.beginPath()
 
-          let y = Math.ceil(segment.y)
-          y = y % 2 === 0 ? y : y + 0.5
+          const y = Math.floor(segment.y) - 0.5
 
           renderer.context.moveTo(calculator.clipArea.x1, y)
           renderer.context.lineTo(calculator.clipArea.x2, y)

@@ -590,7 +590,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
 
     if (stroke) {
       renderer.context.strokeStyle = stroke
-      renderer.context.strokeRect(x, y, w + 1, h)
+      renderer.context.strokeRect(x, y, w, h)
     }
   }
 }

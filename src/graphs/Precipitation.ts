@@ -31,7 +31,7 @@ export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationG
           //@ts-ignore
           renderer.context.roundRect(
             element.x,
-            element.y + solidHeight,
+            element.y + solidHeight - 1,
             element.width,
             liquidHeight,
             radii
@@ -41,13 +41,13 @@ export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationG
           renderer.context.beginPath()
           renderer.context.fillStyle = this.groups.get('solid')!.color
           //@ts-ignore
-          renderer.context.roundRect(element.x, element.y, element.width, solidHeight, radii)
+          renderer.context.roundRect(element.x, element.y - 1, element.width, solidHeight, radii)
           renderer.context.fill()
         } else {
           renderer.context.beginPath()
           renderer.context.fillStyle = group.color
           //@ts-ignore
-          renderer.context.roundRect(element.x, element.y, element.width, element.height, radii)
+          renderer.context.roundRect(element.x, element.y - 1, element.width, element.height, radii)
           renderer.context.fill()
         }
       })
