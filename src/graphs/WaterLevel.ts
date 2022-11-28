@@ -46,7 +46,7 @@ export class WaterLevel extends Graph {
 
     const { renderer } = this.complexGraph
 
-    renderer.context.lineWidth = renderer.minSize * 0.002
+    renderer.context.lineWidth = (renderer.minSize * 0.002) / this.complexGraph.renderer.pixelRatio
 
     if (this.adverseEventPosition) {
       renderer.context.beginPath()

@@ -132,7 +132,7 @@ export class Phase extends Object {
       renderer.context.save()
       renderer.context.setLineDash([5])
       renderer.context.strokeStyle = this.edgeColor
-      renderer.context.lineWidth = 1
+      renderer.context.lineWidth = 1 / this.complexGraph.renderer.pixelRatio
       renderer.context.beginPath()
       renderer.context.moveTo(
         this.complexGraph.calculator.area.x1 + this.start.x1,

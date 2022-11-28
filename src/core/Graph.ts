@@ -25,7 +25,8 @@ export abstract class Graph<K extends string = 'default'> extends Points<K> {
       this.drawLinear(group.elements)
       parameters?.beforeStroke?.(group)
       renderer.context.strokeStyle = group.color
-      renderer.context.lineWidth = parameters?.lineWidth || 1
+      renderer.context.lineWidth =
+        (parameters?.lineWidth || 1) / this.complexGraph.renderer.pixelRatio
       renderer.context.stroke()
       parameters?.afterStroke?.(group)
     }

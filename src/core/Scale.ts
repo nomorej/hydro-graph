@@ -80,7 +80,7 @@ export class Scale {
     const sceneOffset = renderer.minSize * 0.01
     const x = isLeft ? row.x1 - dashSize * 2 : row.x2 + dashSize * 2
 
-    renderer.context.lineWidth = thickness
+    renderer.context.lineWidth = thickness / Math.min(devicePixelRatio, 2)
     renderer.context.strokeStyle = this.color
 
     renderer.context.beginPath()
@@ -127,11 +127,11 @@ export class Scale {
           const skip = this.skip({ segment, index, segments })
 
           renderer.context.save()
-          renderer.context.lineWidth = 1
+          renderer.context.lineWidth = 1 / Math.min(devicePixelRatio, 2)
           renderer.context.globalAlpha = segment.value == 0 ? 1 : !skip ? 0.3 : 0.1
           renderer.context.beginPath()
 
-          const y = Math.floor(segment.y) - 0.5
+          const y = Math.floor(segment.y) + 0.5
 
           renderer.context.moveTo(calculator.clipArea.x1, y)
           renderer.context.lineTo(calculator.clipArea.x2, y)

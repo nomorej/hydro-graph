@@ -55,7 +55,7 @@ export class Timeline extends Object {
     const segmentHeight = axisY - this.complexGraph.calculator.clipArea.height - contentOffsetY
 
     renderer.context.strokeStyle = this.scaleColor
-    renderer.context.lineWidth = scaleThickness
+    renderer.context.lineWidth = scaleThickness / this.complexGraph.renderer.pixelRatio
 
     renderer.context.beginPath()
     renderer.context.moveTo(axisX1, axisY)
@@ -115,11 +115,11 @@ export class Timeline extends Object {
     })
 
     this.complexGraph.calculator.clip(renderer, () => {
+      renderer.context.lineWidth = 1 / this.complexGraph.renderer.pixelRatio
       this.renderMonths({
         scene,
         month: (_, x) => {
           renderer.context.save()
-          renderer.context.lineWidth = 1
           renderer.context.strokeStyle = this.monthColor
           renderer.context.globalAlpha = 0.7
           renderer.context.beginPath()
@@ -130,7 +130,6 @@ export class Timeline extends Object {
         },
         day: (_, x, visible) => {
           renderer.context.save()
-          renderer.context.lineWidth = 1
           renderer.context.strokeStyle = this.dayColor
           renderer.context.globalAlpha = visible ? 0.5 : 0.3
           renderer.context.beginPath()
@@ -141,7 +140,6 @@ export class Timeline extends Object {
         },
         hour: (_, x, visible) => {
           renderer.context.save()
-          renderer.context.lineWidth = 1
           renderer.context.strokeStyle = this.hourColor
           renderer.context.globalAlpha = visible ? 0.3 : 0.1
           renderer.context.beginPath()
@@ -152,7 +150,6 @@ export class Timeline extends Object {
         },
         decade: (_, x) => {
           renderer.context.save()
-          renderer.context.lineWidth = 1
           renderer.context.strokeStyle = this.decadeColor
           renderer.context.globalAlpha = 0.3
           renderer.context.beginPath()

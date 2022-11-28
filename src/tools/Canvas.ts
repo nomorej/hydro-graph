@@ -18,7 +18,7 @@ export class Canvas {
   public maxSize: number
 
   private _drawFunction?: CanvasDrawFunction | undefined
-  private pixelRatio: number
+  public pixelRatio: number
   private readonly resizeObserver: ResizeObserver
   constructor(parameters: CanvasParameters) {
     this.containerElement = parameters.container
@@ -68,7 +68,7 @@ export class Canvas {
     }
   }
 
-  public resize(
+  protected resize(
     width = this.containerElement.offsetWidth,
     height = this.containerElement.offsetHeight
   ) {
