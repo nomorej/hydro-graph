@@ -188,8 +188,7 @@ export class Timeline extends Object {
       if (!this.complexGraph.calculator.isSegmentVisible(month)) return
 
       if (month.index) {
-        const x = Math.floor(this.complexGraph.calculator.area.x1 + month.x1) - 0.5
-        parameters.month(month, x)
+        parameters.month(month, this.complexGraph.calculator.area.x1 + month.x1)
       }
 
       if (this.complexGraph.calculator.isDaysZoom) {
@@ -201,8 +200,7 @@ export class Timeline extends Object {
               day.title != 31) ||
               this.complexGraph.calculator.isDaysFullZoom)
 
-          const x = Math.floor(this.complexGraph.calculator.area.x1 + day.x1) - 0.5
-          parameters.day(day, x, dayVisible)
+          parameters.day(day, this.complexGraph.calculator.area.x1 + day.x1, dayVisible)
 
           if (this.complexGraph.calculator.isHoursZoom) {
             day.forEveryHour((hour) => {
@@ -211,8 +209,7 @@ export class Timeline extends Object {
                   hour.index > 0 &&
                   ((+hour.title % 4 === 0 && !this.complexGraph.calculator.isHoursFullZoom) ||
                     this.complexGraph.calculator.isHoursFullZoom)
-                const x = Math.floor(this.complexGraph.calculator.area.x1 + hour.x1) - 0.5
-                parameters.hour(hour, x, hourVisible)
+                parameters.hour(hour, this.complexGraph.calculator.area.x1 + hour.x1, hourVisible)
               }
             })
           }
