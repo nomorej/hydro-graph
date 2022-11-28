@@ -428,7 +428,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
 
   private drawIceClearing = (element: VisualizerElement<IceRulerValue>) => {
     this.drawSpecialRect(element, this.lines[3], { fill: this.specialColor })
-    this.drawSpecialRect(element, this.lines[4], { fill: this.specialColor, offset: -0.1 })
+    this.drawSpecialRect(element, this.lines[4], { fill: this.specialColor })
   }
 
   private drawIceShove = (element: VisualizerElement<IceRulerValue>) => {
@@ -448,7 +448,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     {}
 
   private drawWaterOnIceSign = (element: VisualizerElement<IceRulerValue>) => {
-    this.drawSpecialRect(element, this.lines[9], { fill: this.specialColor })
+    this.drawSpecialRect(element, this.lines[9], { stroke: this.lightColor })
   }
 
   private drawIceJamBelowSign = (element: VisualizerElement<IceRulerValue>) => {
