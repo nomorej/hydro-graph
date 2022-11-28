@@ -68,11 +68,14 @@ export class Canvas {
     }
   }
 
-  protected resize() {
+  public resize(
+    width = this.containerElement.offsetWidth,
+    height = this.containerElement.offsetHeight
+  ) {
     this.pixelRatio = clamp(devicePixelRatio, 1, 2)
 
-    this.size.x = this.containerElement.offsetWidth
-    this.size.y = this.containerElement.offsetHeight
+    this.size.x = width
+    this.size.y = height
 
     this.minSize = Math.min(this.size.x, this.size.y)
     this.maxSize = Math.max(this.size.x, this.size.y)

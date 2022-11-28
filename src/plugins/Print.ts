@@ -44,13 +44,40 @@ export class Print extends Plugin {
   }
 
   private handleClick = () => {
-    const url = this.complexGraph.renderer.canvasElement.toDataURL()
+    this.complexGraph.renderer.clear()
+    this.complexGraph.renderer.resize(innerWidth, innerHeight)
+    this.complexGraph.renderer.draw()
+
+    const url = this.complexGraph.renderer.canvasElement.toDataURL(undefined, 1)
 
     const win = window.open()
 
     if (win) {
-      win.document.write("<img src='" + url + "'/>")
+      win.document.write(`
+        <style>
+          html, body {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+          }
+        </style>
+        <img src="${url}"/>
+      `)
       win.setTimeout(() => win.print(), 0)
     }
+
+    this.complexGraph.renderer.clear()
+    this.complexGraph.renderer.resize(
+      this.complexGraph.renderer.containerElement.offsetWidth,
+      this.complexGraph.renderer.containerElement.offsetHeight
+    )
+    this.complexGraph.renderer.draw()
   }
 }

@@ -39,8 +39,8 @@ export class Renderer extends Canvas {
     Ticker.remove(this.draw)
   }
 
-  protected override resize(): void {
-    super.resize()
+  public override resize(width?: number, height?: number) {
+    super.resize(width, height)
     this.scene.resize(this)
   }
 
