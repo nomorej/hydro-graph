@@ -65,14 +65,18 @@ export class Scene {
 
   public set viewportSize(value: number) {
     this._viewportSize = value
-    this.scale()
+    this.scaleStep()
     this.calibratePointer()
-    this.scale()
+    this.scaleStep()
   }
 
-  public scale(pivot = 0, value = 0) {
+  public scaleStep(pivot = 0, value = 0) {
+    this.scaleSet(pivot, this.zoom + value)
+  }
+
+  public scaleSet(pivot = 0, value = 0) {
     const zoom = this.zoom
-    this.zoom = clamp(this.zoom + value, 1, this.maxZoom)
+    this.zoom = clamp(value, 1, this.maxZoom)
     this.size.setPointer(this.viewportSize * this.zoom)
     this.size.start = this.viewportSize
     this.size.distance = this.viewportSize * this.maxZoom

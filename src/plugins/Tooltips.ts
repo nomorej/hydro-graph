@@ -87,21 +87,21 @@ export class Tooltips extends Plugin {
     this.visualizers = Array.from(this.complexGraph.scene.objects).filter(
       (v) => v instanceof Visualizer
     ) as Array<Visualizer<any>>
-    this.complexGraph.events.listen('mousemove', this.handleMouseMove)
-    this.complexGraph.events.listen('mouseleave', this.handleMouseLeave)
+    this.complexGraph.events.listen('pointermove', this.handlePointerMove)
+    this.complexGraph.events.listen('pointerleave', this.handlePointerLeave)
   }
 
   public override onDestroy() {
     this.tooltip.destroy()
-    this.complexGraph.events.unlisten('mousemove', this.handleMouseMove)
-    this.complexGraph.events.unlisten('mouseleave', this.handleMouseLeave)
+    this.complexGraph.events.unlisten('pointermove', this.handlePointerMove)
+    this.complexGraph.events.unlisten('pointerleave', this.handlePointerLeave)
   }
 
-  private handleMouseLeave = () => {
+  private handlePointerLeave = () => {
     this.tooltip.hide()
   }
 
-  private handleMouseMove = (_mouse: XY<number>, mouseZoomed: XY<number>) => {
+  private handlePointerMove = (_mouse: XY<number>, mouseZoomed: XY<number>) => {
     let collisionsCount = 0
 
     this.visualizers.forEach((visualizer) => {

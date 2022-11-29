@@ -1,7 +1,7 @@
 import { Scene, SceneParameters } from './Scene'
 import { Renderer } from './Renderer'
 import { CanvasParameters } from '../tools/Canvas'
-import { cursorPosition } from '../utils/coordinates'
+import { cursorPosition, pinchDistance, touchPosition } from '../utils/coordinates'
 import { clamp } from '../utils/math'
 import { Timeline, TimelineMonthsData } from './Timeline'
 import { Rows } from './Rows'
@@ -32,8 +32,8 @@ export class ComplexGraph {
   public readonly timeline: Timeline
   public readonly rows: Rows
   public readonly events: Events<{
-    mousemove(mouse: XY, mouseZoomed: XY, event: MouseEvent): void
-    mouseleave(event: MouseEvent): void
+    pointermove(mouse: XY, mouseZoomed: XY, event: MouseEvent): void
+    pointerleave(event: MouseEvent): void
   }>
   public readonly mouse: XY
   public readonly mouseZoomed: XY
@@ -62,6 +62,7 @@ export class ComplexGraph {
       z-index: 1;
       width: 100%;
       height: 100%;
+      touch-action: none;
     `
     this.wrapper.appendChild(this.container)
 
@@ -104,20 +105,24 @@ export class ComplexGraph {
     this.scene.addObject(this.calculator)
 
     this.container.addEventListener('wheel', this.handleWheel)
+    this.container.addEventListener('touchstart', this.handleTouch)
     this.container.addEventListener('pointerdown', this.handlePointerDown)
-    this.container.addEventListener('pointerup', this.handleMouseUp)
+    this.container.addEventListener('pointerup', this.handlePointerUp)
     this.container.addEventListener('contextmenu', this.handleContextMenu)
-    this.renderer.canvasElement.addEventListener('mousemove', this.handleMouseMove)
-    this.renderer.canvasElement.addEventListener('mouseleave', this.handleMouseLeave)
+    this.renderer.canvasElement.addEventListener('pointermove', this.handlePointerMove)
+    this.renderer.canvasElement.addEventListener('click', this.handlePointerMove)
+    this.renderer.canvasElement.addEventListener('pointerleave', this.handlePointerLeave)
   }
 
   public destroy() {
     this.container.removeEventListener('wheel', this.handleWheel)
+    this.container.removeEventListener('touchstart', this.handleTouch)
     this.container.removeEventListener('pointerdown', this.handlePointerDown)
-    this.container.removeEventListener('pointerup', this.handleMouseUp)
+    this.container.removeEventListener('pointerup', this.handlePointerUp)
     this.container.removeEventListener('contextmenu', this.handleContextMenu)
-    this.renderer.canvasElement.removeEventListener('mousemove', this.handleMouseMove)
-    this.renderer.canvasElement.removeEventListener('mouseleave', this.handleMouseLeave)
+    this.renderer.canvasElement.removeEventListener('pointermove', this.handlePointerMove)
+    this.renderer.canvasElement.removeEventListener('click', this.handlePointerMove)
+    this.renderer.canvasElement.removeEventListener('pointerleave', this.handlePointerLeave)
 
     this.renderer.destroy()
     this.plugins.forEach((p) => p.onDestroy?.())
@@ -180,10 +185,72 @@ export class ComplexGraph {
 
   private handleWheel = (event: WheelEvent) => {
     if (this.statuses.scaleButtonPressed) {
-      this.scale(event)
+      const mousePosition = cursorPosition(event, this.container, {
+        x: this.calculator.area.x1,
+        y: 0,
+      }).x
+
+      const zoomSpeed =
+        clamp(event.deltaY, -1, 1) * this.scene.zoom * this.wheelZoomAcceleration * 0.2
+      this.renderer.withTicker(() => {
+        this.scene.scaleStep(mousePosition, zoomSpeed)
+      })
     } else {
-      this.translate(event)
+      this.renderer.withTicker(() => {
+        this.scene.translate(event.deltaY * this.wheelTranlationSpeed)
+      })
     }
+  }
+
+  private handleTouch = (startEvent: TouchEvent) => {
+    const handleMove = (moveEvent: TouchEvent) => {
+      if (moveEvent.touches.length === 2) {
+        const movePinchDistance = pinchDistance(moveEvent)
+        const pinchDelta = movePinchDistance - startPinchDistance
+        const minimizer = 100
+        const acceleration = this.scene.zoom * 0.2
+        const zoom = lastZoom + (pinchDelta / minimizer) * acceleration
+        this.renderer.withTicker(() => {
+          this.scene.scaleSet(pivot, zoom)
+        })
+      } else {
+        const delta =
+          lastPosition + (startEvent.touches[0].clientX - moveEvent.touches[0].clientX) * 2
+        if (Math.abs(delta) > 100) {
+          this.renderer.withTicker(() => {
+            this.scene.setTranslate(delta)
+          })
+        }
+      }
+    }
+
+    const handleEnd = () => {
+      removeEventListener('touchmove', handleMove)
+      removeEventListener('touchend', handleEnd)
+    }
+
+    let startPinchDistance = 0
+
+    const lastPosition = this.scene.position.pointer.current
+    const lastZoom = this.scene.zoom
+
+    let pivot = 0
+
+    if (startEvent.touches.length === 2) {
+      startPinchDistance = pinchDistance(startEvent)
+      pivot = touchPosition(startEvent, this.container, {
+        x: this.calculator.area.x1,
+        y: 0,
+      }).x
+    } else {
+      pivot = touchPosition(startEvent, this.container, {
+        x: this.calculator.area.x1,
+        y: 0,
+      }).x
+    }
+
+    addEventListener('touchmove', handleMove)
+    addEventListener('touchend', handleEnd)
   }
 
   private handlePointerDown = (event: PointerEvent) => {
@@ -193,7 +260,7 @@ export class ComplexGraph {
     }
   }
 
-  private handleMouseUp = (event: PointerEvent) => {
+  private handlePointerUp = (event: PointerEvent) => {
     if (event.button === this.zoomMouseButton) {
       event.preventDefault()
       this.statuses.scaleButtonPressed = false
@@ -204,7 +271,7 @@ export class ComplexGraph {
     event.preventDefault()
   }
 
-  private handleMouseMove = (event: MouseEvent) => {
+  private handlePointerMove = (event: MouseEvent) => {
     const c = cursorPosition(event, this.container)
     this.mouse.x = c.x
     this.mouse.y = c.y
@@ -212,30 +279,10 @@ export class ComplexGraph {
     this.mouseZoomed.x = c.x + this.calculator.clipArea.x1 - this.calculator.area.x1
     this.mouseZoomed.y = c.y
 
-    this.events.notify('mousemove', this.mouse, this.mouseZoomed, event)
+    this.events.notify('pointermove', this.mouse, this.mouseZoomed, event)
   }
 
-  private handleMouseLeave = (event: MouseEvent) => {
-    this.events.notify('mouseleave', event)
-  }
-
-  private scale = (event: WheelEvent) => {
-    const mousePosition = cursorPosition(event, this.container, {
-      x: this.calculator.area.x1,
-      y: 0,
-    }).x
-
-    const zoomSpeed =
-      clamp(event.deltaY, -1, 1) * this.scene.zoom * this.wheelZoomAcceleration * 0.2
-
-    this.renderer.withTicker(() => {
-      this.scene.scale(mousePosition, zoomSpeed)
-    })
-  }
-
-  private translate = (event: WheelEvent) => {
-    this.renderer.withTicker(() => {
-      this.scene.translate(event.deltaY * this.wheelTranlationSpeed)
-    })
+  private handlePointerLeave = (event: MouseEvent) => {
+    this.events.notify('pointerleave', event)
   }
 }
