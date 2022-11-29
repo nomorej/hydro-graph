@@ -11,16 +11,7 @@ export class WaterСonsumption extends Graph<WaterСonsumptionGroupsNames> {
   protected override renderWithClip() {
     const { renderer } = this.complexGraph
 
-    this.drawGroup('qh', {
-      beforeStroke() {
-        renderer.context.save()
-        renderer.context.setLineDash([10])
-      },
-      afterStroke() {
-        renderer.context.restore()
-      },
-    })
-
+    this.drawGroup('qh')
     this.drawGroup('calculated')
     this.drawGroup('operational')
 
