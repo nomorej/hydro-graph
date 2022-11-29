@@ -67,10 +67,14 @@ export class Scale {
     renderer: Renderer,
     calculator: Calculator,
     row: Primitive,
-    font: string = 'sans-serif'
+    font: string = 'sans-serif',
+    paddingBottom = 0
   ) {
+    const ry = row.y2 - paddingBottom
+    const rh = row.height - paddingBottom
+
     this.segments.forEach((ss, i) => {
-      ss.y = row.y2 - (row.height / (this.segments.length - 1)) * i
+      ss.y = ry - (rh / (this.segments.length - 1)) * i
     })
 
     const isLeft = this.position === 'left'
@@ -85,7 +89,7 @@ export class Scale {
 
     renderer.context.beginPath()
     renderer.context.moveTo(x, row.y1 - dashSize * 1.5)
-    renderer.context.lineTo(x, row.y2)
+    renderer.context.lineTo(x, ry)
     renderer.context.stroke()
 
     renderer.context.fillStyle = this.color

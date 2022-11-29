@@ -115,6 +115,7 @@ export interface VisualizerParameters<V, K extends string = 'default'> extends O
     [KEY in K]?: VisualizerGroupParametersData<V>
   }
   scale?: ScaleParameters
+  paddingBottom?: number
 }
 
 export abstract class Visualizer<V, K extends string = 'default'> extends Object {
@@ -128,6 +129,7 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
   protected max: number = null!
 
   public readonly scale?: Scale
+  private readonly _paddingBottom: number
 
   constructor(parameters: VisualizerParameters<V, K>) {
     super(parameters)
@@ -151,6 +153,12 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
     if (parameters.scale) {
       this.scale = new Scale(parameters.scale)
     }
+
+    this._paddingBottom = parameters.paddingBottom || 0
+  }
+
+  get paddingBottom() {
+    return this._paddingBottom * this.row.height
   }
 
   public override onCreate() {
@@ -178,11 +186,11 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
   public onRender() {
     const { renderer, calculator, font } = this.complexGraph
 
-    const heightStep = this.row.height / Math.max(1, this.max - this.min)
+    const heightStep = (this.row.height - this.paddingBottom) / Math.max(1, this.max - this.min)
 
     this.resizeElements(heightStep)
 
-    this.scale?.render(renderer, calculator, this.row, font)
+    this.scale?.render(renderer, calculator, this.row, font, this.paddingBottom)
 
     this.renderWithoutClip?.()
 

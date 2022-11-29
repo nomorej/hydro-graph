@@ -149,6 +149,21 @@ export function qwikStart(parameters: QwikStartParameters) {
           title: 'С поста',
           color: '#B016C9',
         },
+        sumTempAll: {
+          months: parameters.data.airTemperature.sumTempAll || [],
+          title: 'CТ: Осень / Весна',
+          color: '#561087',
+        },
+        sumTempAutumn: {
+          months: parameters.data.airTemperature.sumTempAutumn || [],
+          title: 'CТ: Осень',
+          color: '#188A1A',
+        },
+        sumTempSpring: {
+          months: parameters.data.airTemperature.sumTempSpring || [],
+          title: 'CТ: Весна',
+          color: '#B0433F',
+        },
       },
       // unactive: true,
     })

@@ -392,15 +392,14 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
   }
 
   private drawFrazilDrift = (element: VisualizerElement<IceRulerValue>) => {
-    const { renderer, scene } = this.complexGraph
+    const { scene } = this.complexGraph
 
-    let w = renderer.minSize * (0.001 + scene.size.pointer.current * 0.0000001)
+    const s = Math.ceil(scene.zoom / 5)
+    const step = element.width / s
 
-    const step = Math.floor(element.width / 3 / w)
-
-    for (let index = 0; index < step; index++) {
-      const x = element.x + w * index * 3
-      this.drawRect(x, element.y, w, element.height, { fill: this.lightColor })
+    for (let index = 0; index < s; index++) {
+      const x = element.x + step * index
+      this.drawRect(x, element.y, step * 0.3, element.height, { fill: this.lightColor })
     }
   }
 
@@ -449,35 +448,23 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
   }
 
   private drawError = (element: VisualizerElement<IceRulerValue>) => {
-    const { renderer } = this.complexGraph
+    const { renderer, scene } = this.complexGraph
+
     renderer.context.strokeStyle = this.errorColor
     renderer.context.lineWidth = 1 / renderer.pixelRatio
 
-    const hw = element.width / 2
-    const hh = element.height / 2
+    const s = Math.ceil(scene.zoom / 4)
+    const step = element.width / s
 
-    renderer.context.beginPath()
-    renderer.context.moveTo(element.x, element.y)
-    renderer.context.lineTo(element.x + hw, element.y + hh)
-    renderer.context.moveTo(element.x + hw, element.y)
-    renderer.context.lineTo(element.x, element.y + hh)
+    for (let index = 0; index < s; index++) {
+      renderer.context.beginPath()
+      renderer.context.moveTo(element.x + step * index, element.y)
+      renderer.context.lineTo(element.x + step * (index + 0.85), element.y + element.height)
 
-    renderer.context.moveTo(element.x + hw, element.y + hh)
-    renderer.context.lineTo(element.x + hw * 2, element.y + hh * 2)
-    renderer.context.moveTo(element.x + hw * 2, element.y + hh)
-    renderer.context.lineTo(element.x + hw, element.y + hh * 2)
-
-    renderer.context.moveTo(element.x + hw, element.y)
-    renderer.context.lineTo(element.x + hw * 2, element.y + hh)
-    renderer.context.moveTo(element.x + hw * 2, element.y)
-    renderer.context.lineTo(element.x + hw, element.y + hh)
-
-    renderer.context.moveTo(element.x, element.y + hh)
-    renderer.context.lineTo(element.x + hw, element.y + hh * 2)
-    renderer.context.moveTo(element.x + hw, element.y + hh)
-    renderer.context.lineTo(element.x, element.y + hh * 2)
-
-    renderer.context.stroke()
+      renderer.context.moveTo(element.x + step * (index + 0.85), element.y)
+      renderer.context.lineTo(element.x + step * index, element.y + element.height)
+      renderer.context.stroke()
+    }
   }
 
   private drawWaterOnIceSign = (element: VisualizerElement<IceRulerValue>) => {

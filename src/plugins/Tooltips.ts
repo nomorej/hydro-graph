@@ -152,9 +152,21 @@ export class Tooltips extends Plugin {
     el: VisualizerElement<number>,
     group: VisualizerGroup<number, AirTemperatureGroupsNames>
   ) {
-    if (this.graphPointCollision(el)) {
-      this.tooltip.show([`Срок: ${el.segment.date}`, `Температура: ${el.value}`])
-      return 1
+    if (
+      group.name === 'max' ||
+      group.name === 'min' ||
+      group.name === 'middle' ||
+      group.name === 'post'
+    ) {
+      if (this.graphPointCollision(el)) {
+        this.tooltip.show([`Срок: ${el.segment.date}`, `Температура: ${el.value}`])
+        return 1
+      }
+    } else {
+      if (pointRectCollision(this.complexGraph.mouseZoomed, el)) {
+        this.tooltip.show([`Срок: ${el.segment.date}`, `Сумма: ${el.value}`])
+        return 1
+      }
     }
 
     return 0

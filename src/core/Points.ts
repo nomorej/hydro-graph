@@ -24,7 +24,7 @@ export abstract class Points<K extends string = 'default'> extends Visualizer<nu
           element.width = element.segment.width
           element.height = heightStep * (element.value - this.min)
           element.x = this.complexGraph.calculator.area.x1 + element.segment.x1
-          element.y = this.row.y2 - element.height
+          element.y = this.row.y2 - element.height - this.paddingBottom
         })
       }
     })
