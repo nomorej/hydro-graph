@@ -33,7 +33,6 @@ export type IceRulerValueUpperSign =
 export type IceRulerValue = {
   iceShove?: boolean
   upperSign?: IceRulerValueUpperSign
-  text?: Array<string>
 }
 
 export interface IceRulerParameters

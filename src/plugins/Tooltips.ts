@@ -159,12 +159,12 @@ export class Tooltips extends Plugin {
       group.name === 'post'
     ) {
       if (this.graphPointCollision(el)) {
-        this.tooltip.show([`Срок: ${el.segment.date}`, `Температура: ${el.value}`])
+        this.tooltip.show([`Срок: ${el.segment.date}`, `Температура: ${el.value}`, ...el.comment])
         return 1
       }
     } else {
       if (pointRectCollision(this.complexGraph.mouseZoomed, el)) {
-        this.tooltip.show([`Срок: ${el.segment.date}`, `Сумма: ${el.value}`])
+        this.tooltip.show([`Срок: ${el.segment.date}`, `Сумма: ${el.value}`, ...el.comment])
         return 1
       }
     }
@@ -178,13 +178,14 @@ export class Tooltips extends Plugin {
   ) {
     if (pointRectCollision(this.complexGraph.mouseZoomed, el)) {
       if (typeof el.value === 'number') {
-        this.tooltip.show([`Срок: ${el.segment.date}`, `Уровень: ${el.value}`])
+        this.tooltip.show([`Срок: ${el.segment.date}`, `Уровень: ${el.value}`, ...el.comment])
       } else {
         this.tooltip.show([
           `Срок: ${el.segment.date}`,
           `Уровни`,
           `Твердый: ${el.value.solid}`,
           `Жидкий: ${el.value.liquid}`,
+          ...el.comment,
         ])
       }
       return 1
@@ -209,8 +210,8 @@ export class Tooltips extends Plugin {
         })
     }
 
-    if (el.value.text && collision) {
-      this.tooltip.show([`Срок: ${el.segment.date}`, ...el.value.text])
+    if (el.comment && collision) {
+      this.tooltip.show([`Срок: ${el.segment.date}`, ...el.comment])
       return 1
     }
 
@@ -233,6 +234,7 @@ export class Tooltips extends Plugin {
         `Уровни`,
         `Снег: ${el.value.snow}`,
         `Лед: ${el.value.ice}`,
+        ...el.comment,
       ])
 
       return 1
@@ -243,7 +245,7 @@ export class Tooltips extends Plugin {
 
   private waterTemperature(el: VisualizerElement<number>, group: VisualizerGroup<number>) {
     if (this.graphPointCollision(el)) {
-      this.tooltip.show([`Срок: ${el.segment.date}`, `Температура: ${el.value}`])
+      this.tooltip.show([`Срок: ${el.segment.date}`, `Температура: ${el.value}`, ...el.comment])
       return 1
     }
     return 0
@@ -254,7 +256,7 @@ export class Tooltips extends Plugin {
     group: VisualizerGroup<number, WaterСonsumptionGroupsNames>
   ) {
     if (this.graphPointCollision(el)) {
-      this.tooltip.show([`Срок: ${el.segment.date}`, `Уровень: ${el.value}`])
+      this.tooltip.show([`Срок: ${el.segment.date}`, `Уровень: ${el.value}`, ...el.comment])
       return 1
     }
     return 0
@@ -265,7 +267,7 @@ export class Tooltips extends Plugin {
     group: VisualizerGroup<number, WaterСonsumptionGroupsNames>
   ) {
     if (this.graphPointCollision(el)) {
-      this.tooltip.show([`Срок: ${el.segment.date}`, `Расход: ${el.value}`])
+      this.tooltip.show([`Срок: ${el.segment.date}`, `Расход: ${el.value}`, ...el.comment])
       return 1
     }
     return 0

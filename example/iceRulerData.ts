@@ -31,9 +31,8 @@ function shoreIceSludge(): QwikStartIceRuler['shoreIceSludge'] {
     {
       date: [3, 5],
       data: {
-        value: {
-          text: ['Опасное явление'],
-        },
+        value: {},
+        comment: 'Опасное явление',
       },
     },
   ])
@@ -44,9 +43,8 @@ function frazilDrift1(): QwikStartIceRuler['frazilDrift1'] {
     {
       date: [3, 10],
       data: {
-        value: {
-          text: ['Что-то произошло'],
-        },
+        value: {},
+        comment: 'Что-то произошло',
       },
     },
   ])
@@ -57,9 +55,8 @@ function frazilDrift2(): QwikStartIceRuler['frazilDrift2'] {
     {
       date: [3, 11],
       data: {
-        value: {
-          text: ['И тут что-то произошло'],
-        },
+        value: {},
+        comment: ['И тут что-то произошло'],
       },
     },
   ])
@@ -70,9 +67,8 @@ function frazilDrift3(): QwikStartIceRuler['frazilDrift3'] {
     {
       date: [3, 12],
       data: {
-        value: {
-          text: ['Что-то произошло-1', 'Что-то произошло-2'],
-        },
+        value: {},
+        comment: ['Что-то произошло-1', 'Что-то произошло-2'],
       },
     },
     {
@@ -80,8 +76,8 @@ function frazilDrift3(): QwikStartIceRuler['frazilDrift3'] {
       data: {
         value: {
           upperSign: 'iceDamBelow',
-          text: ['Произошло что-то'],
         },
+        comment: ['Произошло что-то'],
       },
     },
     {
@@ -89,8 +85,8 @@ function frazilDrift3(): QwikStartIceRuler['frazilDrift3'] {
       data: {
         value: {
           upperSign: 'iceDamBelow',
-          text: ['Могло произойти'],
         },
+        comment: ['Могло произойти'],
       },
     },
     {
@@ -98,8 +94,8 @@ function frazilDrift3(): QwikStartIceRuler['frazilDrift3'] {
       data: {
         value: {
           upperSign: 'iceDamBelow',
-          text: ['Это невозможно'],
         },
+        comment: ['Это невозможно'],
       },
     },
   ])
@@ -110,9 +106,8 @@ function iceDrift1(): QwikStartIceRuler['iceDrift1'] {
     {
       date: [3, 15],
       data: {
-        value: {
-          text: ['Какое-то событие'],
-        },
+        value: {},
+        comment: ['Какое-то событие'],
       },
     },
   ])
@@ -123,9 +118,8 @@ function iceDrift2(): QwikStartIceRuler['iceDrift2'] {
     {
       date: [3, 16],
       data: {
-        value: {
-          text: ['Очень опасно'],
-        },
+        value: {},
+        comment: ['Очень опасно'],
       },
     },
   ])
@@ -136,9 +130,8 @@ function iceDrift3(): QwikStartIceRuler['iceDrift3'] {
     {
       date: [3, 17],
       data: {
-        value: {
-          text: ['Опасно'],
-        },
+        value: {},
+        comment: ['Опасно'],
       },
     },
     {
@@ -146,8 +139,8 @@ function iceDrift3(): QwikStartIceRuler['iceDrift3'] {
       data: {
         value: {
           upperSign: 'iceJamBelow',
-          text: ['Опаснее некуда'],
         },
+        comment: ['Опаснее некуда'],
       },
     },
     {
@@ -155,8 +148,8 @@ function iceDrift3(): QwikStartIceRuler['iceDrift3'] {
       data: {
         value: {
           upperSign: 'iceJamAbove',
-          text: ['Опасность'],
         },
+        comment: ['Опасность'],
       },
     },
   ])
@@ -167,9 +160,8 @@ function freezing(): QwikStartIceRuler['freezing'] {
     {
       date: [3, 18],
       data: {
-        value: {
-          text: ['Все хорошо'],
-        },
+        value: {},
+        comment: ['Все хорошо'],
       },
     },
     {
@@ -177,24 +169,22 @@ function freezing(): QwikStartIceRuler['freezing'] {
       data: {
         value: {
           upperSign: 'waterOnIce',
-          text: ['Все довольно неплохо'],
         },
+        comment: ['Все довольно неплохо'],
       },
     },
     {
       date: [3, 20],
       data: {
-        value: {
-          text: ['Проишествие'],
-        },
+        value: {},
+        comment: ['Проишествие'],
       },
     },
     {
       date: [3, 21],
       data: {
-        value: {
-          text: ['Событие-1', 'Событие-2'],
-        },
+        value: {},
+        comment: ['Событие-1', 'Событие-2'],
       },
     },
     {
@@ -203,24 +193,22 @@ function freezing(): QwikStartIceRuler['freezing'] {
         value: {
           upperSign: 'waterOnIce',
           iceShove: true,
-          text: ['Проишествие'],
         },
+        comment: ['Проишествие'],
       },
     },
     {
       date: [3, 25],
       data: {
-        value: {
-          text: ['Случилось чудо'],
-        },
+        value: {},
+        comment: ['Случилось чудо'],
       },
     },
     {
       date: [3, 29],
       data: {
-        value: {
-          text: ['Чуда не случилось'],
-        },
+        value: {},
+        comment: ['Чуда не случилось'],
       },
     },
     {
@@ -228,8 +216,8 @@ function freezing(): QwikStartIceRuler['freezing'] {
       data: {
         value: {
           upperSign: 'iceDamAbove',
-          text: ['Чудо почти случилось'],
         },
+        comment: ['Чудо почти случилось'],
       },
     },
     {
@@ -237,8 +225,8 @@ function freezing(): QwikStartIceRuler['freezing'] {
       data: {
         value: {
           upperSign: 'iceDamAbove',
-          text: ['Чудо не могло не произойти'],
         },
+        comment: ['Чудо не могло не произойти'],
       },
     },
   ])
@@ -249,17 +237,15 @@ function flangeIce(): QwikStartIceRuler['flangeIce'] {
     {
       date: [3, 20],
       data: {
-        value: {
-          text: ['Произошло ого'],
-        },
+        value: {},
+        comment: ['Произошло ого'],
       },
     },
     {
       date: [3, 22],
       data: {
-        value: {
-          text: ['Произошло ничего себе'],
-        },
+        value: {},
+        comment: ['Произошло ничего себе'],
       },
     },
   ])
@@ -270,9 +256,8 @@ function iceClearing(): QwikStartIceRuler['iceClearing'] {
     {
       date: [3, 21],
       data: {
-        value: {
-          text: ['Произошло нет'],
-        },
+        value: {},
+        comment: ['Произошло нет'],
       },
     },
   ])

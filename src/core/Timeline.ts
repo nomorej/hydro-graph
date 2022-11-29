@@ -1,6 +1,7 @@
 export interface TimelineMonthData {
   title: string
   daysNumber: number
+  number: number
 }
 
 export type TimelineMonthsData = Array<TimelineMonthData>
@@ -89,11 +90,14 @@ export class TimelineDay extends TimelineSegment {
 export class TimelineMonth extends TimelineSegment {
   public readonly days: Array<TimelineDay>
   public readonly date: string
+  public readonly number: number
 
-  constructor(parameters: TimelineSegmentParameters) {
+  constructor(parameters: TimelineSegmentParameters & { number: number }) {
     super(parameters)
 
-    this.date = (parameters.index + 1).toString().padStart(2, '0')
+    this.number = parameters.number
+
+    this.date = this.number.toString().padStart(2, '0')
     this.days = []
 
     for (let index = 0; index < this.divider!; index++) {
@@ -118,11 +122,13 @@ export class Timeline {
 
   constructor(data: TimelineMonthsData) {
     this.months = []
+
     data.forEach((monthData, monthIndex) => {
       this.months[monthIndex] = new TimelineMonth({
         index: monthIndex,
         title: monthData.title,
         divider: monthData.daysNumber,
+        number: monthData.number,
       })
     })
 
@@ -186,7 +192,7 @@ export class Timeline {
   public findSegment(month: number, day?: number, hour?: number) {
     let segment: TimelineSegment | undefined
 
-    segment = this.months[month - 1]
+    segment = this.months.find((m) => m.number === month)
 
     if (!segment) return
 

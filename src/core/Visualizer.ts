@@ -3,10 +3,13 @@ import { Primitive } from './Primitive'
 import { Scale, ScaleParameters } from './Scale'
 import { Timeline, TimelineSegment } from './Timeline'
 
+export type VisualizerElementComment = string | Array<string>
+
 export interface VisualizerElementParameters<V> {
   segment: TimelineSegment
   value: V
   new?: boolean
+  comment?: VisualizerElementComment
 }
 
 export class VisualizerElement<V> {
@@ -14,9 +17,10 @@ export class VisualizerElement<V> {
   public y: number
   public width: number
   public height: number
-  public new?: boolean
-  public segment: TimelineSegment
-  public value: V
+  public readonly new?: boolean
+  public readonly segment: TimelineSegment
+  public readonly value: V
+  public readonly comment: Array<string>
 
   constructor(parameters: VisualizerElementParameters<V>) {
     this.x = 0
@@ -26,6 +30,12 @@ export class VisualizerElement<V> {
     this.new = parameters.new
     this.segment = parameters.segment
     this.value = parameters.value
+    this.comment =
+      parameters.comment && Array.isArray(parameters.comment)
+        ? parameters.comment
+        : parameters.comment
+        ? [parameters.comment]
+        : []
   }
 }
 
@@ -35,12 +45,14 @@ export type VisualizerDayData<V, H = VisualizerHourData<V>> = {
   day: number
   value: V | Array<H>
   new?: boolean
+  comment?: VisualizerElementComment
 }
 
 export type VisualizerHourData<V> = {
   hour: number
   value: V
   new?: boolean
+  comment?: VisualizerElementComment
 }
 
 export interface VisualizerGroupParametersData<V> {

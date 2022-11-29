@@ -10,6 +10,7 @@ type MonthInDayData<V> = Array<{
   data: {
     value: V
     new?: boolean
+    comment?: string | Array<string>
   }
 }>
 
@@ -35,6 +36,7 @@ export function distributeData<V = number>(data: DayInMonthData<V> | MonthInDayD
           hour: hourPointer,
           value: item.data.value,
           new: item.data.new,
+          comment: item.data.comment,
         })
       } else {
         dayInMonthData[monthPointer]?.push({
@@ -45,10 +47,12 @@ export function distributeData<V = number>(data: DayInMonthData<V> | MonthInDayD
                   hour: hourPointer,
                   value: item.data.value,
                   new: item.data.new,
+                  comment: item.data.comment,
                 },
               ]
             : item.data.value,
           new: hourPointer ? false : item.data.new,
+          comment: item.data.comment,
         })
       }
     })
