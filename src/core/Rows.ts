@@ -10,7 +10,7 @@ export class Rows {
   public readonly graphs: Map<number, Set<Visualizer<any, any>>>
 
   constructor() {
-    this.segmentator = new Segmentator({ scale: 1, gap: 0.05 })
+    this.segmentator = new Segmentator({ scale: 1, gap: 0.03 })
     this.rows = []
     this.graphs = new Map()
   }

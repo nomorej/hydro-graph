@@ -1,4 +1,4 @@
-import { Scene } from './Scene'
+import { Scene, SceneParameters } from './Scene'
 import { Renderer } from './Renderer'
 import { CanvasParameters } from '../tools/Canvas'
 import { cursorPosition } from '../utils/coordinates'
@@ -12,14 +12,12 @@ import { Plugin } from '../plugins/Plugin'
 import { XY } from '../utils/ts'
 import { Events } from '../tools/Events'
 
-export interface Parameters {
+export interface Parameters extends SceneParameters {
   wrapper: CanvasParameters['container']
   months: TimelineMonthsData
   zoomMouseButton?: number
   wheelZoomAcceleration?: number
   wheelTranlationSpeed?: number
-  smoothness?: number
-  maxZoom?: number
   fontSize?: number
   font?: string
 }
@@ -70,6 +68,9 @@ export class ComplexGraph {
     this.scene = new Scene({
       smoothness: parameters.smoothness,
       maxZoom: parameters.maxZoom,
+      zoom: parameters.zoom,
+      positionProgress: parameters.positionProgress,
+      sizeProgress: parameters.sizeProgress,
     })
 
     this.renderer = new Renderer({
@@ -223,8 +224,10 @@ export class ComplexGraph {
       x: this.calculator.area.x1,
       y: 0,
     }).x
+
     const zoomSpeed =
       clamp(event.deltaY, -1, 1) * this.scene.zoom * this.wheelZoomAcceleration * 0.2
+
     this.renderer.withTicker(() => {
       this.scene.scale(mousePosition, zoomSpeed)
     })

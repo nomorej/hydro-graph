@@ -36,7 +36,7 @@ export class SnowIce extends Visualizer<SnowIceValue> {
 
   protected override renderWithClip(heightStep: number) {
     this.groups.forEach((group) => {
-      if (!group.isVisible) return
+      if (!group.isVisible || !group.elements.length) return
 
       this.fill(this.snowFillColor)
       this.stroke(this.snowStrokeColor)

@@ -31,7 +31,7 @@ export class Renderer extends Canvas {
 
   public withoutTicker(callback: () => void) {
     callback()
-    this.scene.calibrate()
+    this.scene.calibratePointer()
     this.draw()
   }
 
@@ -41,11 +41,11 @@ export class Renderer extends Canvas {
 
   public override resize(width?: number, height?: number) {
     super.resize(width, height)
-    this.scene.resize(this)
+    this.scene.resize()
   }
 
   private render = (canvas: Canvas, t = 0, dt = 0) => {
     canvas.clear()
-    this.scene.render(this, t, dt)
+    this.scene.render(t, dt)
   }
 }

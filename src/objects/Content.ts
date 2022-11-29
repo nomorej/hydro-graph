@@ -5,7 +5,7 @@ export interface ContentParameters {
 }
 
 export class Content extends Object {
-  public backgroundColor: string
+  private readonly backgroundColor: string
 
   constructor(parameters?: ContentParameters) {
     super()

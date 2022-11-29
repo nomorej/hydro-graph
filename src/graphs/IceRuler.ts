@@ -344,7 +344,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
           )
           element.y = this.lines[1].y
         } else if (group.name === 'error') {
-          element.height = this.lines[2].y - this.lines[3].y
+          element.height = this.lines[2].y - this.lines[8].y
           element.y = this.lines[2].y
         }
 
@@ -455,13 +455,22 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     const s = Math.ceil(scene.zoom / 4)
     const step = element.width / s
 
+    const h = element.height / 2
+
     for (let index = 0; index < s; index++) {
       renderer.context.beginPath()
       renderer.context.moveTo(element.x + step * index, element.y)
-      renderer.context.lineTo(element.x + step * (index + 0.85), element.y + element.height)
+      renderer.context.lineTo(element.x + step * (index + 0.85), element.y + h)
 
       renderer.context.moveTo(element.x + step * (index + 0.85), element.y)
-      renderer.context.lineTo(element.x + step * index, element.y + element.height)
+      renderer.context.lineTo(element.x + step * index, element.y + h)
+
+      renderer.context.moveTo(element.x + step * index, element.y + h)
+      renderer.context.lineTo(element.x + step * (index + 0.85), element.y + h * 2)
+
+      renderer.context.moveTo(element.x + step * (index + 0.85), element.y + h)
+      renderer.context.lineTo(element.x + step * index, element.y + h * 2)
+
       renderer.context.stroke()
     }
   }

@@ -6,6 +6,9 @@ import { Object } from './Object'
 export interface SceneParameters {
   smoothness?: number
   maxZoom?: number
+  sizeProgress?: number
+  positionProgress?: number
+  zoom?: number
 }
 
 export class Scene {
@@ -24,11 +27,19 @@ export class Scene {
   constructor(parameters?: SceneParameters) {
     this.renderer = null!
 
-    this.zoom = 1
+    this.zoom = parameters?.zoom || 1
     this.maxZoom = parameters?.maxZoom || 300
 
     this.size = new Track({ slipperiness: 0 })
     this.position = new Track({ slipperiness: 0 })
+
+    if (parameters?.sizeProgress) {
+      this.size.calibrateProgress(parameters.sizeProgress)
+    }
+
+    if (parameters?.positionProgress) {
+      this.position.calibrateProgress(parameters.positionProgress)
+    }
 
     this.objects = new Set()
 
@@ -36,6 +47,7 @@ export class Scene {
       this.size.slipperiness =
       this.position.slipperiness =
         parameters?.smoothness || 0
+
     this._viewportSize = 0
   }
 
@@ -54,7 +66,7 @@ export class Scene {
   public set viewportSize(value: number) {
     this._viewportSize = value
     this.scale()
-    this.calibrate()
+    this.calibratePointer()
     this.scale()
   }
 
@@ -76,16 +88,17 @@ export class Scene {
     this.position.step(value)
   }
 
-  public calibrate() {
+  public calibratePointer() {
     this.size.calibratePointer()
     this.position.calibratePointer()
   }
 
-  public resize(renderer: Renderer) {
+  public resize() {
     const positionProgress = this.position.progress.target || 0
     const sizeProgress = this.size.progress.target || 0
 
-    this.viewportSize = renderer.size.x
+    this.viewportSize = this.renderer.size.x
+
     this.objects.forEach((object) => {
       if (object.isActive) {
         object.onResize?.()
@@ -96,7 +109,7 @@ export class Scene {
     this.size.calibrateProgress(sizeProgress)
   }
 
-  public render(renderer: Renderer, _: number, dt: number) {
+  public render(_: number, dt: number) {
     this.size.slide(dt)
     this.position.slide(dt)
 
@@ -104,8 +117,8 @@ export class Scene {
       this.renderer.stopTick()
     }
 
-    renderer.context.save()
-    renderer.context.translate(this.position.pointer.current * -1, 0)
+    this.renderer.context.save()
+    this.renderer.context.translate(this.position.pointer.current * -1, 0)
 
     this.objects.forEach((object) => {
       if (object.isActive) {
@@ -113,7 +126,7 @@ export class Scene {
       }
     })
 
-    renderer.context.restore()
+    this.renderer.context.restore()
   }
 
   public addObject(object: Object) {
