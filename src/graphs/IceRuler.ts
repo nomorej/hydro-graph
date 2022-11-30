@@ -421,18 +421,34 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
   }
 
   private drawFreezing = (element: VisualizerElement<IceRulerValue>) => {
-    this.drawRect(element.x, element.y, element.width, element.height, {
-      fill: this.lightColor,
-    })
+    const flangeMatch = this.groups
+      .get('flangeIce')
+      ?.elements.find((e) => e.segment.date === element.segment.date)
+
+    const iceClearingMatch = this.groups
+      .get('iceClearing')
+      ?.elements.find((e) => e.segment.date === element.segment.date)
+
+    const match = iceClearingMatch || flangeMatch
+
+    if (match) {
+      this.drawRect(element.x, element.y, element.width, element.height - match.height, {
+        fill: this.lightColor,
+      })
+    } else {
+      this.drawRect(element.x, element.y, element.width, element.height, {
+        fill: this.lightColor,
+      })
+    }
   }
 
   private drawFlangeIce = (element: VisualizerElement<IceRulerValue>) => {
-    this.drawSpecialRect(element, this.lines[3], { fill: this.specialColor })
+    this.drawSpecialRect(element, this.lines[3], { fill: '' })
   }
 
   private drawIceClearing = (element: VisualizerElement<IceRulerValue>) => {
-    this.drawSpecialRect(element, this.lines[3], { fill: this.specialColor })
-    this.drawSpecialRect(element, this.lines[4], { fill: this.specialColor, offset: 0.01 })
+    this.drawSpecialRect(element, this.lines[3], { fill: '' })
+    this.drawSpecialRect(element, this.lines[4], { fill: '', offset: 0.01 })
   }
 
   private drawIceShove = (element: VisualizerElement<IceRulerValue>) => {
