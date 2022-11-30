@@ -368,12 +368,12 @@ export function qwikStart(parameters: QwikStartParameters) {
           },
           qh: {
             months: parameters.data.waterСonsumption.qh || [],
-            title: 'QH',
+            title: 'С кривой QH',
             color: '#397634',
           },
           operational: {
             months: parameters.data.waterСonsumption.operational || [],
-            title: 'Операционные',
+            title: 'Оперативные',
             color: '#FFB74E',
           },
         },
