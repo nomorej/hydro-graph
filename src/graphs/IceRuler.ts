@@ -366,7 +366,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
     this.drawRect(element.x, element.y, element.width, element.height, {
       fill: this.darkColor,
     })
-    this.drawRect(element.x, this.lines[8].y, element.width, element.height, {
+    this.drawRect(element.x, this.lines[7].y, element.width, element.height, {
       fill: this.darkColor,
     })
   }

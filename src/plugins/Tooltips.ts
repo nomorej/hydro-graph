@@ -197,18 +197,12 @@ export class Tooltips extends Plugin {
     el: VisualizerElement<IceRulerValue>,
     group: VisualizerGroup<IceRulerValue, IceRulerFill>
   ) {
-    let collision = pointRectCollision(this.complexGraph.mouseZoomed, el)
-
-    if (group.name === 'shoreIce') {
-      collision =
-        collision ||
-        pointRectCollision(this.complexGraph.mouseZoomed, {
-          x: el.x,
-          y: (group.dr as IceRuler).lines[7].y - el.height,
-          width: el.width,
-          height: el.height,
-        })
-    }
+    let collision = pointRectCollision(this.complexGraph.mouseZoomed, {
+      x: el.x,
+      y: group.dr.row.y1,
+      width: el.width,
+      height: group.dr.row.height,
+    })
 
     if (el.comment && collision) {
       this.tooltip.show([`Срок: ${el.segment.date}`, ...el.comment])
