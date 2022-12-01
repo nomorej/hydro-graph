@@ -107,14 +107,13 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
     this.segmentator.cut('4', 1)
     this.segmentator.cut('5', 1)
     this.segmentator.cut('6', 1)
-    this.segmentator.cut('7', 1)
-    this.segmentator.cut('8', 0.05)
-    this.segmentator.cut('9', 1)
-    this.segmentator.cut('10', 0.5)
+    this.segmentator.cut('7', 0.05)
+    this.segmentator.cut('8', 1)
+    this.segmentator.cut('9', 0.5)
 
     this.lines = {} as IceRulerLines
 
-    for (let index = 1; index <= 10; index++) {
+    for (let index = 1; index <= 9; index++) {
       this.lines[(index + '') as IceRulerLinesNames] = {
         y: 0,
         height: 0,
@@ -220,6 +219,22 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
 
     groupDam(iceDamAbove, this.iceDamAboveGroups)
     groupDam(iceDamBelow, this.iceDamBelowGroups)
+
+    let allElements: Array<VisualizerElement<any>> = []
+
+    this.groups.forEach((g) => {
+      allElements = [...allElements, ...g.elements]
+    })
+
+    allElements.sort(
+      (a, b) =>
+        Timeline.getHourSegment(a.segment).hoursBefore -
+        Timeline.getHourSegment(b.segment).hoursBefore
+    )
+
+    allElements.forEach((el, i) => {
+      el.nextSegment = allElements[i + 1]?.segment
+    })
   }
 
   protected override renderWithClip() {
@@ -234,7 +249,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
       const x = this.complexGraph.calculator.area.x1 + this.minSegment.x1
       const w = this.maxSegment.x2 - this.minSegment.x1
       renderer.context.fillRect(x, this.lines[2].y, w, this.lines[2].height)
-      renderer.context.fillRect(x, this.lines[8].y, w, this.lines[8].height)
+      renderer.context.fillRect(x, this.lines[7].y, w, this.lines[7].height)
       renderer.context.restore()
     }
 
@@ -281,8 +296,11 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
 
     this.groups.forEach((group) => {
       if (!group.isVisible) return
+
       group.elements.forEach((element) => {
-        element.width = (element.nextSegment?.x1 || element.segment.x2) - element.segment.x1
+        element.width =
+          (element.nextSegment?.x1 || Timeline.getDaySegment(element.segment).x2) -
+          element.segment.x1
         element.x = this.complexGraph.calculator.area.x1 + element.segment.x1
 
         if (group.name === 'sludge' || group.name === 'shoreIceSludge') {
@@ -291,30 +309,21 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
             this.lines[4].height * 0.09
           )
           element.y = this.lines[4].y
-        } else if (group.name === 'frazilDrift1') {
+        } else if (group.name === 'frazilDrift1' || group.name === 'iceDrift1') {
           element.height = this.lines[3].height
           element.y = this.lines[2].y
-        } else if (group.name === 'frazilDrift2') {
+        } else if (group.name === 'frazilDrift2' || group.name === 'iceDrift2') {
           element.height = this.lines[3].y - this.lines[5].y
           element.y = this.lines[2].y
-        } else if (group.name === 'frazilDrift3') {
+        } else if (group.name === 'frazilDrift3' || group.name === 'iceDrift3') {
           element.height = this.lines[3].y - this.lines[6].y
-          element.y = this.lines[2].y
-        } else if (group.name === 'iceDrift1') {
-          element.height = this.lines[3].y - this.lines[5].y
-          element.y = this.lines[2].y
-        } else if (group.name === 'iceDrift2') {
-          element.height = this.lines[3].y - this.lines[6].y
-          element.y = this.lines[2].y
-        } else if (group.name === 'iceDrift3') {
-          element.height = this.lines[3].y - this.lines[7].y
           element.y = this.lines[2].y
         } else if (
           group.name === 'freezing' ||
           group.name === 'iceClearing' ||
           group.name === 'flangeIce'
         ) {
-          element.height = this.lines[2].y - this.lines[8].y - this.lines[8].height
+          element.height = this.lines[2].y - this.lines[7].y - this.lines[7].height
           element.y = this.lines[2].y
         } else if (group.name === 'shoreIce') {
           element.height = Math.max(
@@ -323,10 +332,10 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
           )
           element.y = this.lines[1].y
         } else if (group.name === 'error') {
-          element.height = this.lines[2].y - this.lines[8].y
+          element.height = this.lines[2].y - this.lines[7].y
           element.y = this.lines[2].y
         } else if (group.name === 'none') {
-          element.height = this.lines[2].y - this.lines[8].y
+          element.height = this.lines[2].y - this.lines[7].y
           element.y = this.lines[2].y
         }
 
@@ -411,7 +420,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
   }
 
   private drawFlangeIce = (element: VisualizerElement<IceRulerValue>) => {
-    const clipSize = element.height * 0.2
+    const clipSize = this.lines[3].height
 
     this.drawRect(element.x, element.y, element.width, element.height - clipSize, {
       fill: this.lightColor,
@@ -423,7 +432,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
   }
 
   private drawIceClearing = (element: VisualizerElement<IceRulerValue>) => {
-    const clipSize = element.height * 0.2
+    const clipSize = this.lines[3].height
 
     this.drawRect(element.x, element.y, element.width, element.height - clipSize * 3, {
       fill: this.lightColor,
@@ -443,12 +452,12 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
   }
 
   private drawIceShove = (element: VisualizerElement<IceRulerValue>) => {
-    const { renderer } = this.complexGraph
+    const { renderer, calculator } = this.complexGraph
 
-    const w = Math.min(element.width * 0.2, renderer.minSize * 0.03)
+    const w = Math.min(calculator.area.width * 0.001, renderer.minSize * 0.01)
     const x = element.x + element.width / 2 - w / 2
-    const y = this.lines[10].y
-    const h = this.lines[1].y - this.lines[10].y + this.lines[1].height
+    const y = this.lines[9].y
+    const h = this.lines[1].y - this.lines[9].y + this.lines[1].height
 
     this.drawRect(x, y, w, h, { fill: this.darkColor })
   }
@@ -466,24 +475,25 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
 
     for (let index = 0; index < s; index++) {
       renderer.context.beginPath()
-      renderer.context.moveTo(element.x + step * index, element.y)
-      renderer.context.lineTo(element.x + step * (index + 0.85), element.y + h)
+      const x = element.x + 1
+      renderer.context.moveTo(x + step * index, element.y)
+      renderer.context.lineTo(x + step * (index + 0.85), element.y + h)
 
-      renderer.context.moveTo(element.x + step * (index + 0.85), element.y)
-      renderer.context.lineTo(element.x + step * index, element.y + h)
+      renderer.context.moveTo(x + step * (index + 0.85), element.y)
+      renderer.context.lineTo(x + step * index, element.y + h)
 
-      renderer.context.moveTo(element.x + step * index, element.y + h)
-      renderer.context.lineTo(element.x + step * (index + 0.85), element.y + h * 2)
+      renderer.context.moveTo(x + step * index, element.y + h)
+      renderer.context.lineTo(x + step * (index + 0.85), element.y + h * 2)
 
-      renderer.context.moveTo(element.x + step * (index + 0.85), element.y + h)
-      renderer.context.lineTo(element.x + step * index, element.y + h * 2)
+      renderer.context.moveTo(x + step * (index + 0.85), element.y + h)
+      renderer.context.lineTo(x + step * index, element.y + h * 2)
 
       renderer.context.stroke()
     }
   }
 
   private drawWaterOnIceSign = (element: VisualizerElement<IceRulerValue>) => {
-    this.drawSpecialRect(element, this.lines[9], { stroke: this.lightColor })
+    this.drawSpecialRect(element, this.lines[8], { stroke: this.lightColor })
   }
 
   private drawIceJamBelowSign = (element: VisualizerElement<IceRulerValue>) => {
@@ -498,13 +508,13 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
     const { calculator } = this.complexGraph
 
     const x = element.x + element.width / 2
-    const y = this.lines[9].y
+    const y = this.lines[8].y
     const s = clamp(
       calculator.area.width * 0.001 + calculator.area.width * 0.0001,
       1,
       this.row.height * 0.12
     )
-    const o = this.lines[9].height - s
+    const o = this.lines[8].height - s
 
     this.drawTriangle(x, y + o, s, this.middleColor, r)
   }
@@ -558,8 +568,8 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
       ) / 2
 
     const x = element.x + (type === 'end' ? element.width : 0) + (type === 'end' ? s * -1 : s)
-    const o1 = this.lines[9].height - s
-    const y = this.lines[9].y + o1
+    const o1 = this.lines[8].height - s
+    const y = this.lines[8].y + o1
     const offset = s * 3
 
     renderer.context.strokeStyle = this.middleColor

@@ -302,12 +302,5 @@ async function error(months: Months): Promise<QwikStartIceRuler['error']> {
         comment: ['Ошибка'],
       },
     },
-    {
-      date: [4, 15],
-      data: {
-        value: {},
-        comment: ['Ошибка'],
-      },
-    },
   ])
 }

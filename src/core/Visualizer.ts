@@ -232,22 +232,6 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
       this.min = min
       this.max = max
     }
-
-    let allElements: Array<VisualizerElement<any>> = []
-
-    this.groups.forEach((g) => {
-      allElements = [...allElements, ...g.elements]
-    })
-
-    allElements.sort(
-      (a, b) =>
-        Timeline.getHourSegment(a.segment).hoursBefore -
-        Timeline.getHourSegment(b.segment).hoursBefore
-    )
-
-    allElements.forEach((el, i) => {
-      el.nextSegment = allElements[i + 1]?.segment
-    })
   }
 
   public onRender() {

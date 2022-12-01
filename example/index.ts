@@ -1,4 +1,4 @@
-import { getDate, qwikStart, QwikStartParameters } from '../src'
+import { qwikStart, QwikStartParameters } from '../src'
 import { airTemperatureData } from './airTemperatureData'
 import { iceRulerWithRealData } from './iceRulerWithRealData'
 import { monthsData } from './monthsData'

@@ -1,5 +1,6 @@
 import { Graph } from '../core/Graph'
 import { PointsParameters } from '../core/Points'
+import { Timeline } from '../core/Timeline'
 import { VisualizerElement, VisualizerGroup } from '../core/Visualizer'
 
 export type AirTemperatureGroupsNames =
@@ -41,13 +42,14 @@ export class AirTemperature extends Graph<AirTemperatureGroupsNames> {
     this.groups.forEach((group) => {
       if (group.isVisible) {
         group.elements.forEach((element) => {
-          element.width = element.segment.width
           element.x = this.complexGraph.calculator.area.x1 + element.segment.x1
 
           if (this.isGraphGroup(group)) {
+            element.width = element.segment.width
             element.height = heightStep * (element.value - this.min)
             element.y = this.row.y2 - element.height - this.paddingBottom
           } else {
+            element.width = Timeline.getDaySegment(element.segment).width
             element.height = this.paddingBottom / 2
             element.y = this.row.y2 - this.paddingBottom / 2
           }
