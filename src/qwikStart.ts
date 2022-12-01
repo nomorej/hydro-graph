@@ -2,7 +2,7 @@ import { ComplexGraph, Parameters } from './core/ComplexGraph'
 import { SceneParameters } from './core/Scene'
 import { VisualizerGroupData } from './core/Visualizer'
 import { AirTemperature, AirTemperatureGroupsNames } from './graphs/AirTemperature'
-import { IceRuler, IceRulerGroupsNames, IceRulerValue } from './graphs/IceRuler'
+import { IceRuler, IceRulerFill, IceRulerValue } from './graphs/IceRuler'
 import { Precipitation, PrecipitationGroupsNames, PrecipitationValue } from './graphs/Precipitation'
 import { SnowIce, SnowIceValue } from './graphs/SnowIce'
 import { WaterLevel } from './graphs/WaterLevel'
@@ -63,7 +63,7 @@ export type QwikStartWaterTemperature = { default?: VisualizerGroupData<number> 
 export type QwikStartSnowIce = { default?: VisualizerGroupData<SnowIceValue> }
 
 export type QwikStartIceRuler = {
-  [key in IceRulerGroupsNames]?: VisualizerGroupData<IceRulerValue>
+  [key in IceRulerFill]?: VisualizerGroupData<IceRulerValue>
 }
 
 export type QwikStartWaterLevel = {
@@ -80,6 +80,7 @@ export type QwikStartPhases = Array<{
   type: keyof typeof phasesPresets
   start: PhaseParameters['start']
   end: PhaseParameters['end']
+  fill?: PhaseParameters['fill']
 }>
 
 export interface QwikStartParameters
@@ -262,7 +263,6 @@ export function qwikStart(parameters: QwikStartParameters) {
         darkColor: '#343a40',
         middleColor: '#495057',
         lightColor: '#6c757d',
-        specialColor: 'white',
 
         groups: {
           sludge: {
@@ -315,6 +315,10 @@ export function qwikStart(parameters: QwikStartParameters) {
           },
           error: {
             months: parameters.data.iceRuler.error || [],
+            // title: 'Ошибки',
+          },
+          none: {
+            months: parameters.data.iceRuler.none || [],
             // title: 'Ошибки',
           },
         },

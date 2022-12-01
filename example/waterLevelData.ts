@@ -1,12 +1,12 @@
-import { QwikStartWaterLevel, distributeData } from '../src'
+import { QwikStartWaterLevel, distributeData, Months } from '../src'
 
-export async function waterLevelData(): Promise<QwikStartWaterLevel> {
+export async function waterLevelData(months: Months): Promise<QwikStartWaterLevel> {
   return {
-    default: await def(),
+    default: await def(months),
   }
 }
 
-export async function def(): Promise<QwikStartWaterLevel['default']> {
+export async function def(months: Months): Promise<QwikStartWaterLevel['default']> {
   return distributeData([
     {
       date: [6, 1],

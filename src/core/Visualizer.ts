@@ -1,12 +1,13 @@
 import { Object, ObjectParameters } from './Object'
 import { Primitive } from './Primitive'
 import { Scale, ScaleParameters } from './Scale'
-import { Timeline, TimelineDay, TimelineHour, TimelineMonth, TimelineSegment } from './Timeline'
+import { Timeline, TimelineSegment } from './Timeline'
 
 export type VisualizerElementComment = string | Array<string>
 
 export interface VisualizerElementParameters<V> {
   segment: TimelineSegment
+  nextSegment?: TimelineSegment
   value: V
   new?: boolean
   comment?: VisualizerElementComment
@@ -19,6 +20,7 @@ export class VisualizerElement<V> {
   public height: number
   public new?: boolean
   public readonly segment: TimelineSegment
+  public nextSegment?: TimelineSegment
   public readonly value: V
   public readonly comment: Array<string>
 
@@ -29,6 +31,7 @@ export class VisualizerElement<V> {
     this.height = 0
     this.new = parameters.new
     this.segment = parameters.segment
+    this.nextSegment = parameters.nextSegment
     this.value = parameters.value
     this.comment =
       parameters.comment && Array.isArray(parameters.comment)
@@ -229,6 +232,22 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
       this.min = min
       this.max = max
     }
+
+    let allElements: Array<VisualizerElement<any>> = []
+
+    this.groups.forEach((g) => {
+      allElements = [...allElements, ...g.elements]
+    })
+
+    allElements.sort(
+      (a, b) =>
+        Timeline.getHourSegment(a.segment).hoursBefore -
+        Timeline.getHourSegment(b.segment).hoursBefore
+    )
+
+    allElements.forEach((el, i) => {
+      el.nextSegment = allElements[i + 1]?.segment
+    })
   }
 
   public onRender() {

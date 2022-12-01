@@ -14,18 +14,18 @@ export type MonthName =
   | 'Август'
   | 'Сентябрь'
 
-export type MonthIndex = Exclude<Range<13>, 0>
+export type MonthNumber = Exclude<Range<13>, 0>
 
 export interface Month {
   title: MonthName
   daysNumber: number
-  number: MonthIndex
+  number: MonthNumber
 }
 
 export type Months = Array<Month>
 
 export function getMonths(
-  desired: Array<MonthName | MonthIndex> | 'all' | { from: number; to: number },
+  desired: Array<MonthName | MonthNumber> | 'all' | { from: number; to: number },
   {
     leapYear = false,
     offset = 0,
@@ -124,4 +124,12 @@ export function getMonths(
   }
 
   return result
+}
+
+export function getMonthNumber(months: Months, month: MonthName | MonthNumber) {
+  if (typeof month === 'string') {
+    return months.findIndex((m) => m.title === month) + 1
+  } else {
+    return months.findIndex((m) => m.number === month) + 1
+  }
 }

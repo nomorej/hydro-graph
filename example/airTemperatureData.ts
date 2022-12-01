@@ -1,18 +1,18 @@
-import { QwikStartAirTemperature, distributeData } from '../src'
+import { QwikStartAirTemperature, distributeData, Months } from '../src'
 
-export async function airTemperatureData(): Promise<QwikStartAirTemperature> {
+export async function airTemperatureData(months: Months): Promise<QwikStartAirTemperature> {
   return {
-    max: await max(),
-    middle: await middle(),
-    min: await min(),
-    post: await post(),
-    sumTempAll: await sumTempAll(),
-    sumTempSpring: await sumTempSpring(),
-    sumTempAutumn: await sumTempAutumn(),
+    max: await max(months),
+    middle: await middle(months),
+    min: await min(months),
+    post: await post(months),
+    sumTempAll: await sumTempAll(months),
+    sumTempSpring: await sumTempSpring(months),
+    sumTempAutumn: await sumTempAutumn(months),
   }
 }
 
-async function max(): Promise<QwikStartAirTemperature['max']> {
+async function max(months: Months): Promise<QwikStartAirTemperature['max']> {
   return distributeData([
     {
       /**
@@ -75,57 +75,9 @@ async function max(): Promise<QwikStartAirTemperature['max']> {
       },
     },
   ])
-
-  /**
-   * Ещё вариант как можно указывать данные
-   */
-  return max_V2()
 }
 
-async function max_V2(): Promise<QwikStartAirTemperature['max']> {
-  return distributeData({
-    /**
-     * Номер месяца : Массив дней
-     */
-    1: [
-      {
-        day: 1,
-        value: -20,
-      },
-      {
-        day: 10,
-        value: [
-          {
-            hour: 10,
-            value: 20,
-          },
-        ],
-      },
-    ],
-    2: [
-      {
-        day: 1,
-        value: -20,
-        new: true,
-      },
-      {
-        day: 15,
-        value: [
-          {
-            hour: 3,
-            value: 20,
-          },
-          {
-            hour: 10,
-            value: 15,
-          },
-        ],
-      },
-    ],
-  })
-}
-
-async function middle(): Promise<QwikStartAirTemperature['middle']> {
+async function middle(months: Months): Promise<QwikStartAirTemperature['middle']> {
   return distributeData([
     {
       date: [1],
@@ -142,7 +94,7 @@ async function middle(): Promise<QwikStartAirTemperature['middle']> {
   ])
 }
 
-async function min(): Promise<QwikStartAirTemperature['min']> {
+async function min(months: Months): Promise<QwikStartAirTemperature['min']> {
   return distributeData([
     {
       date: [1],
@@ -159,7 +111,7 @@ async function min(): Promise<QwikStartAirTemperature['min']> {
   ])
 }
 
-async function post(): Promise<QwikStartAirTemperature['post']> {
+async function post(months: Months): Promise<QwikStartAirTemperature['post']> {
   return distributeData([
     {
       date: [2],
@@ -176,7 +128,7 @@ async function post(): Promise<QwikStartAirTemperature['post']> {
   ])
 }
 
-async function sumTempAll(): Promise<QwikStartAirTemperature['sumTempAll']> {
+async function sumTempAll(months: Months): Promise<QwikStartAirTemperature['sumTempAll']> {
   return distributeData([
     {
       date: [1, 2],
@@ -205,7 +157,7 @@ async function sumTempAll(): Promise<QwikStartAirTemperature['sumTempAll']> {
   ])
 }
 
-async function sumTempSpring(): Promise<QwikStartAirTemperature['sumTempSpring']> {
+async function sumTempSpring(months: Months): Promise<QwikStartAirTemperature['sumTempSpring']> {
   return distributeData([
     {
       date: [2, 2],
@@ -234,7 +186,7 @@ async function sumTempSpring(): Promise<QwikStartAirTemperature['sumTempSpring']
   ])
 }
 
-async function sumTempAutumn(): Promise<QwikStartAirTemperature['sumTempAutumn']> {
+async function sumTempAutumn(months: Months): Promise<QwikStartAirTemperature['sumTempAutumn']> {
   return distributeData([
     {
       date: [3, 2],

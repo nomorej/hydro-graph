@@ -1,7 +1,7 @@
 import { ComplexGraph } from '../core/ComplexGraph'
 import { Visualizer, VisualizerElement, VisualizerGroup } from '../core/Visualizer'
 import { AirTemperature, AirTemperatureGroupsNames } from '../graphs/AirTemperature'
-import { IceRuler, IceRulerGroupsNames, IceRulerValue } from '../graphs/IceRuler'
+import { IceRuler, IceRulerFill, IceRulerValue } from '../graphs/IceRuler'
 import {
   Precipitation,
   PrecipitationGroupsNames,
@@ -195,7 +195,7 @@ export class Tooltips extends Plugin {
 
   private iceRuler(
     el: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
+    group: VisualizerGroup<IceRulerValue, IceRulerFill>
   ) {
     let collision = pointRectCollision(this.complexGraph.mouseZoomed, el)
 

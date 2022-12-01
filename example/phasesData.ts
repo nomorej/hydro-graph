@@ -1,97 +1,48 @@
 import { QwikStartPhases } from '../src'
+import { Months } from '../src/utils/getMonths'
 
-export async function phasesData(): Promise<QwikStartPhases> {
+export async function phasesData(months: Months): Promise<QwikStartPhases> {
   return [
     {
       type: 'ОР',
-      start: {
-        month: 1,
-        day: 1, // Необязательный параметр
-        hour: 1, // Необязательный параметр
-      },
-      end: {
-        month: 2,
-        day: 15, // Необязательный параметр
-        hour: 10, // Необязательный параметр
-      },
+      start: [1, 1, 1],
+      end: [2, 15, 10],
     },
     {
       type: 'ОПП',
-      start: {
-        month: 2,
-        day: 15,
-        hour: 10,
-      },
-      end: {
-        month: 2,
-        day: 20,
-      },
+      start: [2, 15, 10],
+      end: [2, 20],
     },
     {
       type: 'ЗАР',
-      start: {
-        month: 2,
-        day: 20,
-      },
-      end: {
-        month: 3,
-      },
+      start: [2, 20],
+      end: [3],
     },
     {
       type: 'ЛД',
-      start: {
-        month: 3,
-      },
-      end: {
-        month: 7,
-      },
+      start: [3],
+      end: [7],
     },
     {
       type: 'ВПП',
-      start: {
-        month: 7,
-      },
-      end: {
-        month: 7,
-        day: 10,
-      },
+      start: [7],
+      end: [7, 10],
     },
     {
       type: 'ЛД',
-      start: {
-        month: 7,
-        day: 10,
-      },
-      end: {
-        month: 7,
-        day: 15,
-      },
+      start: [7, 10],
+      end: [7, 15],
     },
     {
       type: 'ВПП',
-      start: {
-        month: 7,
-        day: 15,
-      },
-      end: {
-        month: 8,
-      },
+      start: [7, 15],
+      end: [8],
     },
     {
       type: 'ОР',
-      start: {
-        month: 8,
-      },
-      end: {
-        month: 12,
-        day: 31,
-        /**
-         * Выбор даты ставит "курсор" в начало этой даты,
-         * Чтобы день или час был полностью закрашен,
-         * можно указать этот параметр
-         */
-        fill: true,
-      },
+      start: [8],
+      end: [12, 31],
+      fill: true,
     },
   ]
 }

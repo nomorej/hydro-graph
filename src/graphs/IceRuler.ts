@@ -1,10 +1,4 @@
-import {
-  Timeline,
-  TimelineDay,
-  TimelineHour,
-  TimelineMonth,
-  TimelineSegment,
-} from '../core/Timeline'
+import { Timeline, TimelineSegment } from '../core/Timeline'
 import {
   Visualizer,
   VisualizerElement,
@@ -14,7 +8,7 @@ import {
 import { Segmentator } from '../tools/Segmentator'
 import { clamp } from '../utils/math'
 
-export type IceRulerGroupsNames =
+export type IceRulerFill =
   | 'sludge'
   | 'shoreIce'
   | 'shoreIceSludge'
@@ -28,8 +22,9 @@ export type IceRulerGroupsNames =
   | 'flangeIce'
   | 'iceClearing'
   | 'error'
+  | 'none'
 
-export type IceRulerValueUpperSign =
+export type IceRulerUpperSign =
   | 'waterOnIce'
   | 'iceJamBelow'
   | 'iceJamAbove'
@@ -38,15 +33,13 @@ export type IceRulerValueUpperSign =
 
 export type IceRulerValue = {
   iceShove?: boolean
-  upperSign?: IceRulerValueUpperSign
+  upperSign?: IceRulerUpperSign
 }
 
-export interface IceRulerParameters
-  extends VisualizerParameters<IceRulerValue, IceRulerGroupsNames> {
+export interface IceRulerParameters extends VisualizerParameters<IceRulerValue, IceRulerFill> {
   darkColor?: string
   middleColor?: string
   lightColor?: string
-  specialColor?: string
   errorColor?: string
 }
 
@@ -58,7 +51,7 @@ export type IceRulerLines = {
 
 interface IceRulerSaved {
   element: VisualizerElement<IceRulerValue>
-  group: VisualizerGroup<IceRulerValue, IceRulerGroupsNames>
+  group: VisualizerGroup<IceRulerValue, IceRulerFill>
 }
 
 type DamGroups = Array<Array<IceRulerSaved>>
@@ -71,12 +64,13 @@ interface SpecialRectOptions {
   fill?: string | false
 }
 
-export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
+export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
   public readonly lines: IceRulerLines
   private readonly segmentator: Segmentator
 
   private readonly drawFunctionsMap: {
-    [key in IceRulerGroupsNames | IceRulerValueUpperSign]:
+    [key in IceRulerFill | IceRulerUpperSign]:
+      | IceRuler['drawNone']
       | IceRuler['drawError']
       | IceRuler['drawFlangeIce']
       | IceRuler['drawFrazilDrift']
@@ -97,7 +91,6 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
   private darkColor: string
   private middleColor: string
   private lightColor: string
-  private specialColor: string
   private errorColor: string
   private minSegment?: TimelineSegment
   private maxSegment?: TimelineSegment
@@ -129,6 +122,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     }
 
     this.drawFunctionsMap = {
+      none: this.drawNone,
       error: this.drawError,
       flangeIce: this.drawFlangeIce,
       frazilDrift1: this.drawFrazilDrift,
@@ -152,7 +146,6 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     this.darkColor = parameters.darkColor || 'black'
     this.middleColor = parameters.middleColor || 'black'
     this.lightColor = parameters.lightColor || 'black'
-    this.specialColor = parameters.specialColor || 'black'
     this.errorColor = parameters.errorColor || '#ea7060'
 
     this.iceDamBelowGroups = []
@@ -289,7 +282,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     this.groups.forEach((group) => {
       if (!group.isVisible) return
       group.elements.forEach((element) => {
-        element.width = element.segment.width
+        element.width = (element.nextSegment?.x1 || element.segment.x2) - element.segment.x1
         element.x = this.complexGraph.calculator.area.x1 + element.segment.x1
 
         if (group.name === 'sludge' || group.name === 'shoreIceSludge') {
@@ -316,14 +309,12 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
         } else if (group.name === 'iceDrift3') {
           element.height = this.lines[3].y - this.lines[7].y
           element.y = this.lines[2].y
-        } else if (group.name === 'freezing') {
+        } else if (
+          group.name === 'freezing' ||
+          group.name === 'iceClearing' ||
+          group.name === 'flangeIce'
+        ) {
           element.height = this.lines[2].y - this.lines[8].y - this.lines[8].height
-          element.y = this.lines[2].y
-        } else if (group.name === 'iceClearing') {
-          element.height = this.lines[2].y - this.lines[4].y
-          element.y = this.lines[2].y
-        } else if (group.name === 'flangeIce') {
-          element.height = this.lines[3].height
           element.y = this.lines[2].y
         } else if (group.name === 'shoreIce') {
           element.height = Math.max(
@@ -334,12 +325,17 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
         } else if (group.name === 'error') {
           element.height = this.lines[2].y - this.lines[8].y
           element.y = this.lines[2].y
+        } else if (group.name === 'none') {
+          element.height = this.lines[2].y - this.lines[8].y
+          element.y = this.lines[2].y
         }
 
         element.y -= element.height
       })
     })
   }
+
+  private drawNone() {}
 
   private drawDamGroups(
     groups: DamGroups,
@@ -409,34 +405,41 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
   }
 
   private drawFreezing = (element: VisualizerElement<IceRulerValue>) => {
-    const flangeMatch = this.groups
-      .get('flangeIce')
-      ?.elements.find((e) => e.segment.date === element.segment.date)
-
-    const iceClearingMatch = this.groups
-      .get('iceClearing')
-      ?.elements.find((e) => e.segment.date === element.segment.date)
-
-    const match = iceClearingMatch || flangeMatch
-
-    if (match) {
-      this.drawRect(element.x, element.y, element.width, element.height - match.height, {
-        fill: this.lightColor,
-      })
-    } else {
-      this.drawRect(element.x, element.y, element.width, element.height, {
-        fill: this.lightColor,
-      })
-    }
+    this.drawRect(element.x, element.y, element.width, element.height, {
+      fill: this.lightColor,
+    })
   }
 
   private drawFlangeIce = (element: VisualizerElement<IceRulerValue>) => {
-    this.drawSpecialRect(element, this.lines[3], { fill: '' })
+    const clipSize = element.height * 0.2
+
+    this.drawRect(element.x, element.y, element.width, element.height - clipSize, {
+      fill: this.lightColor,
+    })
+
+    this.drawRect(element.x, element.y + element.height - clipSize, element.width, clipSize - 1, {
+      stroke: this.lightColor,
+    })
   }
 
   private drawIceClearing = (element: VisualizerElement<IceRulerValue>) => {
-    this.drawSpecialRect(element, this.lines[3], { fill: '' })
-    this.drawSpecialRect(element, this.lines[4], { fill: '', offset: 0.01 })
+    const clipSize = element.height * 0.2
+
+    this.drawRect(element.x, element.y, element.width, element.height - clipSize * 3, {
+      fill: this.lightColor,
+    })
+
+    this.drawRect(element.x, element.y + element.height - clipSize * 3, element.width, clipSize, {
+      stroke: this.lightColor,
+    })
+
+    this.drawRect(element.x, element.y + element.height - clipSize * 2, element.width, clipSize, {
+      fill: this.lightColor,
+    })
+
+    this.drawRect(element.x, element.y + element.height - clipSize, element.width, clipSize - 1, {
+      stroke: this.lightColor,
+    })
   }
 
   private drawIceShove = (element: VisualizerElement<IceRulerValue>) => {
@@ -557,13 +560,16 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
     const x = element.x + (type === 'end' ? element.width : 0) + (type === 'end' ? s * -1 : s)
     const o1 = this.lines[9].height - s
     const y = this.lines[9].y + o1
-    const offset = element.width * 0.25
+    const offset = s * 3
 
     renderer.context.strokeStyle = this.middleColor
+    renderer.context.save()
     renderer.context.beginPath()
+    renderer.context.setLineDash([10])
     renderer.context.moveTo(element.x + offset, y)
     renderer.context.lineTo(element.x + element.width - offset, y)
     renderer.context.stroke()
+    renderer.context.restore()
 
     return { x, y, s }
   }

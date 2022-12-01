@@ -1,15 +1,15 @@
-import { QwikStartWaterConsumption, distributeData } from '../src'
+import { QwikStartWaterConsumption, distributeData, Months } from '../src'
 
-export async function waterСonsumptionData(): Promise<QwikStartWaterConsumption> {
+export async function waterСonsumptionData(months: Months): Promise<QwikStartWaterConsumption> {
   return {
-    qh: await qh(),
+    qh: await qh(months),
     measured: await measured(),
     calculated: await calculated(),
     operational: await operational(),
   }
 }
 
-async function qh(): Promise<QwikStartWaterConsumption['qh']> {
+async function qh(months: Months): Promise<QwikStartWaterConsumption['qh']> {
   return distributeData([
     {
       date: [1, 1],

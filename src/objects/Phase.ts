@@ -1,25 +1,17 @@
 import { Object, ObjectParameters } from '../core/Object'
 import { TimelineSegment } from '../core/Timeline'
+import { Date } from '../utils/distributeData'
 
 export interface PhaseParameters extends ObjectParameters {
   shortName?: string
 
-  start: {
-    month: number
-    day?: number
-    hour?: number
-  }
-
-  end: {
-    month: number
-    day?: number
-    hour?: number
-    fill?: boolean
-  }
+  start: Date
+  end: Date
 
   fontColor?: string
   backgroundColor?: string
   edgeColor?: string
+  fill?: boolean
 }
 
 export class Phase extends Object {
@@ -48,7 +40,7 @@ export class Phase extends Object {
 
     this.shortName = parameters.shortName || this.name || ''
 
-    this.fillEndSegment = parameters.end.fill || false
+    this.fillEndSegment = parameters.fill || false
 
     this.fontColor = parameters.fontColor || 'darkblue'
     this.backgroundColor = parameters.backgroundColor || 'lightblue'
@@ -56,32 +48,11 @@ export class Phase extends Object {
   }
 
   public override onCreate() {
-    const start = this.complexGraph.timeline.findSegment(
-      this.startParameters!.month,
-      this.startParameters!.day,
-      this.startParameters!.hour
-    )
+    const start = this.complexGraph.timeline.findSegment(...this.startParameters)
+    const end = this.complexGraph.timeline.findSegment(...this.endParameters)
 
-    if (!start) {
-      throw new Error(
-        `Сегмент со следующими параметрами [month:${this.startParameters!.month}, day:${
-          this.startParameters!.day
-        }, hour:${this.startParameters!.hour}] не найден`
-      )
-    }
-
-    const end = this.complexGraph.timeline.findSegment(
-      this.endParameters!.month,
-      this.endParameters!.day,
-      this.endParameters!.hour
-    )
-
-    if (!end) {
-      throw new Error(
-        `Сегмент со следующими параметрами [month:${this.endParameters!.month}, day:${
-          this.endParameters!.day
-        }, hour:${this.endParameters!.hour}] не найден`
-      )
+    if (!start || !end) {
+      throw new Error('Phase: Стартовый или конечный сегмент не найдены')
     }
 
     this.start = start

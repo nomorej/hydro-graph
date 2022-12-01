@@ -1,12 +1,14 @@
 import { VisualizerGroupData } from '../core/Visualizer'
 import { Range } from './ts'
 
-type DayInMonthData<V> = Partial<{
+export type DayInMonthData<V> = Partial<{
   [KEY in number]: VisualizerGroupData<V>[number]
 }>
 
-type MonthInDayData<V> = Array<{
-  date: [number, number?, Exclude<Range<24>, 0>?]
+export type Date = [number, number?, Exclude<Range<24>, 0>?]
+
+export type MonthInDayData<V> = Array<{
+  date: Date
   data: {
     value: V
     new?: boolean
@@ -23,7 +25,7 @@ export function distributeData<V = number>(data: DayInMonthData<V> | MonthInDayD
     data.forEach((item) => {
       const monthPointer = item.date[0]
       const dayPointer = item.date[1] || 1
-      const hourPointer = item.date[2]
+      const hourPointer = item.date[2] || 1
 
       if (!dayInMonthData[monthPointer]) {
         dayInMonthData[monthPointer] = []
@@ -31,7 +33,7 @@ export function distributeData<V = number>(data: DayInMonthData<V> | MonthInDayD
 
       const matchedDay = dayInMonthData[monthPointer]?.find((item) => item.day === dayPointer)
 
-      if (matchedDay && hourPointer && Array.isArray(matchedDay.value)) {
+      if (matchedDay && Array.isArray(matchedDay.value)) {
         matchedDay.value.push({
           hour: hourPointer,
           value: item.data.value,
@@ -41,17 +43,15 @@ export function distributeData<V = number>(data: DayInMonthData<V> | MonthInDayD
       } else {
         dayInMonthData[monthPointer]?.push({
           day: dayPointer,
-          value: hourPointer
-            ? [
-                {
-                  hour: hourPointer,
-                  value: item.data.value,
-                  new: item.data.new,
-                  comment: item.data.comment,
-                },
-              ]
-            : item.data.value,
-          new: hourPointer ? false : item.data.new,
+          value: [
+            {
+              hour: hourPointer,
+              value: item.data.value,
+              new: item.data.new,
+              comment: item.data.comment,
+            },
+          ],
+          new: item.data.new,
           comment: item.data.comment,
         })
       }

@@ -1,5 +1,7 @@
 export * from './qwikStart'
-export { getMonths } from './utils/getMonths'
+export { getMonths, getMonthNumber } from './utils/getMonths'
+export type { Months } from './utils/getMonths'
+export { getDate } from './utils/getDate'
 export { distributeData } from './utils/distributeData'
 export type { PrecipitationValue } from './graphs/Precipitation'
 export type { IceRulerValue } from './graphs/IceRuler'
