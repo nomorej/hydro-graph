@@ -1,12 +1,12 @@
 import { QwikStartSnowIce, distributeData } from '../src'
 
-export function snowIceData(): QwikStartSnowIce {
+export async function snowIceData(): Promise<QwikStartSnowIce> {
   return {
-    default: def(),
+    default: await def(),
   }
 }
 
-function def(): QwikStartSnowIce['default'] {
+async function def(): Promise<QwikStartSnowIce['default']> {
   return distributeData([
     {
       date: [4, 10],

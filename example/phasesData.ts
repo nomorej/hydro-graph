@@ -1,6 +1,6 @@
 import { QwikStartPhases } from '../src'
 
-export function phasesData(): QwikStartPhases {
+export async function phasesData(): Promise<QwikStartPhases> {
   return [
     {
       type: 'ОР',

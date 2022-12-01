@@ -1,18 +1,18 @@
 import { QwikStartAirTemperature, distributeData } from '../src'
 
-export function airTemperatureData(): QwikStartAirTemperature {
+export async function airTemperatureData(): Promise<QwikStartAirTemperature> {
   return {
-    max: max(),
-    middle: middle(),
-    min: min(),
-    post: post(),
-    sumTempAll: sumTempAll(),
-    sumTempSpring: sumTempSpring(),
-    sumTempAutumn: sumTempAutumn(),
+    max: await max(),
+    middle: await middle(),
+    min: await min(),
+    post: await post(),
+    sumTempAll: await sumTempAll(),
+    sumTempSpring: await sumTempSpring(),
+    sumTempAutumn: await sumTempAutumn(),
   }
 }
 
-function max(): QwikStartAirTemperature['max'] {
+async function max(): Promise<QwikStartAirTemperature['max']> {
   return distributeData([
     {
       /**
@@ -82,7 +82,7 @@ function max(): QwikStartAirTemperature['max'] {
   return max_V2()
 }
 
-function max_V2(): QwikStartAirTemperature['max'] {
+async function max_V2(): Promise<QwikStartAirTemperature['max']> {
   return distributeData({
     /**
      * Номер месяца : Массив дней
@@ -125,7 +125,7 @@ function max_V2(): QwikStartAirTemperature['max'] {
   })
 }
 
-function middle(): QwikStartAirTemperature['middle'] {
+async function middle(): Promise<QwikStartAirTemperature['middle']> {
   return distributeData([
     {
       date: [1],
@@ -142,7 +142,7 @@ function middle(): QwikStartAirTemperature['middle'] {
   ])
 }
 
-function min(): QwikStartAirTemperature['min'] {
+async function min(): Promise<QwikStartAirTemperature['min']> {
   return distributeData([
     {
       date: [1],
@@ -159,7 +159,7 @@ function min(): QwikStartAirTemperature['min'] {
   ])
 }
 
-function post(): QwikStartAirTemperature['post'] {
+async function post(): Promise<QwikStartAirTemperature['post']> {
   return distributeData([
     {
       date: [2],
@@ -176,7 +176,7 @@ function post(): QwikStartAirTemperature['post'] {
   ])
 }
 
-function sumTempAll(): QwikStartAirTemperature['sumTempAll'] {
+async function sumTempAll(): Promise<QwikStartAirTemperature['sumTempAll']> {
   return distributeData([
     {
       date: [1, 2],
@@ -205,7 +205,7 @@ function sumTempAll(): QwikStartAirTemperature['sumTempAll'] {
   ])
 }
 
-function sumTempSpring(): QwikStartAirTemperature['sumTempSpring'] {
+async function sumTempSpring(): Promise<QwikStartAirTemperature['sumTempSpring']> {
   return distributeData([
     {
       date: [2, 2],
@@ -234,7 +234,7 @@ function sumTempSpring(): QwikStartAirTemperature['sumTempSpring'] {
   ])
 }
 
-function sumTempAutumn(): QwikStartAirTemperature['sumTempAutumn'] {
+async function sumTempAutumn(): Promise<QwikStartAirTemperature['sumTempAutumn']> {
   return distributeData([
     {
       date: [3, 2],

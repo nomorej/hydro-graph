@@ -1,24 +1,24 @@
 import { IceRulerValue, QwikStartIceRuler, distributeData } from '../src'
 
-export function iceRulerData(): QwikStartIceRuler {
+export async function iceRulerData(): Promise<QwikStartIceRuler> {
   return {
-    sludge: sludge(),
-    shoreIce: shoreIce(),
-    shoreIceSludge: shoreIceSludge(),
-    frazilDrift1: frazilDrift1(),
-    frazilDrift2: frazilDrift2(),
-    frazilDrift3: frazilDrift3(),
-    iceDrift1: iceDrift1(),
-    iceDrift2: iceDrift2(),
-    iceDrift3: iceDrift3(),
-    freezing: freezing(),
-    flangeIce: flangeIce(),
-    iceClearing: iceClearing(),
-    error: error(),
+    sludge: await sludge(),
+    shoreIce: await shoreIce(),
+    shoreIceSludge: await shoreIceSludge(),
+    frazilDrift1: await frazilDrift1(),
+    frazilDrift2: await frazilDrift2(),
+    frazilDrift3: await frazilDrift3(),
+    iceDrift1: await iceDrift1(),
+    iceDrift2: await iceDrift2(),
+    iceDrift3: await iceDrift3(),
+    freezing: await freezing(),
+    flangeIce: await flangeIce(),
+    iceClearing: await iceClearing(),
+    error: await error(),
   }
 }
 
-function sludge(): QwikStartIceRuler['sludge'] {
+async function sludge(): Promise<QwikStartIceRuler['sludge']> {
   return distributeData<IceRulerValue>([
     {
       date: [2, 27],
@@ -30,7 +30,7 @@ function sludge(): QwikStartIceRuler['sludge'] {
   ])
 }
 
-function shoreIce(): QwikStartIceRuler['shoreIce'] {
+async function shoreIce(): Promise<QwikStartIceRuler['shoreIce']> {
   return distributeData<IceRulerValue>([
     {
       date: [3, 2],
@@ -42,7 +42,7 @@ function shoreIce(): QwikStartIceRuler['shoreIce'] {
   ])
 }
 
-function shoreIceSludge(): QwikStartIceRuler['shoreIceSludge'] {
+async function shoreIceSludge(): Promise<QwikStartIceRuler['shoreIceSludge']> {
   return distributeData<IceRulerValue>([
     {
       date: [3, 5],
@@ -54,7 +54,7 @@ function shoreIceSludge(): QwikStartIceRuler['shoreIceSludge'] {
   ])
 }
 
-function frazilDrift1(): QwikStartIceRuler['frazilDrift1'] {
+async function frazilDrift1(): Promise<QwikStartIceRuler['frazilDrift1']> {
   return distributeData<IceRulerValue>([
     {
       date: [3, 10],
@@ -66,7 +66,7 @@ function frazilDrift1(): QwikStartIceRuler['frazilDrift1'] {
   ])
 }
 
-function frazilDrift2(): QwikStartIceRuler['frazilDrift2'] {
+async function frazilDrift2(): Promise<QwikStartIceRuler['frazilDrift2']> {
   return distributeData<IceRulerValue>([
     {
       date: [3, 11],
@@ -78,7 +78,7 @@ function frazilDrift2(): QwikStartIceRuler['frazilDrift2'] {
   ])
 }
 
-function frazilDrift3(): QwikStartIceRuler['frazilDrift3'] {
+async function frazilDrift3(): Promise<QwikStartIceRuler['frazilDrift3']> {
   return distributeData<IceRulerValue>([
     {
       date: [3, 12],
@@ -117,7 +117,7 @@ function frazilDrift3(): QwikStartIceRuler['frazilDrift3'] {
   ])
 }
 
-function iceDrift1(): QwikStartIceRuler['iceDrift1'] {
+async function iceDrift1(): Promise<QwikStartIceRuler['iceDrift1']> {
   return distributeData<IceRulerValue>([
     {
       date: [3, 15],
@@ -129,7 +129,7 @@ function iceDrift1(): QwikStartIceRuler['iceDrift1'] {
   ])
 }
 
-function iceDrift2(): QwikStartIceRuler['iceDrift2'] {
+async function iceDrift2(): Promise<QwikStartIceRuler['iceDrift2']> {
   return distributeData<IceRulerValue>([
     {
       date: [3, 16],
@@ -141,7 +141,7 @@ function iceDrift2(): QwikStartIceRuler['iceDrift2'] {
   ])
 }
 
-function iceDrift3(): QwikStartIceRuler['iceDrift3'] {
+async function iceDrift3(): Promise<QwikStartIceRuler['iceDrift3']> {
   return distributeData<IceRulerValue>([
     {
       date: [3, 17],
@@ -171,7 +171,7 @@ function iceDrift3(): QwikStartIceRuler['iceDrift3'] {
   ])
 }
 
-function freezing(): QwikStartIceRuler['freezing'] {
+async function freezing(): Promise<QwikStartIceRuler['freezing']> {
   return distributeData<IceRulerValue>([
     {
       date: [3, 18],
@@ -248,7 +248,7 @@ function freezing(): QwikStartIceRuler['freezing'] {
   ])
 }
 
-function flangeIce(): QwikStartIceRuler['flangeIce'] {
+async function flangeIce(): Promise<QwikStartIceRuler['flangeIce']> {
   return distributeData<IceRulerValue>([
     {
       date: [3, 20],
@@ -267,7 +267,7 @@ function flangeIce(): QwikStartIceRuler['flangeIce'] {
   ])
 }
 
-function iceClearing(): QwikStartIceRuler['iceClearing'] {
+async function iceClearing(): Promise<QwikStartIceRuler['iceClearing']> {
   return distributeData<IceRulerValue>([
     {
       date: [3, 21],
@@ -279,7 +279,7 @@ function iceClearing(): QwikStartIceRuler['iceClearing'] {
   ])
 }
 
-function error(): QwikStartIceRuler['error'] {
+async function error(): Promise<QwikStartIceRuler['error']> {
   return distributeData<IceRulerValue>([
     {
       date: [4, 10],

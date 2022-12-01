@@ -1,15 +1,15 @@
 import { QwikStartWaterConsumption, distributeData } from '../src'
 
-export function waterСonsumptionData(): QwikStartWaterConsumption {
+export async function waterСonsumptionData(): Promise<QwikStartWaterConsumption> {
   return {
-    qh: qh(),
-    measured: measured(),
-    calculated: calculated(),
-    operational: operational(),
+    qh: await qh(),
+    measured: await measured(),
+    calculated: await calculated(),
+    operational: await operational(),
   }
 }
 
-function qh(): QwikStartWaterConsumption['qh'] {
+async function qh(): Promise<QwikStartWaterConsumption['qh']> {
   return distributeData([
     {
       date: [1, 1],
@@ -44,7 +44,7 @@ function qh(): QwikStartWaterConsumption['qh'] {
   ])
 }
 
-function measured(): QwikStartWaterConsumption['measured'] {
+async function measured(): Promise<QwikStartWaterConsumption['measured']> {
   return distributeData([
     {
       date: [1, 30],
@@ -61,7 +61,7 @@ function measured(): QwikStartWaterConsumption['measured'] {
   ])
 }
 
-function calculated(): QwikStartWaterConsumption['calculated'] {
+async function calculated(): Promise<QwikStartWaterConsumption['calculated']> {
   return distributeData([
     {
       date: [1],
@@ -78,7 +78,7 @@ function calculated(): QwikStartWaterConsumption['calculated'] {
   ])
 }
 
-function operational(): QwikStartWaterConsumption['operational'] {
+async function operational(): Promise<QwikStartWaterConsumption['operational']> {
   return distributeData([
     {
       date: [2],

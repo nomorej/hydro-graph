@@ -1,6 +1,6 @@
 import { getMonths } from '../src'
 
-export function monthsData() {
+export async function monthsData() {
   /**
    * 12 месяцев
    */

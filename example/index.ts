@@ -9,27 +9,42 @@ import { waterLevelData } from './waterLevelData'
 import { waterTemperatureData } from './waterTemperatureData'
 import { waterСonsumptionData } from './waterСonsumptionData'
 
-const graphParameters: QwikStartParameters = {
-  wrapper: document.getElementById('graph')!,
-  months: monthsData(),
-  data: {
-    phases: phasesData(),
-    airTemperature: airTemperatureData(),
-    precipitation: precipitationData(),
-    waterTemperature: waterTemperatureData(),
-    snowIce: snowIceData(),
-    waterlevel: waterLevelData(),
-    iceRuler: iceRulerData(),
-    waterСonsumption: waterСonsumptionData(),
-  },
+export async function start() {
+  const wrapper = document.getElementById('graph')!
+  const months = await monthsData()
+  const phases = await phasesData()
+  const airTemperature = await airTemperatureData()
+  const precipitation = await precipitationData()
+  const waterTemperature = await waterTemperatureData()
+  const snowIce = await snowIceData()
+  const waterlevel = await waterLevelData()
+  const iceRuler = await iceRulerData()
+  const waterСonsumption = await waterСonsumptionData()
+
+  const graphParameters: QwikStartParameters = {
+    wrapper: wrapper,
+    months,
+    data: {
+      phases,
+      airTemperature,
+      precipitation,
+      waterTemperature,
+      snowIce,
+      waterlevel,
+      iceRuler,
+      waterСonsumption,
+    },
+  }
+
+  const graph = qwikStart(graphParameters)
+
+  addEventListener('keydown', (e) => {
+    if (e.key === 'd') {
+      graph.destroy()
+    } else if (e.key === 'r') {
+      graph.recreate(graphParameters, true)
+    }
+  })
 }
 
-const graph = qwikStart(graphParameters)
-
-addEventListener('keydown', (e) => {
-  if (e.key === 'd') {
-    graph.destroy()
-  } else if (e.key === 'r') {
-    graph.recreate(graphParameters, true)
-  }
-})
+start()

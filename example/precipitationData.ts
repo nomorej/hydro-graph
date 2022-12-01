@@ -1,14 +1,14 @@
 import { PrecipitationValue, QwikStartPrecipitation, distributeData } from '../src'
 
-export function precipitationData(): QwikStartPrecipitation {
+export async function precipitationData(): Promise<QwikStartPrecipitation> {
   return {
-    solid: solid(),
-    liquid: liquid(),
-    mixed: mixed(),
+    solid: await solid(),
+    liquid: await liquid(),
+    mixed: await mixed(),
   }
 }
 
-function solid(): QwikStartPrecipitation['solid'] {
+async function solid(): Promise<QwikStartPrecipitation['solid']> {
   return distributeData([
     {
       date: [1, 10],
@@ -19,7 +19,7 @@ function solid(): QwikStartPrecipitation['solid'] {
   ])
 }
 
-function liquid(): QwikStartPrecipitation['liquid'] {
+async function liquid(): Promise<QwikStartPrecipitation['liquid']> {
   return distributeData([
     {
       date: [1, 20],
@@ -30,7 +30,7 @@ function liquid(): QwikStartPrecipitation['liquid'] {
   ])
 }
 
-function mixed(): QwikStartPrecipitation['mixed'] {
+async function mixed(): Promise<QwikStartPrecipitation['mixed']> {
   return distributeData<PrecipitationValue>([
     {
       date: [2, 15],
