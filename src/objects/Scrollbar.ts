@@ -70,7 +70,6 @@ export class Scrollbar extends Object {
 
     const c = this.complexGraph.calculator
 
-    this.knob.style.width = 1 + 'px'
     this.bar.style.top = c.clipArea.y2 + 'px'
 
     const reduce = 0.9
@@ -87,7 +86,8 @@ export class Scrollbar extends Object {
         ((scene.viewportSize * this.complexGraph.scene.maxZoom) / c.clipArea.width)) *
         reduce
 
-    this.knob.style.transform = `translateX(${x}px) scaleX(${scale})`
+    this.knob.style.transform = `translateX(${x}px)`
+    this.knob.style.width = scale + 'px'
 
     if (scene.zoom === 1) {
       this.bar.style.opacity = '0'
@@ -95,14 +95,6 @@ export class Scrollbar extends Object {
     } else {
       this.bar.style.opacity = this.grabbed || this.hovered ? '1' : '0.3'
       this.knob.style.pointerEvents = 'auto'
-    }
-  }
-
-  public override onResize() {
-    if (matchMedia('(max-width: 1024px)').matches) {
-      this.bar.style.display = 'none'
-    } else {
-      this.bar.style.display = ''
     }
   }
 
