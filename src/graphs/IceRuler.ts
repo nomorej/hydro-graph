@@ -37,9 +37,7 @@ export type IceRulerValue = {
 }
 
 export interface IceRulerParameters extends VisualizerParameters<IceRulerValue, IceRulerFill> {
-  darkColor?: string
-  middleColor?: string
-  lightColor?: string
+  defaultColor?: string
   errorColor?: string
 }
 
@@ -88,9 +86,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
       | IceRuler['drawIceJamBelowSign']
       | IceRuler['drawWaterOnIceSign']
   }
-  private darkColor: string
-  private middleColor: string
-  private lightColor: string
+  private defaultColor: string
   private errorColor: string
   private minSegment?: TimelineSegment
   private maxSegment?: TimelineSegment
@@ -142,9 +138,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
       waterOnIce: this.drawWaterOnIceSign,
     }
 
-    this.darkColor = parameters.darkColor || 'black'
-    this.middleColor = parameters.middleColor || 'black'
-    this.lightColor = parameters.lightColor || 'black'
+    this.defaultColor = parameters.defaultColor || 'black'
     this.errorColor = parameters.errorColor || '#ea7060'
 
     this.iceDamBelowGroups = []
@@ -246,7 +240,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
     if (this.minSegment && this.maxSegment) {
       renderer.context.save()
       renderer.context.globalAlpha = 0.2
-      renderer.context.fillStyle = this.lightColor
+      renderer.context.fillStyle = this.defaultColor
       const x = this.complexGraph.calculator.area.x1 + this.minSegment.x1
       const w = this.maxSegment.x2 - this.minSegment.x1
       renderer.context.fillRect(x, this.lines[2].y, w, this.lines[2].height)
@@ -365,22 +359,22 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
 
   private drawShoreIce = (element: VisualizerElement<IceRulerValue>) => {
     this.drawRect(element.x, element.y, element.width, element.height, {
-      fill: this.darkColor,
+      fill: this.defaultColor,
     })
     this.drawRect(element.x, this.lines[7].y, element.width, element.height, {
-      fill: this.darkColor,
+      fill: this.defaultColor,
     })
   }
 
   private drawSludge = (element: VisualizerElement<IceRulerValue>) => {
     this.drawRect(element.x, element.y, element.width, element.height, {
-      fill: this.darkColor,
+      fill: this.defaultColor,
     })
   }
 
   private drawShoreIceSludge = (element: VisualizerElement<IceRulerValue>) => {
     this.drawRect(element.x, element.y, element.width, element.height, {
-      fill: this.darkColor,
+      fill: this.defaultColor,
     })
   }
 
@@ -392,31 +386,31 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
 
     for (let index = 0; index < s; index++) {
       const x = element.x + step * index
-      this.drawRect(x, element.y, step * 0.3, element.height, { fill: this.lightColor })
+      this.drawRect(x, element.y, step * 0.3, element.height, { fill: this.defaultColor })
     }
   }
 
   private drawIceDrift1 = (element: VisualizerElement<IceRulerValue>) => {
     this.drawRect(element.x, element.y, element.width, element.height, {
-      fill: this.lightColor,
+      fill: this.defaultColor,
     })
   }
 
   private drawIceDrift2 = (element: VisualizerElement<IceRulerValue>) => {
     this.drawRect(element.x, element.y, element.width, element.height, {
-      fill: this.lightColor,
+      fill: this.defaultColor,
     })
   }
 
   private drawIceDrift3 = (element: VisualizerElement<IceRulerValue>) => {
     this.drawRect(element.x, element.y, element.width, element.height, {
-      fill: this.lightColor,
+      fill: this.defaultColor,
     })
   }
 
   private drawFreezing = (element: VisualizerElement<IceRulerValue>) => {
     this.drawRect(element.x, element.y, element.width, element.height, {
-      fill: this.lightColor,
+      fill: this.defaultColor,
     })
   }
 
@@ -424,11 +418,11 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
     const clipSize = this.lines[3].height
 
     this.drawRect(element.x, element.y, element.width, element.height - clipSize, {
-      fill: this.lightColor,
+      fill: this.defaultColor,
     })
 
     this.drawRect(element.x, element.y + element.height - clipSize, element.width, clipSize - 1, {
-      stroke: this.lightColor,
+      stroke: this.defaultColor,
     })
   }
 
@@ -436,19 +430,19 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
     const clipSize = this.lines[3].height
 
     this.drawRect(element.x, element.y, element.width, element.height - clipSize * 3, {
-      fill: this.lightColor,
+      fill: this.defaultColor,
     })
 
     this.drawRect(element.x, element.y + element.height - clipSize * 3, element.width, clipSize, {
-      stroke: this.lightColor,
+      stroke: this.defaultColor,
     })
 
     this.drawRect(element.x, element.y + element.height - clipSize * 2, element.width, clipSize, {
-      fill: this.lightColor,
+      fill: this.defaultColor,
     })
 
     this.drawRect(element.x, element.y + element.height - clipSize, element.width, clipSize - 1, {
-      stroke: this.lightColor,
+      stroke: this.defaultColor,
     })
   }
 
@@ -460,7 +454,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
     const y = this.lines[9].y
     const h = this.lines[1].y - this.lines[9].y + this.lines[1].height
 
-    this.drawRect(x, y, w, h, { fill: this.darkColor })
+    this.drawRect(x, y, w, h, { fill: this.defaultColor })
   }
 
   private drawError = (element: VisualizerElement<IceRulerValue>) => {
@@ -493,7 +487,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
   }
 
   private drawWaterOnIceSign = (element: VisualizerElement<IceRulerValue>) => {
-    this.drawSpecialRect(element, this.lines[8], { stroke: this.lightColor })
+    this.drawSpecialRect(element, this.lines[8], { stroke: this.defaultColor })
   }
 
   private drawIceJamBelowSign = (element: VisualizerElement<IceRulerValue>) => {
@@ -516,7 +510,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
     )
     const o = this.lines[8].height - s
 
-    this.drawTriangle(x, y + o, s, this.middleColor, r)
+    this.drawTriangle(x, y + o, s, this.defaultColor, r)
   }
 
   private drawIceDamBelowSign = (
@@ -534,7 +528,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
       renderer.context.lineTo(x + s, y + s)
       renderer.context.stroke()
 
-      this.drawTriangle(x, y - s, s, this.middleColor, true)
+      this.drawTriangle(x, y - s, s, this.defaultColor, true)
     }
   }
 
@@ -553,7 +547,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
       renderer.context.lineTo(x + s, y - s)
       renderer.context.stroke()
 
-      this.drawTriangle(x, y, s, this.middleColor)
+      this.drawTriangle(x, y, s, this.defaultColor)
     }
   }
 
@@ -572,7 +566,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
     const y = this.lines[8].y + o1
     const offset = s * 3
 
-    renderer.context.strokeStyle = this.middleColor
+    renderer.context.strokeStyle = this.defaultColor
     renderer.context.save()
     renderer.context.beginPath()
     renderer.context.setLineDash([10])

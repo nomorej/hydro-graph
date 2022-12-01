@@ -260,9 +260,7 @@ export function qwikStart(parameters: QwikStartParameters) {
         name: 'Ледовая линейка',
         row: 3,
         rowFactor: 0.3,
-        darkColor: '#343a40',
-        middleColor: '#495057',
-        lightColor: '#6c757d',
+        defaultColor: '#6c757d',
 
         groups: {
           sludge: {
