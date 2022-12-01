@@ -9,13 +9,14 @@ export class Print extends Plugin {
     this.button = document.createElement('button')
 
     this.button.style.cssText = `
+      --size:calc(var(--cg-scalar) * 25);
       position: absolute;
       left: 100%;
       bottom: 100%;
-      width: 3.5vmin;
-      height: 3.5vmin;
+      width: var(--size);
+      height: var(--size);
       border: none;
-      transform: translateX(-3.5vmin);
+      transform: translateX(calc(var(--size) * -1));
       background: none;
     `
 

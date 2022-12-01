@@ -34,6 +34,7 @@ export class ComplexGraph {
   public readonly events: Events<{
     pointermove(mouse: XY, mouseZoomed: XY, event: MouseEvent): void
     pointerleave(event: MouseEvent): void
+    resize(scalar: number): void
   }>
   public readonly mouse: XY
   public readonly mouseZoomed: XY
@@ -50,6 +51,8 @@ export class ComplexGraph {
   }
 
   private readonly plugins: Set<Plugin>
+
+  private readonly resizeObserver: ResizeObserver
 
   constructor(parameters: Parameters) {
     this.wrapper = parameters.wrapper
@@ -112,6 +115,9 @@ export class ComplexGraph {
     this.renderer.canvasElement.addEventListener('pointermove', this.handlePointerMove)
     this.renderer.canvasElement.addEventListener('click', this.handlePointerMove)
     this.renderer.canvasElement.addEventListener('pointerleave', this.handlePointerLeave)
+
+    this.resizeObserver = new ResizeObserver(this.resize)
+    this.resizeObserver.observe(this.container)
   }
 
   public destroy() {
@@ -127,6 +133,7 @@ export class ComplexGraph {
     this.renderer.destroy()
     this.plugins.forEach((p) => p.onDestroy?.())
 
+    this.resizeObserver.disconnect()
     this.wrapper.removeChild(this.container)
   }
 
@@ -284,5 +291,11 @@ export class ComplexGraph {
 
   private handlePointerLeave = (event: MouseEvent) => {
     this.events.notify('pointerleave', event)
+  }
+
+  private resize = () => {
+    const scalar = this.renderer.size.x * 0.001
+    this.container.style.setProperty('--cg-scalar', scalar + 'px')
+    this.events.notify('resize', scalar)
   }
 }

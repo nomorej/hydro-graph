@@ -179,7 +179,6 @@ export class Valves extends Plugin {
   private categories: Array<Category>
   private readonly container: HTMLElement
   private readonly styles: HTMLStyleElement
-  private resizeObserver: ResizeObserver
 
   constructor() {
     super()
@@ -191,13 +190,10 @@ export class Valves extends Plugin {
 
     this.styles = document.createElement('style')
     document.head.appendChild(this.styles)
-
-    this.resizeObserver = new ResizeObserver(this.resize)
   }
 
   public override onDestroy() {
     document.head.removeChild(this.styles)
-    this.resizeObserver.disconnect()
   }
 
   public override onCreate() {
@@ -215,7 +211,7 @@ export class Valves extends Plugin {
 
       .cg-buttons {
 
-        --size: calc(var(--fs) * 30);
+        --size: calc(var(--cg-scalar) * 30);
         position: absolute;
         top: calc(var(--size) * -1);
         left: 0;
@@ -232,8 +228,8 @@ export class Valves extends Plugin {
       }
 
       .cg-button {
-        font-size: calc(var(--fs) * 10);
-        padding: 0 calc(var(--fs) * 10);
+        font-size: calc(var(--cg-scalar) * 10);
+        padding: 0 calc(var(--cg-scalar) * 10);
         height: var(--size);
         background-color: #4C6EF5;
         color: white;
@@ -292,16 +288,10 @@ export class Valves extends Plugin {
       }
 
       .cg-graphs-buttons .cg-button {
-        font-size: calc(var(--fs) * 12);
+        font-size: calc(var(--cg-scalar) * 12);
         text-align:left;
         justify-content: flex-start;
       }
     `
-
-    this.resizeObserver.observe(this.complexGraph.container)
-  }
-
-  private resize = () => {
-    this.container.style.setProperty('--fs', this.complexGraph.renderer.size.x * 0.001 + 'px')
   }
 }

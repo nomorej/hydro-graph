@@ -98,6 +98,14 @@ export class Scrollbar extends Object {
     }
   }
 
+  public override onResize() {
+    if (matchMedia('(max-width: 1024px)').matches) {
+      this.bar.style.display = 'none'
+    } else {
+      this.bar.style.display = ''
+    }
+  }
+
   private handlePointerEnter = () => {
     const { scene } = this.complexGraph
     this.hovered = true
