@@ -241,6 +241,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
     const { renderer } = this.complexGraph
 
     renderer.context.lineJoin = 'miter'
+    renderer.context.lineWidth = (renderer.minSize * 0.002) / renderer.pixelRatio
 
     if (this.minSegment && this.maxSegment) {
       renderer.context.save()
@@ -466,7 +467,6 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
     const { renderer, scene } = this.complexGraph
 
     renderer.context.strokeStyle = this.errorColor
-    renderer.context.lineWidth = 1 / renderer.pixelRatio
 
     const s = Math.ceil(scene.zoom / 4)
     const step = element.width / s
@@ -475,7 +475,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
 
     for (let index = 0; index < s; index++) {
       renderer.context.beginPath()
-      const x = element.x + 1
+      const x = element.x
       renderer.context.moveTo(x + step * index, element.y)
       renderer.context.lineTo(x + step * (index + 0.85), element.y + h)
 
