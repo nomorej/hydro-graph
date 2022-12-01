@@ -1,4 +1,4 @@
-import { qwikStart } from '../src'
+import { qwikStart, QwikStartParameters } from '../src'
 import { airTemperatureData } from './airTemperatureData'
 import { iceRulerData } from './iceRulerData'
 import { monthsData } from './monthsData'
@@ -9,7 +9,7 @@ import { waterLevelData } from './waterLevelData'
 import { waterTemperatureData } from './waterTemperatureData'
 import { waterСonsumptionData } from './waterСonsumptionData'
 
-const graph = qwikStart({
+const graphParameters: QwikStartParameters = {
   wrapper: document.getElementById('graph')!,
   months: monthsData(),
   data: {
@@ -22,10 +22,14 @@ const graph = qwikStart({
     iceRuler: iceRulerData(),
     waterСonsumption: waterСonsumptionData(),
   },
-})
+}
+
+const graph = qwikStart(graphParameters)
 
 addEventListener('keydown', (e) => {
   if (e.key === 'd') {
     graph.destroy()
+  } else if (e.key === 'r') {
+    graph.recreate(graphParameters, true)
   }
 })

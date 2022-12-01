@@ -1,7 +1,7 @@
 import { Object, ObjectParameters } from './Object'
 import { Primitive } from './Primitive'
 import { Scale, ScaleParameters } from './Scale'
-import { Timeline, TimelineSegment } from './Timeline'
+import { Timeline, TimelineDay, TimelineHour, TimelineMonth, TimelineSegment } from './Timeline'
 
 export type VisualizerElementComment = string | Array<string>
 
@@ -17,7 +17,7 @@ export class VisualizerElement<V> {
   public y: number
   public width: number
   public height: number
-  public readonly new?: boolean
+  public new?: boolean
   public readonly segment: TimelineSegment
   public readonly value: V
   public readonly comment: Array<string>
@@ -64,6 +64,7 @@ export interface VisualizerGroupParametersData<V> {
 export interface VisualizerGroupParameters<V, K extends string = 'default'> {
   name: K
   data: VisualizerGroupParametersData<V>
+  maxDaysGap?: number
 }
 
 export class VisualizerGroup<V, K extends string = 'default'> {
@@ -73,6 +74,7 @@ export class VisualizerGroup<V, K extends string = 'default'> {
   public monthsData: VisualizerGroupData<V>
   public elements: Array<VisualizerElement<V>>
   public isVisible: boolean
+  private readonly maxDaysGap?: number
 
   constructor(public readonly dr: Visualizer<V, K>, parameters: VisualizerGroupParameters<V, K>) {
     this.name = parameters.name
@@ -81,6 +83,7 @@ export class VisualizerGroup<V, K extends string = 'default'> {
     this.monthsData = parameters.data.months
     this.elements = []
     this.isVisible = true
+    this.maxDaysGap = parameters.maxDaysGap
   }
 
   public generateElements(timeline: Timeline) {
@@ -109,6 +112,37 @@ export class VisualizerGroup<V, K extends string = 'default'> {
         }
       })
     })
+
+    this.elements.sort(
+      (a, b) =>
+        Timeline.getHourSegment(a.segment).hoursBefore -
+        Timeline.getHourSegment(b.segment).hoursBefore
+    )
+
+    if (this.maxDaysGap) {
+      let previous: VisualizerElement<any> | undefined
+      let ind = 0
+
+      this.elements.forEach((el) => {
+        if (!el.new) {
+          if (
+            ind > 1 &&
+            previous &&
+            Timeline.getDaySegment(el.segment).daysBefore -
+              Timeline.getDaySegment(previous.segment).daysBefore >
+              this.maxDaysGap!
+          ) {
+            el.new = true
+            ind = 0
+          }
+        } else {
+          ind = 0
+        }
+
+        ind++
+        previous = el
+      })
+    }
   }
 
   public show() {
@@ -128,6 +162,7 @@ export interface VisualizerParameters<V, K extends string = 'default'> extends O
   }
   scale?: ScaleParameters
   paddingBottom?: number
+  maxDaysGap?: number
 }
 
 export abstract class Visualizer<V, K extends string = 'default'> extends Object {
@@ -157,6 +192,7 @@ export abstract class Visualizer<V, K extends string = 'default'> extends Object
           new VisualizerGroup(this, {
             name: key as K,
             data: parameters.groups[key]!,
+            maxDaysGap: parameters.maxDaysGap,
           })
         )
       }

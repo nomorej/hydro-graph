@@ -125,6 +125,7 @@ export function qwikStart(parameters: QwikStartParameters) {
         name: 'Температура воздуха',
         row: 0,
         rowFactor: 1,
+        maxDaysGap: 3,
         scale: {
           title: 't воздуха °C',
           color: '#B13007',
@@ -208,6 +209,7 @@ export function qwikStart(parameters: QwikStartParameters) {
         name: 'Снег, Лед',
         row: 2,
         rowFactor: 0.5,
+        maxDaysGap: 3,
         scale: {
           title: 'Снег, лед см',
           color: '#A7C7E0',
@@ -235,6 +237,7 @@ export function qwikStart(parameters: QwikStartParameters) {
         name: 'Температура воды',
         row: 2,
         rowFactor: 0.5,
+        maxDaysGap: 3,
         scale: {
           title: 't воды °C',
           color: '#B13007',
@@ -323,6 +326,7 @@ export function qwikStart(parameters: QwikStartParameters) {
       new WaterLevel({
         name: 'Уровень воды',
         row: 4,
+        maxDaysGap: 3,
         scale: {
           title: 'Ур. воды, см',
           step: 25,
@@ -348,6 +352,7 @@ export function qwikStart(parameters: QwikStartParameters) {
       new WaterСonsumption({
         name: 'Расходы воды',
         row: 4,
+        maxDaysGap: 3,
         scale: {
           title: 'Расход м / c',
           position: 'right',
@@ -391,14 +396,28 @@ export function qwikStart(parameters: QwikStartParameters) {
   let cg = create(parameters)
 
   const state = {
-    recreate(parameters: QwikStartParameters) {
-      const sizeProgress = cg.scene.size.progress.target
-      const positionProgress = cg.scene.position.progress.target
-      const zoom = cg.scene.zoom
+    /**
+     * Уничтожает предыдущий график и создает новый
+     * @param parameters - новые параметры
+     * @param previousZoom - используется позиция и увеличение предыдущего графика
+     */
+    recreate(parameters: QwikStartParameters, previousZoom = false) {
+      let sizeProgress: undefined | number
+      let positionProgress: undefined | number
+      let zoom: undefined | number
+
+      if (previousZoom) {
+        sizeProgress = cg.scene.size.progress.target
+        positionProgress = cg.scene.position.progress.target
+        zoom = cg.scene.zoom
+      }
 
       cg.destroy()
       cg = create({ ...parameters, zoom, sizeProgress, positionProgress })
     },
+    /**
+     * уничтожает все слушатели и элементы
+     */
     destroy() {
       cg.destroy()
     },

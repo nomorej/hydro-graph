@@ -1,4 +1,10 @@
-import { TimelineDay, TimelineHour, TimelineMonth, TimelineSegment } from '../core/Timeline'
+import {
+  Timeline,
+  TimelineDay,
+  TimelineHour,
+  TimelineMonth,
+  TimelineSegment,
+} from '../core/Timeline'
 import {
   Visualizer,
   VisualizerElement,
@@ -193,25 +199,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
       })
     })
 
-    const getHourSegment = (element: VisualizerElement<IceRulerValue>): TimelineHour => {
-      if (element.segment instanceof TimelineDay) {
-        return element.segment.hours[0]
-      } else if (element.segment instanceof TimelineMonth) {
-        return element.segment.days[0].hours[0]
-      }
-
-      return element.segment as TimelineHour
-    }
-
     const groupDam = (list: Array<IceRulerSaved>, groups: DamGroups) => {
-      const sort = (r: Array<IceRulerSaved>) => {
-        r.sort((a, b) => {
-          return getHourSegment(a.element).hoursBefore - getHourSegment(b.element).hoursBefore
-        })
-      }
-
-      sort(list)
-
       let acc = 0
 
       for (let index = 0; index < list.length; index++) {
@@ -225,8 +213,8 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerGroupsNames> {
 
         const itemPrev = list[index - 1]
         const delta =
-          getHourSegment(itemCurrent.element).hoursBefore -
-          getHourSegment(itemPrev.element).hoursBefore
+          Timeline.getHourSegment(itemCurrent.element.segment).hoursBefore -
+          Timeline.getHourSegment(itemPrev.element.segment).hoursBefore
 
         if (delta === 23 || delta === 1) {
           groups[acc].push(itemCurrent)

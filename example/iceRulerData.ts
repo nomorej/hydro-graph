@@ -19,11 +19,27 @@ export function iceRulerData(): QwikStartIceRuler {
 }
 
 function sludge(): QwikStartIceRuler['sludge'] {
-  return distributeData<IceRulerValue>([])
+  return distributeData<IceRulerValue>([
+    {
+      date: [2, 27],
+      data: {
+        value: {},
+        comment: '????',
+      },
+    },
+  ])
 }
 
 function shoreIce(): QwikStartIceRuler['shoreIce'] {
-  return distributeData<IceRulerValue>([])
+  return distributeData<IceRulerValue>([
+    {
+      date: [3, 2],
+      data: {
+        value: {},
+        comment: ['Опасное явление !!!'],
+      },
+    },
+  ])
 }
 
 function shoreIceSludge(): QwikStartIceRuler['shoreIceSludge'] {
@@ -32,7 +48,7 @@ function shoreIceSludge(): QwikStartIceRuler['shoreIceSludge'] {
       date: [3, 5],
       data: {
         value: {},
-        comment: 'Опасное явление',
+        comment: ['Опасное явление'],
       },
     },
   ])
@@ -44,7 +60,7 @@ function frazilDrift1(): QwikStartIceRuler['frazilDrift1'] {
       date: [3, 10],
       data: {
         value: {},
-        comment: 'Что-то произошло',
+        comment: ['Что-то произошло'],
       },
     },
   ])
@@ -264,5 +280,34 @@ function iceClearing(): QwikStartIceRuler['iceClearing'] {
 }
 
 function error(): QwikStartIceRuler['error'] {
-  return distributeData<IceRulerValue>([])
+  return distributeData<IceRulerValue>([
+    {
+      date: [4, 10],
+      data: {
+        value: {},
+        comment: ['Ошибка 1'],
+      },
+    },
+    {
+      date: [4, 11],
+      data: {
+        value: {},
+        comment: ['Ошибка'],
+      },
+    },
+    {
+      date: [4, 12],
+      data: {
+        value: {},
+        comment: ['Ошибка'],
+      },
+    },
+    {
+      date: [4, 15],
+      data: {
+        value: {},
+        comment: ['Ошибка'],
+      },
+    },
+  ])
 }

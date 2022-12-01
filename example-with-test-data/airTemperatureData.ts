@@ -23,7 +23,7 @@ function middle(months: Months): QwikStartAirTemperature['middle'] {
 }
 
 function min(months: Months): QwikStartAirTemperature['min'] {
-  return testData(months, { minus: true })
+  return testData(months, { minus: true, skip: 0.4 })
 }
 
 function post(months: Months): QwikStartAirTemperature['post'] {

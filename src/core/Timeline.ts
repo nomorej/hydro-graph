@@ -118,6 +118,36 @@ export class TimelineMonth extends TimelineSegment {
 }
 
 export class Timeline {
+  public static getHourSegment(segment: TimelineSegment) {
+    if (segment instanceof TimelineDay) {
+      return segment.hours[0]
+    } else if (segment instanceof TimelineMonth) {
+      return segment.days[0].hours[0]
+    }
+
+    return segment as TimelineHour
+  }
+
+  public static getDaySegment(segment: TimelineSegment) {
+    if (segment instanceof TimelineHour) {
+      return segment.day
+    } else if (segment instanceof TimelineMonth) {
+      return segment.days[0]
+    }
+
+    return segment as TimelineDay
+  }
+
+  public static getMonthSegment(segment: TimelineSegment) {
+    if (segment instanceof TimelineHour) {
+      return segment.day.month
+    } else if (segment instanceof TimelineDay) {
+      return segment.month
+    }
+
+    return segment as TimelineMonth
+  }
+
   public readonly months: Array<TimelineMonth>
 
   constructor(data: TimelineMonthsData) {
