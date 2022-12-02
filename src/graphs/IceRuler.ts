@@ -8,48 +8,54 @@ import {
 import { Segmentator } from '../tools/Segmentator'
 import { clamp } from '../utils/math'
 
-export type IceRulerFill =
-  | 'sludge'
-  | 'shoreIce'
-  | 'shoreIceSludge'
-  | 'frazilDrift1'
-  | 'frazilDrift2'
-  | 'frazilDrift3'
-  | 'iceDrift1'
-  | 'iceDrift2'
-  | 'iceDrift3'
-  | 'freezing'
-  | 'flangeIce'
-  | 'iceClearing'
-  | 'error'
-  | 'none'
+export const iceRulerFills = {
+  '0': 'none',
+  '1': 'sludge',
+  '2': 'shoreIceSludge',
+  '3': 'shoreIce',
+  '4': 'iceDrift1',
+  '5': 'iceDrift2',
+  '6': 'iceDrift3',
+  '7': 'iceClearing',
+  '8': 'freezing',
+  '9': 'frazilDrift1',
+  '10': 'frazilDrift2',
+  '11': 'frazilDrift3',
+  '12': 'flangeIce',
+  '13': 'error',
+} as const
 
-export type IceRulerUpperSign =
-  | 'waterOnIce'
-  | 'iceJamBelow'
-  | 'iceJamAbove'
-  | 'iceDamBelow'
-  | 'iceDamAbove'
+export const iceRulerUpperSigns = {
+  '1': 'waterOnIce',
+  '2': 'iceJamBelow',
+  '3': 'iceJamAbove',
+  '4': 'iceDamBelow',
+  '5': 'iceDamAbove',
+} as const
+
+export type IceRulerFillNames = typeof iceRulerFills[keyof typeof iceRulerFills]
+
+export type IceRulerUpperSignNames = typeof iceRulerUpperSigns[keyof typeof iceRulerUpperSigns]
 
 export type IceRulerValue = {
   iceShove?: boolean
-  upperSign?: IceRulerUpperSign
+  upperSign?: IceRulerUpperSignNames
 }
 
-export interface IceRulerParameters extends VisualizerParameters<IceRulerValue, IceRulerFill> {
+export interface IceRulerParameters extends VisualizerParameters<IceRulerValue, IceRulerFillNames> {
   defaultColor?: string
   errorColor?: string
 }
 
-export type IceRulerLinesNames = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10'
+type IceRulerLinesNames = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10'
 
-export type IceRulerLines = {
+type IceRulerLines = {
   [k in IceRulerLinesNames]: { y: number; height: number }
 }
 
 interface IceRulerSaved {
   element: VisualizerElement<IceRulerValue>
-  group: VisualizerGroup<IceRulerValue, IceRulerFill>
+  group: VisualizerGroup<IceRulerValue, IceRulerFillNames>
 }
 
 type DamGroups = Array<Array<IceRulerSaved>>
@@ -62,12 +68,12 @@ interface SpecialRectOptions {
   fill?: string | false
 }
 
-export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
+export class IceRuler extends Visualizer<IceRulerValue, IceRulerFillNames> {
   public readonly lines: IceRulerLines
   private readonly segmentator: Segmentator
 
   private readonly drawFunctionsMap: {
-    [key in IceRulerFill | IceRulerUpperSign]:
+    [key in IceRulerFillNames | IceRulerUpperSignNames]:
       | IceRuler['drawNone']
       | IceRuler['drawError']
       | IceRuler['drawFlangeIce']
@@ -154,20 +160,20 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
     this.groups.forEach((group) => {
       group.elements.forEach((element) => {
         if (!this.minSegment) {
-          this.minSegment = element.segment
+          this.minSegment = element.startSegment
         } else {
           this.minSegment =
-            element.segment.x1Normalized < this.minSegment.x1Normalized
-              ? element.segment
+            element.startSegment.x1Normalized < this.minSegment.x1Normalized
+              ? element.startSegment
               : this.minSegment
         }
 
         if (!this.maxSegment) {
-          this.maxSegment = element.segment
+          this.maxSegment = element.startSegment
         } else {
           this.maxSegment =
-            element.segment.x1Normalized > this.maxSegment.x1Normalized
-              ? element.segment
+            element.startSegment.x1Normalized > this.maxSegment.x1Normalized
+              ? element.startSegment
               : this.maxSegment
         }
 
@@ -198,9 +204,7 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
         if (!list[index - 1]) continue
 
         const itemPrev = list[index - 1]
-        const delta =
-          Timeline.getHourSegment(itemCurrent.element.segment).hoursBefore -
-          Timeline.getHourSegment(itemPrev.element.segment).hoursBefore
+        const delta = itemCurrent.element.startSegment.index - itemPrev.element.startSegment.index
 
         if (delta === 23 || delta === 1) {
           groups[acc].push(itemCurrent)
@@ -220,14 +224,10 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
       allElements = [...allElements, ...g.elements]
     })
 
-    allElements.sort(
-      (a, b) =>
-        Timeline.getHourSegment(a.segment).hoursBefore -
-        Timeline.getHourSegment(b.segment).hoursBefore
-    )
+    allElements.sort((a, b) => a.startSegment.index - b.startSegment.index)
 
     allElements.forEach((el, i) => {
-      el.nextSegment = allElements[i + 1]?.segment
+      el.endSegment = allElements[i + 1]?.startSegment || el.endSegment.nextDaySegment
     })
   }
 
@@ -293,10 +293,8 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
       if (!group.isVisible) return
 
       group.elements.forEach((element) => {
-        element.width =
-          (element.nextSegment?.x1 || Timeline.getDaySegment(element.segment).x2) -
-          element.segment.x1
-        element.x = this.complexGraph.calculator.area.x1 + element.segment.x1
+        element.width = element.endSegment.x1 - element.startSegment.x1
+        element.x = this.complexGraph.calculator.area.x1 + element.startSegment.x1
 
         if (group.name === 'sludge' || group.name === 'shoreIceSludge') {
           element.height = Math.max(
@@ -415,35 +413,61 @@ export class IceRuler extends Visualizer<IceRulerValue, IceRulerFill> {
   }
 
   private drawFlangeIce = (element: VisualizerElement<IceRulerValue>) => {
+    const { renderer } = this.complexGraph
+
     const clipSize = this.lines[3].height
 
     this.drawRect(element.x, element.y, element.width, element.height - clipSize, {
       fill: this.defaultColor,
     })
 
-    this.drawRect(element.x, element.y + element.height - clipSize, element.width, clipSize - 1, {
-      stroke: this.defaultColor,
-    })
+    const offset = renderer.context.lineWidth / 2
+
+    this.drawRect(
+      element.x + offset,
+      element.y + element.height - clipSize,
+      element.width - offset,
+      clipSize - offset,
+      {
+        stroke: this.defaultColor,
+      }
+    )
   }
 
   private drawIceClearing = (element: VisualizerElement<IceRulerValue>) => {
+    const { renderer } = this.complexGraph
+
     const clipSize = this.lines[3].height
+
+    const offset = renderer.context.lineWidth / 2
 
     this.drawRect(element.x, element.y, element.width, element.height - clipSize * 3, {
       fill: this.defaultColor,
     })
 
-    this.drawRect(element.x, element.y + element.height - clipSize * 3, element.width, clipSize, {
-      stroke: this.defaultColor,
-    })
+    this.drawRect(
+      element.x + offset,
+      element.y + element.height - clipSize * 3,
+      element.width - offset,
+      clipSize,
+      {
+        stroke: this.defaultColor,
+      }
+    )
 
     this.drawRect(element.x, element.y + element.height - clipSize * 2, element.width, clipSize, {
       fill: this.defaultColor,
     })
 
-    this.drawRect(element.x, element.y + element.height - clipSize, element.width, clipSize - 1, {
-      stroke: this.defaultColor,
-    })
+    this.drawRect(
+      element.x + offset,
+      element.y + element.height - clipSize,
+      element.width - offset,
+      clipSize - offset,
+      {
+        stroke: this.defaultColor,
+      }
+    )
   }
 
   private drawIceShove = (element: VisualizerElement<IceRulerValue>) => {

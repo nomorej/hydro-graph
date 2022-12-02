@@ -73,14 +73,16 @@ export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationG
     this.groups.forEach((group) => {
       if (!group.isVisible) return
       group.elements.forEach((element) => {
-        element.width = element.segment.width
+        element.width = element.endSegment.x1 - element.startSegment.x1
+
         if (typeof element.value === 'object') {
           const acc = element.value.liquid + element.value.solid
           element.height = heightStep * (acc - this.min)
         } else {
           element.height = heightStep * (element.value - this.min)
         }
-        element.x = this.complexGraph.calculator.area.x1 + element.segment.x1
+
+        element.x = this.complexGraph.calculator.area.x1 + element.startSegment.x1
         element.y = this.row.y2 - element.height
       })
     })

@@ -65,9 +65,9 @@ export class SnowIce extends Visualizer<SnowIceValue> {
     this.groups.forEach((group) => {
       if (!group.isVisible) return
       group.elements.forEach((element) => {
-        element.width = element.segment.width
+        element.width = element.endSegment.x1 - element.startSegment.x1
         element.height = heightStep * (element.value.snow - this.min)
-        element.x = this.complexGraph.calculator.area.x1 + element.segment.x1
+        element.x = this.complexGraph.calculator.area.x1 + element.startSegment.x1
         element.y = this.row.y2 - element.height
       })
     })

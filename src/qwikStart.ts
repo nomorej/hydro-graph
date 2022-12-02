@@ -1,8 +1,9 @@
 import { ComplexGraph, Parameters } from './core/ComplexGraph'
 import { SceneParameters } from './core/Scene'
+import { TimelineParameters } from './core/Timeline'
 import { VisualizerGroupData } from './core/Visualizer'
 import { AirTemperature, AirTemperatureGroupsNames } from './graphs/AirTemperature'
-import { IceRuler, IceRulerFill, IceRulerValue } from './graphs/IceRuler'
+import { IceRuler, IceRulerFillNames, IceRulerValue } from './graphs/IceRuler'
 import { Precipitation, PrecipitationGroupsNames, PrecipitationValue } from './graphs/Precipitation'
 import { SnowIce, SnowIceValue } from './graphs/SnowIce'
 import { WaterLevel } from './graphs/WaterLevel'
@@ -15,7 +16,6 @@ import { Timeline } from './objects/Timeline'
 import { Print } from './plugins/Print'
 import { Tooltips } from './plugins/Tooltips'
 import { Valves } from './plugins/Valves'
-import { Months } from './utils/getMonths'
 
 const phasesPresets = {
   ОР: {
@@ -63,7 +63,7 @@ export type QwikStartWaterTemperature = { default?: VisualizerGroupData<number> 
 export type QwikStartSnowIce = { default?: VisualizerGroupData<SnowIceValue> }
 
 export type QwikStartIceRuler = {
-  [key in IceRulerFill]?: VisualizerGroupData<IceRulerValue>
+  [key in IceRulerFillNames]?: VisualizerGroupData<IceRulerValue>
 }
 
 export type QwikStartWaterLevel = {
@@ -86,15 +86,15 @@ export type QwikStartPhases = Array<{
 export interface QwikStartParameters
   extends Pick<Parameters, 'wrapper' | 'font' | keyof SceneParameters> {
   leapYear?: boolean
-  months: Months
+  timeline: TimelineParameters
   data: {
-    airTemperature: QwikStartAirTemperature
-    precipitation: QwikStartPrecipitation
-    waterTemperature: QwikStartWaterTemperature
-    snowIce: QwikStartSnowIce
-    iceRuler: QwikStartIceRuler
-    waterlevel: QwikStartWaterLevel
-    waterСonsumption: QwikStartWaterConsumption
+    airTemperature?: QwikStartAirTemperature
+    precipitation?: QwikStartPrecipitation
+    waterTemperature?: QwikStartWaterTemperature
+    snowIce?: QwikStartSnowIce
+    iceRuler?: QwikStartIceRuler
+    waterlevel?: QwikStartWaterLevel
+    waterСonsumption?: QwikStartWaterConsumption
     phases?: QwikStartPhases
   }
 }
@@ -135,37 +135,37 @@ export function qwikStart(parameters: QwikStartParameters) {
         },
         groups: {
           min: {
-            months: parameters.data.airTemperature.min || [],
+            data: parameters.data.airTemperature?.min || [],
             title: 'Минимальная',
             color: '#0066FF',
           },
           middle: {
-            months: parameters.data.airTemperature.middle || [],
+            data: parameters.data.airTemperature?.middle || [],
             title: 'Средняя',
             color: '#6B6C7E',
           },
           max: {
-            months: parameters.data.airTemperature.max || [],
+            data: parameters.data.airTemperature?.max || [],
             title: 'Минимальная',
             color: '#D72929',
           },
           post: {
-            months: parameters.data.airTemperature.post || [],
+            data: parameters.data.airTemperature?.post || [],
             title: 'С поста',
             color: '#B016C9',
           },
           sumTempAll: {
-            months: parameters.data.airTemperature.sumTempAll || [],
+            data: parameters.data.airTemperature?.sumTempAll || [],
             title: 'CТ: Осень / Весна',
             color: '#561087',
           },
           sumTempAutumn: {
-            months: parameters.data.airTemperature.sumTempAutumn || [],
+            data: parameters.data.airTemperature?.sumTempAutumn || [],
             title: 'CТ: Осень',
             color: '#188A1A',
           },
           sumTempSpring: {
-            months: parameters.data.airTemperature.sumTempSpring || [],
+            data: parameters.data.airTemperature?.sumTempSpring || [],
             title: 'CТ: Весна',
             color: '#B0433F',
           },
@@ -187,17 +187,17 @@ export function qwikStart(parameters: QwikStartParameters) {
         },
         groups: {
           solid: {
-            months: parameters.data.precipitation.solid || [],
+            data: parameters.data.precipitation?.solid || [],
             title: 'Твердые',
             color: '#00b1ff',
           },
           liquid: {
-            months: parameters.data.precipitation.liquid || [],
+            data: parameters.data.precipitation?.liquid || [],
             title: 'Жидкие',
             color: '#136945',
           },
           mixed: {
-            months: parameters.data.precipitation.mixed || [],
+            data: parameters.data.precipitation?.mixed || [],
             title: 'Смешанные',
           },
         },
@@ -224,7 +224,7 @@ export function qwikStart(parameters: QwikStartParameters) {
         iceStrokeColor: '#1588ff',
         groups: {
           default: {
-            months: parameters.data.snowIce.default || [],
+            data: parameters.data.snowIce?.default || [],
             color: '#80c8ff',
             title: 'Снег',
           },
@@ -247,7 +247,7 @@ export function qwikStart(parameters: QwikStartParameters) {
         },
         groups: {
           default: {
-            months: parameters.data.waterTemperature.default || [],
+            data: parameters.data.waterTemperature?.default || [],
             color: '#EF543F',
           },
         },
@@ -264,59 +264,59 @@ export function qwikStart(parameters: QwikStartParameters) {
 
         groups: {
           sludge: {
-            months: parameters.data.iceRuler.sludge || [],
+            data: parameters.data.iceRuler?.sludge || [],
             // title: 'Сало',
           },
           shoreIce: {
-            months: parameters.data.iceRuler.shoreIce || [],
+            data: parameters.data.iceRuler?.shoreIce || [],
             // title: 'Заберег',
           },
           shoreIceSludge: {
-            months: parameters.data.iceRuler.shoreIceSludge || [],
+            data: parameters.data.iceRuler?.shoreIceSludge || [],
             // title: 'Сало при забереге',
           },
           frazilDrift1: {
-            months: parameters.data.iceRuler.frazilDrift1 || [],
+            data: parameters.data.iceRuler?.frazilDrift1 || [],
             // title: 'Редкий шугоход',
           },
           frazilDrift2: {
-            months: parameters.data.iceRuler.frazilDrift2 || [],
+            data: parameters.data.iceRuler?.frazilDrift2 || [],
             // title: 'Средний шугоход',
           },
           frazilDrift3: {
-            months: parameters.data.iceRuler.frazilDrift3 || [],
+            data: parameters.data.iceRuler?.frazilDrift3 || [],
             // title: 'Густой шугоход',
           },
           iceDrift1: {
-            months: parameters.data.iceRuler.iceDrift1 || [],
+            data: parameters.data.iceRuler?.iceDrift1 || [],
             // title: 'Редкий ледоход',
           },
           iceDrift2: {
-            months: parameters.data.iceRuler.iceDrift2 || [],
+            data: parameters.data.iceRuler?.iceDrift2 || [],
             // title: 'Средний ледоход',
           },
           iceDrift3: {
-            months: parameters.data.iceRuler.iceDrift3 || [],
+            data: parameters.data.iceRuler?.iceDrift3 || [],
             // title: 'Густой ледоход',
           },
           freezing: {
-            months: parameters.data.iceRuler.freezing || [],
+            data: parameters.data.iceRuler?.freezing || [],
             // title: 'Ледостав',
           },
           flangeIce: {
-            months: parameters.data.iceRuler.flangeIce || [],
+            data: parameters.data.iceRuler?.flangeIce || [],
             // title: 'Закраины',
           },
           iceClearing: {
-            months: parameters.data.iceRuler.iceClearing || [],
+            data: parameters.data.iceRuler?.iceClearing || [],
             // title: 'Разводья',
           },
           error: {
-            months: parameters.data.iceRuler.error || [],
+            data: parameters.data.iceRuler?.error || [],
             // title: 'Ошибки',
           },
           none: {
-            months: parameters.data.iceRuler.none || [],
+            data: parameters.data.iceRuler?.none || [],
             // title: 'Ошибки',
           },
         },
@@ -338,11 +338,11 @@ export function qwikStart(parameters: QwikStartParameters) {
         },
         adverseEventColor: 'orange',
         dangerousEventColor: 'red',
-        adverseEventValue: parameters.data.waterlevel.adverse,
-        dangerousEventValue: parameters.data.waterlevel.dangerous,
+        adverseEventValue: parameters.data.waterlevel?.adverse,
+        dangerousEventValue: parameters.data.waterlevel?.dangerous,
         groups: {
           default: {
-            months: parameters.data.waterlevel.default || [],
+            data: parameters.data.waterlevel?.default || [],
             color: '#0066FF',
           },
         },
@@ -364,22 +364,22 @@ export function qwikStart(parameters: QwikStartParameters) {
         },
         groups: {
           calculated: {
-            months: parameters.data.waterСonsumption.calculated || [],
+            data: parameters.data.waterСonsumption?.calculated || [],
             title: 'Рассчитанные',
             color: 'brown',
           },
           measured: {
-            months: parameters.data.waterСonsumption.measured || [],
+            data: parameters.data.waterСonsumption?.measured || [],
             title: 'Измеренные',
             color: '#397634',
           },
           qh: {
-            months: parameters.data.waterСonsumption.qh || [],
+            data: parameters.data.waterСonsumption?.qh || [],
             title: 'С кривой QH',
             color: '#397634',
           },
           operational: {
-            months: parameters.data.waterСonsumption.operational || [],
+            data: parameters.data.waterСonsumption?.operational || [],
             title: 'Оперативные',
             color: '#FFB74E',
           },

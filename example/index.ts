@@ -1,39 +1,35 @@
 import { qwikStart, QwikStartParameters } from '../src'
-import { airTemperatureData } from './airTemperatureData'
 import { iceRulerWithRealData } from './iceRulerWithRealData'
 import { monthsData } from './monthsData'
-import { phasesData } from './phasesData'
-import { precipitationData } from './precipitationData'
-import { snowIceData } from './snowIceData'
-import { waterLevelData } from './waterLevelData'
-import { waterTemperatureData } from './waterTemperatureData'
-import { waterСonsumptionData } from './waterСonsumptionData'
 
 export async function start() {
-  const wrapper = document.getElementById('graph')!
-  const months = await monthsData()
-
-  const phases = await phasesData(months)
-  const airTemperature = await airTemperatureData(months)
-  const precipitation = await precipitationData(months)
-  const waterTemperature = await waterTemperatureData(months)
-  const snowIce = await snowIceData(months)
-  const waterlevel = await waterLevelData(months)
-  const iceRuler = await iceRulerWithRealData(months)
-  const waterСonsumption = await waterСonsumptionData(months)
-
   const graphParameters: QwikStartParameters = {
-    wrapper: wrapper,
-    months,
+    wrapper: document.getElementById('graph')!,
+    timeline: await monthsData(),
     data: {
-      phases,
-      airTemperature,
-      precipitation,
-      waterTemperature,
-      snowIce,
-      waterlevel,
-      iceRuler,
-      waterСonsumption,
+      // phases,
+      // airTemperature: {
+      //   max: [
+      //     {
+      //       date: '2020-01-12T03:00:00',
+      //       value: 10,
+      //     },
+      //     {
+      //       date: '2020-01-13T03:00:00',
+      //       value: 20,
+      //     },
+      //     {
+      //       date: '2020-01-14T03:00:00',
+      //       value: 15,
+      //     },
+      //   ],
+      // },
+      // precipitation,
+      // waterTemperature,
+      // snowIce,
+      // waterlevel,
+      iceRuler: await iceRulerWithRealData(),
+      // waterСonsumption,
     },
   }
 

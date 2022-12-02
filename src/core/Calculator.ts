@@ -25,7 +25,7 @@ export class Calculator extends Object {
   }
 
   public onRender() {
-    const { renderer, scene, timeline } = this.complexGraph
+    const { renderer, scene } = this.complexGraph
 
     renderer.context.lineJoin = 'round'
 
@@ -44,7 +44,7 @@ export class Calculator extends Object {
 
     this.fontSize = this.complexGraph.fontSize * renderer.minSize
 
-    const ppp = timeline.months.length / 4
+    const ppp = this.complexGraph.timeline.segments.length / 2000
 
     this.isDaysZoom = scene.zoom > ppp
     this.isDaysFullZoom = scene.zoom > ppp * 2.5

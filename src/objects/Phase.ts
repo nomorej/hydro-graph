@@ -1,12 +1,11 @@
 import { Object, ObjectParameters } from '../core/Object'
-import { TimelineSegment } from '../core/Timeline'
-import { Date } from '../utils/distributeData'
+import { TimelineSegment, TimelineSegmentDate } from '../core/Timeline'
 
 export interface PhaseParameters extends ObjectParameters {
   shortName?: string
 
-  start: Date
-  end: Date
+  start: TimelineSegmentDate
+  end: TimelineSegmentDate
 
   fontColor?: string
   backgroundColor?: string
@@ -18,8 +17,8 @@ export class Phase extends Object {
   private start: TimelineSegment
   private end: TimelineSegment
 
-  private startParameters: PhaseParameters['start']
-  private endParameters: PhaseParameters['end']
+  private readonly startParam: PhaseParameters['start']
+  private readonly endParam: PhaseParameters['end']
 
   public readonly shortName: string
 
@@ -35,8 +34,8 @@ export class Phase extends Object {
     this.start = null!
     this.end = null!
 
-    this.startParameters = parameters.start
-    this.endParameters = parameters.end
+    this.startParam = parameters.start
+    this.endParam = parameters.end
 
     this.shortName = parameters.shortName || this.name || ''
 
@@ -48,8 +47,8 @@ export class Phase extends Object {
   }
 
   public override onCreate() {
-    const start = this.complexGraph.timeline.findSegment(...this.startParameters)
-    const end = this.complexGraph.timeline.findSegment(...this.endParameters)
+    const start = this.complexGraph.timeline.segments.find((s) => s.date === this.startParam)
+    const end = this.complexGraph.timeline.segments.find((s) => s.date === this.endParam)
 
     if (!start || !end) {
       throw new Error('Phase: Стартовый или конечный сегмент не найдены')

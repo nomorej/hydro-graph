@@ -1,6 +1,6 @@
 import { Object } from '../core/Object'
 import { Scene } from '../core/Scene'
-import { TimelineDay, TimelineHour, TimelineMonth } from '../core/Timeline'
+import { TimelineSegment } from '../core/Timeline'
 
 export interface TimelineParameters {
   scaleColor?: string
@@ -66,7 +66,7 @@ export class Timeline extends Object {
     renderer.context.textAlign = 'center'
     renderer.context.textBaseline = 'top'
 
-    this.renderMonths({
+    this.renderSegments({
       scene,
       month: (month, x) => {
         renderer.context.fillStyle = this.fontColor
@@ -77,10 +77,10 @@ export class Timeline extends Object {
         renderer.context.stroke()
 
         renderer.context.font = `${monthFontSize}px ${this.complexGraph.font}`
-        renderer.context.fillText(month.title.toString(), x, axisY + monthDashSize * 2)
+        renderer.context.fillText(month.title, x, axisY + monthDashSize * 2)
       },
       day: (day, x, visible) => {
-        if (day.title == 11 || day.title == 21) {
+        if (day.number == 11 || day.number == 21) {
           renderer.context.fillStyle = this.decadeColor
           renderer.context.strokeStyle = this.decadeColor
         } else {
@@ -95,7 +95,7 @@ export class Timeline extends Object {
 
         if (visible) {
           renderer.context.font = `${dayFontSize}px ${this.complexGraph.font}`
-          renderer.context.fillText(day.title.toString(), x, axisY + dayDashSize * 2)
+          renderer.context.fillText(day.title, x, axisY + dayDashSize * 2)
         }
       },
       hour: (hour, x, visible) => {
@@ -109,14 +109,14 @@ export class Timeline extends Object {
 
         if (visible) {
           renderer.context.font = `${hourFontSize}px ${this.complexGraph.font}`
-          renderer.context.fillText(hour.title.toString(), x, axisY + hourDashSize * 2)
+          renderer.context.fillText(hour.title, x, axisY + hourDashSize * 2)
         }
       },
     })
 
     this.complexGraph.calculator.clip(renderer, () => {
       renderer.context.lineWidth = 1 / this.complexGraph.renderer.pixelRatio
-      this.renderMonths({
+      this.renderSegments({
         scene,
         month: (_, x) => {
           renderer.context.save()
@@ -174,50 +174,43 @@ export class Timeline extends Object {
     })
   }
 
-  private renderMonths(parameters: {
+  private renderSegments(parameters: {
     scene: Scene
-    month: (month: TimelineMonth, x: number) => void
-    day: (day: TimelineDay, x: number, visible: boolean) => void
-    hour: (hour: TimelineHour, x: number, visible: boolean) => void
-    decade?: (day: TimelineDay, x: number, visible: boolean) => void
+    month: (segment: TimelineSegment, x: number) => void
+    day: (segment: TimelineSegment, x: number, visible: boolean) => void
+    hour: (segment: TimelineSegment, x: number, visible: boolean) => void
+    decade?: (segment: TimelineSegment, x: number, visible: boolean) => void
   }) {
-    this.complexGraph.timeline.forEveryMonth((month) => {
-      if (!this.complexGraph.calculator.isSegmentVisible(month)) return
+    this.complexGraph.timeline.segments.forEach((segment, index) => {
+      if (index === 0 || !this.complexGraph.calculator.isSegmentVisible(segment)) return
 
-      if (month.index) {
-        parameters.month(month, this.complexGraph.calculator.area.x1 + month.x1)
+      if (segment.type === 'month') {
+        parameters.month(segment, this.complexGraph.calculator.area.x1 + segment.x1)
       }
 
-      if (this.complexGraph.calculator.isDaysZoom) {
-        month.forEveryDay((day) => {
-          const dayVisible =
-            day.index > 0 &&
-            ((+day.title % 5 === 1 &&
-              !this.complexGraph.calculator.isDaysFullZoom &&
-              day.title != 31) ||
-              this.complexGraph.calculator.isDaysFullZoom)
-
-          parameters.day(day, this.complexGraph.calculator.area.x1 + day.x1, dayVisible)
-
-          if (this.complexGraph.calculator.isHoursZoom) {
-            day.forEveryHour((hour) => {
-              if (hour.title !== 1 && hour.title !== 24) {
-                const hourVisible =
-                  hour.index > 0 &&
-                  ((+hour.title % 4 === 0 && !this.complexGraph.calculator.isHoursFullZoom) ||
-                    this.complexGraph.calculator.isHoursFullZoom)
-                parameters.hour(hour, this.complexGraph.calculator.area.x1 + hour.x1, hourVisible)
-              }
-            })
+      if (segment.type === 'day') {
+        if (this.complexGraph.calculator.isDaysZoom) {
+          if (this.complexGraph.calculator.isDaysFullZoom) {
+            parameters.day(segment, this.complexGraph.calculator.area.x1 + segment.x1, true)
+          } else if (segment.number % 5 === 1) {
+            parameters.day(segment, this.complexGraph.calculator.area.x1 + segment.x1, true)
           }
-        })
+        }
+
+        if (segment.title === '11' || segment.title === '21') {
+          parameters.decade?.(segment, this.complexGraph.calculator.area.x1 + segment.x1, true)
+        }
       }
 
-      month.forEveryDay((day) => {
-        if (day.title == 11 || day.title == 21) {
-          parameters.decade?.(day, this.complexGraph.calculator.area.x1 + day.x1, true)
+      if (segment.type === 'hour') {
+        if (this.complexGraph.calculator.isHoursZoom) {
+          if (this.complexGraph.calculator.isHoursFullZoom) {
+            parameters.hour(segment, this.complexGraph.calculator.area.x1 + segment.x1, true)
+          } else if (segment.number % 4 === 0) {
+            parameters.hour(segment, this.complexGraph.calculator.area.x1 + segment.x1, true)
+          }
         }
-      })
+      }
     })
   }
 }

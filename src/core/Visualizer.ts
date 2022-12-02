@@ -1,13 +1,13 @@
 import { Object, ObjectParameters } from './Object'
 import { Primitive } from './Primitive'
 import { Scale, ScaleParameters } from './Scale'
-import { Timeline, TimelineSegment } from './Timeline'
+import { Timeline, TimelineSegment, TimelineSegmentDate } from './Timeline'
 
 export type VisualizerElementComment = string | Array<string>
 
 export interface VisualizerElementParameters<V> {
-  segment: TimelineSegment
-  nextSegment?: TimelineSegment
+  startSegment: TimelineSegment
+  endSegment: TimelineSegment
   value: V
   new?: boolean
   comment?: VisualizerElementComment
@@ -16,23 +16,33 @@ export interface VisualizerElementParameters<V> {
 export class VisualizerElement<V> {
   public x: number
   public y: number
+
   public width: number
   public height: number
+
   public new?: boolean
-  public readonly segment: TimelineSegment
-  public nextSegment?: TimelineSegment
+
+  public startSegment: TimelineSegment
+  public endSegment: TimelineSegment
+
   public readonly value: V
+
   public readonly comment: Array<string>
 
   constructor(parameters: VisualizerElementParameters<V>) {
     this.x = 0
     this.y = 0
+
     this.width = 0
     this.height = 0
+
     this.new = parameters.new
-    this.segment = parameters.segment
-    this.nextSegment = parameters.nextSegment
+
+    this.startSegment = parameters.startSegment
+    this.endSegment = parameters.endSegment
+
     this.value = parameters.value
+
     this.comment =
       parameters.comment && Array.isArray(parameters.comment)
         ? parameters.comment
@@ -42,26 +52,18 @@ export class VisualizerElement<V> {
   }
 }
 
-export type VisualizerGroupData<V> = Array<Array<VisualizerDayData<V>>>
+export type VisualizerGroupData<V> = Array<VisualizeItemData<V>>
 
-export type VisualizerDayData<V, H = VisualizerHourData<V>> = {
-  day: number
-  value: V | Array<H>
-  new?: boolean
-  comment?: VisualizerElementComment
-}
-
-export type VisualizerHourData<V> = {
-  hour: number
-  value: V
-  new?: boolean
-  comment?: VisualizerElementComment
+export interface VisualizeItemData<V>
+  extends Omit<VisualizerElementParameters<V>, 'startSegment' | 'endSegment'> {
+  date: TimelineSegmentDate
+  fillDay?: boolean
 }
 
 export interface VisualizerGroupParametersData<V> {
   title?: string
   color?: string
-  months: VisualizerGroupData<V>
+  data: VisualizerGroupData<V>
 }
 
 export interface VisualizerGroupParameters<V, K extends string = 'default'> {
@@ -74,7 +76,7 @@ export class VisualizerGroup<V, K extends string = 'default'> {
   public readonly name: K
   public readonly title?: string
   public readonly color: string
-  public monthsData: VisualizerGroupData<V>
+  public data: VisualizerGroupData<V>
   public elements: Array<VisualizerElement<V>>
   public isVisible: boolean
   private readonly maxDaysGap?: number
@@ -83,7 +85,7 @@ export class VisualizerGroup<V, K extends string = 'default'> {
     this.name = parameters.name
     this.title = parameters.data.title
     this.color = parameters.data.color || 'black'
-    this.monthsData = parameters.data.months
+    this.data = parameters.data.data
     this.elements = []
     this.isVisible = true
     this.maxDaysGap = parameters.maxDaysGap
@@ -92,35 +94,27 @@ export class VisualizerGroup<V, K extends string = 'default'> {
   public generateElements(timeline: Timeline) {
     this.elements = []
 
-    this.monthsData.forEach((monthData, monthIndex) => {
-      monthData.forEach((dayData) => {
-        if (Array.isArray(dayData.value)) {
-          const daySegment = timeline.months[monthIndex].days[dayData.day - 1]
+    this.data.forEach((item) => {
+      let startSegment = timeline.segments.find((s) => s.date === item.date)
 
-          dayData.value.forEach((hourData, _index) => {
-            this.elements.push(
-              new VisualizerElement({
-                segment: daySegment.hours[hourData.hour - 1],
-                ...hourData,
-              })
-            )
-          })
-        } else {
-          this.elements.push(
-            new VisualizerElement({
-              segment: timeline.months[monthIndex].days[dayData.day - 1],
-              ...(dayData as any),
-            })
-          )
-        }
-      })
+      if (!startSegment) {
+        throw new Error(`Сегмент с датой ${item.date} не найден.`)
+      }
+
+      startSegment = item.fillDay ? startSegment.currentDaySegment : startSegment
+
+      const endSegment = item.fillDay ? startSegment.nextDaySegment : startSegment.nextHourSegment
+
+      this.elements.push(
+        new VisualizerElement({
+          startSegment,
+          endSegment,
+          ...item,
+        })
+      )
     })
 
-    this.elements.sort(
-      (a, b) =>
-        Timeline.getHourSegment(a.segment).hoursBefore -
-        Timeline.getHourSegment(b.segment).hoursBefore
-    )
+    this.elements.sort((a, b) => a.startSegment.index - b.startSegment.index)
 
     if (this.maxDaysGap) {
       let previous: VisualizerElement<any> | undefined
@@ -131,9 +125,7 @@ export class VisualizerGroup<V, K extends string = 'default'> {
           if (
             ind > 1 &&
             previous &&
-            Timeline.getDaySegment(el.segment).daysBefore -
-              Timeline.getDaySegment(previous.segment).daysBefore >
-              this.maxDaysGap!
+            el.startSegment.daysBefore - previous.startSegment.daysBefore > this.maxDaysGap!
           ) {
             el.new = true
             ind = 0

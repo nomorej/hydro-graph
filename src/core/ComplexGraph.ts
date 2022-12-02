@@ -3,7 +3,7 @@ import { Renderer } from './Renderer'
 import { CanvasParameters } from '../tools/Canvas'
 import { cursorPosition, pinchDistance, touchPosition } from '../utils/coordinates'
 import { clamp } from '../utils/math'
-import { Timeline, TimelineMonthsData } from './Timeline'
+import { Timeline, TimelineParameters } from './Timeline'
 import { Rows } from './Rows'
 import { Calculator } from './Calculator'
 import { Object } from './Object'
@@ -14,7 +14,7 @@ import { Events } from '../tools/Events'
 
 export interface Parameters extends SceneParameters {
   wrapper: CanvasParameters['container']
-  months: TimelineMonthsData
+  timeline: TimelineParameters
   zoomMouseButton?: number
   wheelZoomAcceleration?: number
   wheelTranlationSpeed?: number
@@ -25,11 +25,11 @@ export interface Parameters extends SceneParameters {
 export class ComplexGraph {
   public readonly wrapper: HTMLElement
   public readonly container: HTMLElement
+  public readonly timeline: Timeline
   public readonly scene: Scene
   public readonly renderer: Renderer
 
   public readonly calculator: Calculator
-  public readonly timeline: Timeline
   public readonly rows: Rows
   public readonly events: Events<{
     pointermove(mouse: XY, mouseZoomed: XY, event: MouseEvent): void
@@ -69,9 +69,13 @@ export class ComplexGraph {
     `
     this.wrapper.appendChild(this.container)
 
+    this.timeline = new Timeline(parameters.timeline)
+
+    const maxZoom = (parameters.maxZoom || 5) * this.timeline.segments.length * 0.01
+
     this.scene = new Scene({
       smoothness: parameters.smoothness,
-      maxZoom: parameters.maxZoom,
+      maxZoom: maxZoom,
       zoom: parameters.zoom,
       positionProgress: parameters.positionProgress,
       sizeProgress: parameters.sizeProgress,
@@ -83,7 +87,6 @@ export class ComplexGraph {
       clearColor: 'white',
     })
 
-    this.timeline = new Timeline(parameters.months)
     this.rows = new Rows()
     this.calculator = new Calculator()
     this.calculator.complexGraph = this
@@ -95,7 +98,7 @@ export class ComplexGraph {
     this.zoomMouseButton = parameters.zoomMouseButton || 0
     this.wheelZoomAcceleration = parameters.wheelZoomAcceleration || 1
     this.wheelTranlationSpeed = parameters.wheelTranlationSpeed || 1
-    this.fontSize = parameters.maxZoom || 0.02
+    this.fontSize = parameters.fontSize || 0.02
     this.font = parameters.font || 'sans-serif'
 
     this.statuses = {
@@ -217,12 +220,14 @@ export class ComplexGraph {
         const minimizer = 100
         const acceleration = this.scene.zoom * 0.2
         const zoom = lastZoom + (pinchDelta / minimizer) * acceleration
+
         this.renderer.withTicker(() => {
           this.scene.scaleSet(pivot, zoom)
         })
       } else {
         const delta =
           lastPosition + (startEvent.touches[0].clientX - moveEvent.touches[0].clientX) * 2
+
         if (Math.abs(delta) > 100) {
           this.renderer.withTicker(() => {
             this.scene.setTranslate(delta)

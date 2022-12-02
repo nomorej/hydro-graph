@@ -1,4 +1,4 @@
-import { XY } from './ts'
+import { XY } from '../ts'
 
 export function pointRectCollision(point: XY, rect: XY & { width: number; height: number }) {
   if (
