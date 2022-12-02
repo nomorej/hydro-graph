@@ -21,9 +21,9 @@ export abstract class Points<K extends string = 'default'> extends Visualizer<nu
     this.groups.forEach((group) => {
       if (group.isVisible) {
         group.elements.forEach((element) => {
-          element.width = element.segment.width
+          element.width = element.startSegment.width
           element.height = heightStep * (element.value - this.min)
-          element.x = this.complexGraph.calculator.area.x1 + element.segment.x1
+          element.x = this.complexGraph.calculator.area.x1 + element.startSegment.x1
           element.y = this.row.y2 - element.height - this.paddingBottom
         })
       }
