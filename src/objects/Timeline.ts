@@ -192,7 +192,7 @@ export class Timeline extends Object {
         if (this.complexGraph.calculator.isDaysZoom) {
           if (this.complexGraph.calculator.isDaysFullZoom) {
             parameters.day(segment, this.complexGraph.calculator.area.x1 + segment.x1, true)
-          } else if (segment.number % 5 === 1) {
+          } else if (segment.number % 5 === 1 && segment.number !== 31) {
             parameters.day(segment, this.complexGraph.calculator.area.x1 + segment.x1, true)
           }
         }
