@@ -1,7 +1,7 @@
 import { Object, ObjectParameters } from './Object'
 import { Primitive } from './Primitive'
 import { Scale, ScaleParameters } from './Scale'
-import { Timeline, TimelineSegment, TimelineSegmentDate } from './Timeline'
+import { Timeline, TimelineSegment, TimelineSegmentDateWithTime } from './Timeline'
 
 export type VisualizerElementComment = string | Array<string>
 
@@ -56,7 +56,7 @@ export type VisualizerGroupData<V> = Array<VisualizeItemData<V>>
 
 export interface VisualizeItemData<V>
   extends Omit<VisualizerElementParameters<V>, 'startSegment' | 'endSegment'> {
-  date: TimelineSegmentDate
+  date: TimelineSegmentDateWithTime
   fillDay?: boolean
 }
 

@@ -5,7 +5,7 @@ export type TimelineParameters = Array<Date>
 
 export interface TimelineSegmentParameters {
   index: number
-  date: TimelineSegmentDate
+  date: TimelineSegmentDateWithTime
   type: TimelineSegmentType
   number: number
   title: string
@@ -14,11 +14,14 @@ export interface TimelineSegmentParameters {
 
 export type TimelineSegmentType = 'month' | 'day' | 'hour'
 
-export type TimelineSegmentDate = `${number}-${number}-${number}T${number}:${number}:${number}`
+export type TimelineSegmentDate = `${number}-${number}-${number}`
+
+export type TimelineSegmentDateWithTime =
+  `${number}-${number}-${number}T${number}:${number}:${number}`
 
 export class TimelineSegment {
   public readonly index: number
-  public readonly date: TimelineSegmentDate
+  public readonly date: TimelineSegmentDateWithTime
   public readonly type: TimelineSegmentType
   public readonly number: number
   public readonly title: string
@@ -84,7 +87,7 @@ export class Timeline {
       for (let hourNumber = 0; hourNumber <= 23; hourNumber++) {
         const date = `${simplifiedDate}T${hourNumber
           .toString()
-          .padStart(2, '0')}:00:00` as TimelineSegmentDate
+          .padStart(2, '0')}:00:00` as TimelineSegmentDateWithTime
         const type = hourNumber === 0 ? (isMonth ? 'month' : 'day') : 'hour'
         const number = hourNumber === 0 ? (isMonth ? monthNumber : dayNumber) : hourNumber
         const title = hourNumber === 0 && isMonth ? getMonthName(d) : number.toString()

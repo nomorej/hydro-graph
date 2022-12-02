@@ -113,7 +113,7 @@ export class Scale {
       if (skip) return
 
       renderer.context.fillStyle = 'black'
-      renderer.context.font = `${calculator.fontSize}px ${font}`
+      renderer.context.font = `${calculator.fontSize * 0.9}px ${font}`
       renderer.context.textBaseline = 'middle'
       renderer.context.textAlign = isLeft ? 'right' : 'left'
       renderer.context.fillText(

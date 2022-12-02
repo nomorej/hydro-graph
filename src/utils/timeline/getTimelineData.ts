@@ -1,4 +1,4 @@
-export function getMonths(start: Date, end: Date) {
+export function getTimelineData(start: Date, end: Date) {
   const result: Array<Date> = []
   let current = new Date(start)
 

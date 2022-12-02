@@ -80,7 +80,6 @@ export type QwikStartPhases = Array<{
   type: keyof typeof phasesPresets
   start: PhaseParameters['start']
   end: PhaseParameters['end']
-  fill?: PhaseParameters['fill']
 }>
 
 export interface QwikStartParameters

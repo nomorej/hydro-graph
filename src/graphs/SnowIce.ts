@@ -1,5 +1,5 @@
 import { ScaleSegment } from '../core/Scale'
-import { Visualizer, VisualizerParameters } from '../core/Visualizer'
+import { Visualizer, VisualizerElement, VisualizerParameters } from '../core/Visualizer'
 import { linearGraph } from '../utils/graph'
 
 export type SnowIceValue = { snow: number; ice: number }
@@ -18,6 +18,7 @@ export class SnowIce extends Visualizer<SnowIceValue> {
   private readonly iceFillColor: string
   private readonly snowStrokeColor: string
   private readonly iceStrokeColor: string
+  private readonly sortedGroups: Array<Array<VisualizerElement<SnowIceValue>>>
 
   constructor(parameters: SnowIceParameters) {
     super(parameters)
@@ -27,11 +28,25 @@ export class SnowIce extends Visualizer<SnowIceValue> {
 
     this.snowStrokeColor = parameters.snowStrokeColor || 'lightblue'
     this.iceStrokeColor = parameters.iceStrokeColor || 'blue'
+
+    this.sortedGroups = [[]]
   }
 
   public override onCreate() {
     super.onCreate()
     this.scaleZeroSegment = this.scale?.segments.find((s) => s.value === 0)
+
+    const elements = this.groups.get('default')!.elements
+
+    let groupIndex = 0
+    elements.forEach((el) => {
+      if (el.new) {
+        groupIndex++
+        this.sortedGroups[groupIndex] = []
+      }
+
+      this.sortedGroups[groupIndex].push(el)
+    })
   }
 
   protected override renderWithClip(heightStep: number) {
@@ -84,21 +99,23 @@ export class SnowIce extends Visualizer<SnowIceValue> {
   private fill(color: string) {
     const { renderer, calculator } = this.complexGraph
 
-    const elements = this.groups.get('default')!.elements
+    this.sortedGroups.forEach((g) => {
+      const fe = g[0]
+      const le = g[g.length - 1]
 
-    const fe = elements[0]
-    const le = elements[elements.length - 1]
-    if (!calculator.isPointVisible(fe, (fe.x - le.x) * -1)) return
+      if (!calculator.isPointVisible(fe, (fe.x - le.x) * -1)) return
 
-    renderer.context.beginPath()
-    renderer.context.moveTo(fe.x, this.scaleZeroSegment!.y)
+      renderer.context.fillStyle = color
+      renderer.context.beginPath()
+      renderer.context.moveTo(fe.x, this.scaleZeroSegment!.y)
 
-    elements.forEach((el) => {
-      renderer.context.lineTo(el.x, el.y)
+      g.forEach((el) => {
+        renderer.context.lineTo(el.x, el.y)
+      })
+
+      renderer.context.lineTo(le.x, this.scaleZeroSegment!.y)
+      renderer.context.fillStyle = color
+      renderer.context.fill()
     })
-
-    renderer.context.lineTo(le.x, this.scaleZeroSegment!.y)
-    renderer.context.fillStyle = color
-    renderer.context.fill()
   }
 }

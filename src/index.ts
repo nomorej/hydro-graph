@@ -1,6 +1,10 @@
 export * from './qwikStart'
-export { getMonths } from './utils/timeline/getMonths'
+export { getTimelineData } from './utils/timeline/getTimelineData'
 export type { PrecipitationValue } from './graphs/Precipitation'
 export type { IceRulerValue } from './graphs/IceRuler'
 export { iceRulerFills, iceRulerUpperSigns } from './graphs/IceRuler'
-export type { TimelineSegmentDate } from './core/Timeline'
+export type {
+  TimelineSegmentDateWithTime,
+  TimelineSegmentDate,
+  TimelineParameters,
+} from './core/Timeline'

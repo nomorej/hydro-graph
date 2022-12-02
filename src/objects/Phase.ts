@@ -1,16 +1,15 @@
 import { Object, ObjectParameters } from '../core/Object'
-import { TimelineSegment, TimelineSegmentDate } from '../core/Timeline'
+import { TimelineSegment, TimelineSegmentDateWithTime } from '../core/Timeline'
 
 export interface PhaseParameters extends ObjectParameters {
   shortName?: string
 
-  start: TimelineSegmentDate
-  end: TimelineSegmentDate
+  start: TimelineSegmentDateWithTime
+  end: TimelineSegmentDateWithTime
 
   fontColor?: string
   backgroundColor?: string
   edgeColor?: string
-  fill?: boolean
 }
 
 export class Phase extends Object {
@@ -21,8 +20,6 @@ export class Phase extends Object {
   private readonly endParam: PhaseParameters['end']
 
   public readonly shortName: string
-
-  private readonly fillEndSegment: boolean
 
   private readonly fontColor: string
   private readonly backgroundColor: string
@@ -38,8 +35,6 @@ export class Phase extends Object {
     this.endParam = parameters.end
 
     this.shortName = parameters.shortName || this.name || ''
-
-    this.fillEndSegment = parameters.fill || false
 
     this.fontColor = parameters.fontColor || 'darkblue'
     this.backgroundColor = parameters.backgroundColor || 'lightblue'
@@ -66,7 +61,7 @@ export class Phase extends Object {
 
       if (!this.complexGraph.calculator.isSegmentVisible(this.start, this.end)) return
 
-      const delta = (this.fillEndSegment ? this.end.x2 : this.end.x1) - this.start.x1
+      const delta = this.end.x1 - this.start.x1
 
       const middle = this.complexGraph.calculator.area.x1 + this.start.x1 + delta / 2
       const offsetY =
