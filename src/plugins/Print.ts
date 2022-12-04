@@ -1,6 +1,6 @@
-import { Plugin } from './Plugin'
+import { Extension } from '../core/Extension'
 
-export class Print extends Plugin {
+export class Print extends Extension {
   private button: HTMLElement
 
   constructor() {
@@ -33,9 +33,6 @@ export class Print extends Plugin {
     `
 
     this.button.addEventListener('click', this.handleClick)
-  }
-
-  public override onCreate() {
     this.complexGraph.container.appendChild(this.button)
   }
 

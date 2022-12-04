@@ -4,7 +4,6 @@ import { Renderer } from './Renderer'
 import { Object } from './Object'
 
 export interface SceneParameters {
-  smoothness?: number
   maxZoom?: number
   sizeProgress?: number
   positionProgress?: number
@@ -21,7 +20,6 @@ export class Scene {
   public position: Track
   public readonly objects: Set<Object>
 
-  private _smoothness: number
   private _viewportSize: number
 
   constructor(parameters?: SceneParameters) {
@@ -30,8 +28,8 @@ export class Scene {
     this.zoom = parameters?.zoom || 1
     this.maxZoom = parameters?.maxZoom || 300
 
-    this.size = new Track({ slipperiness: 0 })
-    this.position = new Track({ slipperiness: 0 })
+    this.size = new Track({ slipperiness: 5 })
+    this.position = new Track({ slipperiness: 5 })
 
     if (parameters?.sizeProgress) {
       this.size.calibrateProgress(parameters.sizeProgress)
@@ -43,20 +41,7 @@ export class Scene {
 
     this.objects = new Set()
 
-    this._smoothness =
-      this.size.slipperiness =
-      this.position.slipperiness =
-        parameters?.smoothness || 0
-
     this._viewportSize = 0
-  }
-
-  public set smoothness(value: number) {
-    this._smoothness = this.size.slipperiness = this.position.slipperiness = value
-  }
-
-  public get smoothness() {
-    return this._smoothness
   }
 
   public get viewportSize() {
@@ -136,7 +121,6 @@ export class Scene {
   public addObject(object: Object) {
     if (!this.objects.has(object)) {
       this.objects.add(object)
-      object.onCreate?.()
     }
   }
 

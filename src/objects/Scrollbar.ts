@@ -41,16 +41,10 @@ export class Scrollbar extends Object {
 
     this.grabbed = false
     this.hovered = false
-  }
-
-  public override onCreate() {
-    const { scene } = this.complexGraph
-
-    scene.addObject(this)
 
     this.bar.appendChild(this.knob)
 
-    scene.renderer.containerElement.appendChild(this.bar)
+    this.complexGraph.container.appendChild(this.bar)
 
     this.knob.addEventListener('pointerdown', this.handlePointerDown)
     this.knob.addEventListener('pointerenter', this.handlePointerEnter)

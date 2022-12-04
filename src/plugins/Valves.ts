@@ -1,5 +1,6 @@
-import { Visualizer, VisualizerGroup } from '../core/Visualizer'
-import { Plugin } from './Plugin'
+import { Extension } from '../core/Extension'
+import { Visualizer } from '../visualizer'
+import { VisualizerElementsGroup } from '../visualizer/VisualizerElementsGroup'
 
 abstract class Button {
   public readonly element: HTMLElement
@@ -33,9 +34,9 @@ abstract class Button {
 }
 
 class GraphButton extends Button {
-  constructor(public readonly drg: VisualizerGroup<any>) {
+  constructor(public readonly drg: VisualizerElementsGroup<any>) {
     super()
-    this.element.innerText = drg.title!
+    this.element.innerText = drg.name || ''
   }
 
   protected toggle = () => {
@@ -133,7 +134,7 @@ class Category {
     }
 
     dr.groups.forEach((group) => {
-      if (group.name !== 'default' && group.title) {
+      if (group.name) {
         this.buttons.add(new GraphButton(group))
       }
     })
@@ -175,7 +176,7 @@ class Category {
   }
 }
 
-export class Valves extends Plugin {
+export class Valves extends Extension {
   private categories: Array<Category>
   private readonly container: HTMLElement
   private readonly styles: HTMLStyleElement
@@ -190,22 +191,8 @@ export class Valves extends Plugin {
 
     this.styles = document.createElement('style')
     document.head.appendChild(this.styles)
-  }
 
-  public override onDestroy() {
-    document.head.removeChild(this.styles)
-  }
-
-  public override onCreate() {
     this.complexGraph.container.appendChild(this.container)
-
-    this.complexGraph.scene.objects.forEach((object) => {
-      if (object instanceof Visualizer) {
-        const button = new Category(object)
-        this.categories.push(button)
-        button.appendTo(this.container)
-      }
-    })
 
     this.styles.innerText = `
 
@@ -293,5 +280,19 @@ export class Valves extends Plugin {
         justify-content: flex-start;
       }
     `
+
+    setTimeout(() => {
+      this.complexGraph.scene.objects.forEach((object) => {
+        if (object instanceof Visualizer) {
+          const button = new Category(object)
+          this.categories.push(button)
+          button.appendTo(this.container)
+        }
+      })
+    }, 20)
+  }
+
+  public override onDestroy() {
+    document.head.removeChild(this.styles)
   }
 }

@@ -1,75 +1,179 @@
-import {
-  QwikStartIceRuler,
-  iceRulerFills,
-  iceRulerUpperSigns,
-  TimelineSegmentDateWithTime,
-  TimelineSegmentDate,
-} from '../src'
+import { QwikStartData, TimelineSegmentDate } from '../src'
+
 import { requestData } from './requestData'
-
-/**
- * Одна запись из массива GetWaterBodyState
- */
-interface ResponseDataItem {
-  localTime: TimelineSegmentDateWithTime
-  obsTime: TimelineSegmentDateWithTime
-  fill: keyof typeof iceRulerFills
-  upperSign: keyof typeof iceRulerUpperSigns
-  iceShove: boolean
-  waterState: number
-  text: Array<string>
-}
-
-/**
- * Все записи GetWaterBodyState
- */
-type ResponseData = Array<ResponseDataItem>
 
 export async function iceRulerData(
   from: TimelineSegmentDate,
   to: TimelineSegmentDate
-): Promise<QwikStartIceRuler> {
-  const result: QwikStartIceRuler = {}
+): Promise<QwikStartData['iceRuler']> {
+  let data: QwikStartData['iceRuler'] | undefined
 
   try {
-    /**
-     * Записи из API
-     */
-    const data = await requestData<ResponseData>(
+    data = await requestData<QwikStartData['iceRuler']>(
       'https://hydro-api.mapmakers.ru/hydrograph-api/ObsData/GetWaterBodyState/12010',
       from,
       to
     )
 
-    /**
-     * параметр fill(число)
-     */
-    let k: keyof typeof iceRulerFills
-    for (k in iceRulerFills) {
-      /**
-       * параметр fill(Название)
-       */
-      const v = iceRulerFills[k]
+    // data = [
+    //   {
+    //     fill: 0,
+    //     iceShove: false,
+    //     localTime: '2021-03-01T03:00:00',
+    //     obsTime: '2021-03-01T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 0,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 1,
+    //     iceShove: false,
+    //     localTime: '2021-03-02T03:00:00',
+    //     obsTime: '2021-03-02T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 1,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 2,
+    //     iceShove: false,
+    //     localTime: '2021-03-03T03:00:00',
+    //     obsTime: '2021-03-03T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 2,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 3,
+    //     iceShove: false,
+    //     localTime: '2021-03-04T03:00:00',
+    //     obsTime: '2021-03-04T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 3,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 4,
+    //     iceShove: false,
+    //     localTime: '2021-03-05T03:00:00',
+    //     obsTime: '2021-03-05T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 4,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 5,
+    //     iceShove: false,
+    //     localTime: '2021-03-06T03:00:00',
+    //     obsTime: '2021-03-06T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 5,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 6,
+    //     iceShove: false,
+    //     localTime: '2021-03-07T03:00:00',
+    //     obsTime: '2021-03-07T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 0,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 7,
+    //     iceShove: false,
+    //     localTime: '2021-03-08T03:00:00',
+    //     obsTime: '2021-03-08T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 0,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 8,
+    //     iceShove: false,
+    //     localTime: '2021-03-09T03:00:00',
+    //     obsTime: '2021-03-09T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 0,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 9,
+    //     iceShove: false,
+    //     localTime: '2021-03-10T03:00:00',
+    //     obsTime: '2021-03-10T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 0,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 10,
+    //     iceShove: false,
+    //     localTime: '2021-03-11T03:00:00',
+    //     obsTime: '2021-03-11T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 0,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 11,
+    //     iceShove: true,
+    //     localTime: '2021-03-12T03:00:00',
+    //     obsTime: '2021-03-12T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 0,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 12,
+    //     iceShove: false,
+    //     localTime: '2021-03-13T03:00:00',
+    //     obsTime: '2021-03-13T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 0,
+    //     waterState: 0,
+    //   },
 
-      /**
-       * Список записей для каждого парамера fill
-       */
-      result[v] = data
-        .filter((item) => k == item.fill)
-        .map((item) => {
-          return {
-            date: item.obsTime,
-            value: {
-              iceShove: item.iceShove,
-              upperSign: iceRulerUpperSigns[item.upperSign],
-            },
-            comment: item.text,
-          }
-        })
-    }
+    //   {
+    //     fill: 8,
+    //     iceShove: false,
+    //     localTime: '2021-03-14T03:00:00',
+    //     obsTime: '2021-03-14T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 0,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 3,
+    //     iceShove: false,
+    //     localTime: '2021-03-15T03:00:00',
+    //     obsTime: '2021-03-15T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 0,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 13,
+    //     iceShove: false,
+    //     localTime: '2021-03-16T03:00:00',
+    //     obsTime: '2021-03-16T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 0,
+    //     waterState: 0,
+    //   },
+    //   {
+    //     fill: 13,
+    //     iceShove: false,
+    //     localTime: '2021-03-25T03:00:00',
+    //     obsTime: '2021-03-25T03:00:00',
+    //     text: ['asdsa'],
+    //     upperSign: 0,
+    //     waterState: 0,
+    //   },
+    // ]
   } catch (e) {
     console.error(e)
   }
 
-  return result
+  return data
 }

@@ -1,9 +1,9 @@
-import { QwikStartSnowIce, TimelineSegmentDate } from '../src'
+import { QwikStartData, TimelineSegmentDate } from '../src'
 
 export async function snowIceData(
   from: TimelineSegmentDate,
   to: TimelineSegmentDate
-): Promise<QwikStartSnowIce> {
+): Promise<QwikStartData['snowIce']> {
   return {
     default: [
       {
@@ -30,8 +30,8 @@ export async function snowIceData(
       {
         date: '2021-03-17T00:00:00',
         value: {
-          ice: 15,
-          snow: 5,
+          ice: 5,
+          snow: 2,
         },
       },
     ],

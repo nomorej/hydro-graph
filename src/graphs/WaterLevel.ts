@@ -1,67 +1,84 @@
-import { Graph } from '../core/Graph'
-import { PointsParameters } from '../core/Points'
+import { Visualizer } from '../visualizer'
+import { VisualizerElementsGroupData } from '../visualizer/VisualizerElementsGroup'
+import { VisualizerGroup, VisualizerGroupParameters } from '../visualizer/VisualizerGroup'
+import { PointsNumberGroup } from './Points'
 
-export interface WaterLevelParameters extends PointsParameters {
-  adverseEventValue?: number
-  adverseEventColor?: string
-  dangerousEventValue?: number
-  dangerousEventColor?: string
+interface WaterLevelEventGroupParameters extends VisualizerGroupParameters {
+  value: number
 }
 
-export class WaterLevel extends Graph {
-  public readonly adverseEventValue?: number
-  public readonly adverseEventColor: string
+class WaterLevelEventGroup extends VisualizerGroup {
+  private readonly value: number
+  private position: number
 
-  public readonly dangerousEventValue?: number
-  public readonly dangerousEventColor: string
-
-  private adverseEventPosition?: number
-  private dangerousEventPosition?: number
-
-  constructor(parameters: WaterLevelParameters) {
+  constructor(parameters: WaterLevelEventGroupParameters) {
     super(parameters)
 
-    this.adverseEventValue = parameters.adverseEventValue
-    this.adverseEventPosition = undefined
-    this.adverseEventColor = parameters.adverseEventColor || 'orange'
-    this.dangerousEventValue = parameters.dangerousEventValue
-    this.dangerousEventPosition = undefined
-    this.dangerousEventColor = parameters.dangerousEventColor || 'red'
+    this.value = parameters.value
+    this.position = 0
   }
 
-  protected override resizeElements(heightStep: number) {
-    super.resizeElements(heightStep)
+  public render() {
+    const { row, complexGraph } = this.visualizer
+    const { renderer } = complexGraph
 
-    if (this.adverseEventValue) {
-      this.adverseEventPosition = heightStep * (this.adverseEventValue - this.min)
-    }
+    renderer.context.lineWidth = (renderer.minSize * 0.002) / renderer.pixelRatio
 
-    if (this.dangerousEventValue) {
-      this.dangerousEventPosition = heightStep * (this.dangerousEventValue - this.min)
-    }
+    renderer.context.beginPath()
+    renderer.context.strokeStyle = this.color
+    renderer.context.moveTo(row.x1, row.y2 - this.position)
+    renderer.context.lineTo(row.x2, row.y2 - this.position)
+    renderer.context.stroke()
   }
 
-  protected override renderWithClip() {
-    this.drawGroup('default')
+  public resize(heightStep: number) {
+    this.position = heightStep * (this.value - this.visualizer.min)
+  }
+}
 
-    const { renderer } = this.complexGraph
+export interface WaterLevelParameters {
+  default?: VisualizerElementsGroupData<number>
+  adverse?: number
+  dangerous?: number
+}
 
-    renderer.context.lineWidth = (renderer.minSize * 0.002) / this.complexGraph.renderer.pixelRatio
+export function createWaterLevelGraph(parameters: WaterLevelParameters) {
+  new Visualizer({
+    name: 'Уровень воды',
+    row: 4,
+    scale: {
+      title: 'Ур. воды, см',
+      step: 25,
+      color: 'black',
+      gridColor: 'black',
+      gridActive: true,
+    },
+    // unactive: true,
+  })
 
-    if (this.adverseEventPosition) {
-      renderer.context.beginPath()
-      renderer.context.strokeStyle = this.adverseEventColor
-      renderer.context.moveTo(this.row.x1, this.row.y2 - this.adverseEventPosition)
-      renderer.context.lineTo(this.row.x2, this.row.y2 - this.adverseEventPosition)
-      renderer.context.stroke()
-    }
+  if (parameters.default) {
+    new PointsNumberGroup({
+      data: parameters.default,
+      color: '#0066FF',
+      maxDaysGap: 3,
+      hitInfo: (el) => {
+        return [`Срок: ${el.startSegment.date}`, `Уровень: ${el.value}`, ...el.comment]
+      },
+    })
+  }
+  if (parameters.adverse) {
+    new WaterLevelEventGroup({
+      name: 'УНЯ',
+      value: parameters.adverse,
+      color: 'orange',
+    })
+  }
 
-    if (this.dangerousEventPosition) {
-      renderer.context.beginPath()
-      renderer.context.strokeStyle = this.dangerousEventColor
-      renderer.context.moveTo(this.row.x1, this.row.y2 - this.dangerousEventPosition)
-      renderer.context.lineTo(this.row.x2, this.row.y2 - this.dangerousEventPosition)
-      renderer.context.stroke()
-    }
+  if (parameters.dangerous) {
+    new WaterLevelEventGroup({
+      name: 'УОЯ',
+      value: parameters.dangerous,
+      color: 'red',
+    })
   }
 }

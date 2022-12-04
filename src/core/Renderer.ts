@@ -42,6 +42,8 @@ export class Renderer extends Canvas {
   public override resize(width?: number, height?: number) {
     super.resize(width, height)
     this.scene.resize()
+    const scalar = this.size.x * 0.001
+    this.containerElement.style.setProperty('--cg-scalar', scalar + 'px')
   }
 
   private render = (canvas: Canvas, t = 0, dt = 0) => {

@@ -1,138 +1,210 @@
-import { Graph } from '../core/Graph'
-import { PointsParameters } from '../core/Points'
-import { VisualizerElement, VisualizerGroup } from '../core/Visualizer'
+import { pointRectCollision } from '../utils/collisions/pointRectCollision'
+import { XY } from '../utils/ts'
+import { Visualizer } from '../visualizer'
+import { VisualizerElement, VisualizerElementParameters } from '../visualizer/VisualizerElement'
+import {
+  VisualizerElementsGroup,
+  VisualizerElementsGroupData,
+  VisualizerElementsGroupParameters,
+} from '../visualizer/VisualizerElementsGroup'
+import { PointsElement, PointsGroupParameters, PointsNumberGroup } from './Points'
 
-export type AirTemperatureGroupsNames =
-  | 'middle'
-  | 'max'
-  | 'min'
-  | 'post'
-  | 'sumTempSpring'
-  | 'sumTempAutumn'
-  | 'sumTempAll'
-
-export class AirTemperature extends Graph<AirTemperatureGroupsNames> {
-  constructor(parameters: PointsParameters<AirTemperatureGroupsNames>) {
-    super({ ...parameters, paddingBottom: 0.15 })
+abstract class AirTemperatureSumGroup<T = number> extends VisualizerElementsGroup<
+  VisualizerElement<T>
+> {
+  constructor(parameters: VisualizerElementsGroupParameters<T>) {
+    super(parameters)
+    this.getElementNumberValue = undefined
   }
 
-  protected override renderWithClip() {
-    this.drawGroup('min')
-    this.drawGroup('middle')
-    this.drawGroup('max')
-    this.drawGroup('post')
-    this.drawSumTempSpring()
-    this.drawSumTempAutumn()
-    this.drawSumTempAll()
+  public override resize() {
+    const { complexGraph, row, paddingBottom } = this.visualizer
+
+    this.elements.forEach((element) => {
+      element.x = complexGraph.calculator.area.x1 + element.startSegment.x1
+      element.width = element.endSegment.x1 - element.startSegment.x1
+
+      element.height = paddingBottom / 2
+      element.y = row.y2 - paddingBottom / 2
+    })
   }
 
-  protected override calclulateMinMax() {
-    this.groups.forEach((group) => {
-      if (this.isGraphGroup(group)) {
-        group.elements.forEach((element) => {
-          this.min = element.value < this.min ? element.value : this.min
-          this.max = element.value > this.max ? element.value : this.max
-        })
+  public override render() {
+    const { renderer, scene, calculator } = this.visualizer.complexGraph
+
+    renderer.context.strokeStyle = this.color
+    renderer.context.lineWidth = 1 / renderer.pixelRatio
+
+    this.elements.forEach((element) => {
+      if (!calculator.isPointVisible(element)) return
+      const db = element.endSegment.daysBefore - element.startSegment.daysBefore
+      const s = Math.ceil(scene.zoom / 8) * db
+      const step = element.width / s
+
+      for (let index = 0; index < s; index++) {
+        this.drawElement(element, index, step)
       }
     })
   }
 
-  protected override resizeElements(heightStep: number) {
-    this.groups.forEach((group) => {
-      if (group.isVisible) {
-        group.elements.forEach((element) => {
-          element.x = this.complexGraph.calculator.area.x1 + element.startSegment.x1
-          element.width = element.endSegment.x1 - element.startSegment.x1
+  public override hitTest(pointer: XY<number>) {
+    const element = this.elements.find((el) => {
+      return pointRectCollision(pointer, el)
+    })
 
-          if (this.isGraphGroup(group)) {
-            element.height = heightStep * (element.value - this.min)
-            element.y = this.row.y2 - element.height - this.paddingBottom
-          } else {
-            element.height = this.paddingBottom / 2
-            element.y = this.row.y2 - this.paddingBottom / 2
-          }
-        })
-      }
+    return element
+  }
+
+  public override hitInfo(element: VisualizerElement<any>) {
+    return [`Срок: ${element.startSegment.date}`, `Сумма: ${element.value}`, ...element.comment]
+  }
+
+  protected createElement(parameters: VisualizerElementParameters<T>) {
+    return new VisualizerElement(parameters)
+  }
+
+  protected abstract drawElement(element: VisualizerElement<T>, index: number, step: number): void
+}
+
+class AirTemperatureSumSpringGroup extends AirTemperatureSumGroup {
+  constructor(parameters: PointsGroupParameters) {
+    super(parameters)
+  }
+
+  protected drawElement(element: PointsElement, index: number, step: number) {
+    const { renderer } = this.visualizer.complexGraph
+
+    renderer.context.beginPath()
+    renderer.context.moveTo(element.x + step * index, element.y)
+    renderer.context.lineTo(element.x + step * (index + 0.85), element.y + element.height)
+    renderer.context.stroke()
+  }
+}
+
+class AirTemperatureSumAutumnGroup extends AirTemperatureSumGroup {
+  constructor(parameters: PointsGroupParameters) {
+    super(parameters)
+  }
+
+  protected drawElement(element: PointsElement, index: number, step: number) {
+    const { renderer } = this.visualizer.complexGraph
+
+    renderer.context.beginPath()
+    renderer.context.moveTo(element.x + step * (index + 0.85), element.y)
+    renderer.context.lineTo(element.x + step * index, element.y + element.height)
+    renderer.context.stroke()
+  }
+}
+
+class AirTemperatureSumAllGroup extends AirTemperatureSumGroup {
+  constructor(parameters: PointsGroupParameters) {
+    super(parameters)
+  }
+
+  protected drawElement(element: PointsElement, index: number, step: number) {
+    const { renderer } = this.visualizer.complexGraph
+    renderer.context.beginPath()
+    renderer.context.moveTo(element.x + step * index, element.y)
+    renderer.context.lineTo(element.x + step * (index + 0.85), element.y + element.height)
+    renderer.context.moveTo(element.x + step * (index + 0.85), element.y)
+    renderer.context.lineTo(element.x + step * index, element.y + element.height)
+    renderer.context.stroke()
+  }
+}
+
+export interface AirTemperatureParameters {
+  middle?: VisualizerElementsGroupData<number>
+  max?: VisualizerElementsGroupData<number>
+  min?: VisualizerElementsGroupData<number>
+  post?: VisualizerElementsGroupData<number>
+  sumTempSpring?: VisualizerElementsGroupData<number>
+  sumTempAutumn?: VisualizerElementsGroupData<number>
+  sumTempAll?: VisualizerElementsGroupData<number>
+}
+
+export function createAirTemperatureGraph(parameters: AirTemperatureParameters) {
+  new Visualizer({
+    name: 'Температура воздуха',
+    row: 0,
+    rowFactor: 1,
+    scale: {
+      title: 't воздуха °C',
+      color: '#B13007',
+      gridColor: '#B13007',
+      gridActive: true,
+    },
+    paddingBottom: 0.2,
+  })
+
+  if (parameters.min) {
+    new PointsNumberGroup({
+      name: 'Минимальная',
+      color: '#0066FF',
+      data: parameters.min,
+      maxDaysGap: 3,
+      hitInfo: (el) => {
+        return [`Срок: ${el.startSegment.date}`, `Температура: ${el.value}`, ...el.comment]
+      },
     })
   }
 
-  private isGraphGroup(group: VisualizerGroup<number, AirTemperatureGroupsNames>) {
-    return (
-      group.name === 'middle' ||
-      group.name === 'max' ||
-      group.name === 'min' ||
-      group.name === 'post'
-    )
+  if (parameters.middle) {
+    new PointsNumberGroup({
+      name: 'Средняя',
+      color: '#6B6C7E',
+      data: parameters.middle,
+      maxDaysGap: 3,
+      hitInfo: (el) => {
+        return [`Срок: ${el.startSegment.date}`, `Температура: ${el.value}`, ...el.comment]
+      },
+    })
   }
 
-  private drawSumTempSpring() {
-    const { renderer } = this.complexGraph
-
-    const group = this.groups.get('sumTempSpring')
-
-    if (group) {
-      this.drawSum(group, (element, index, step) => {
-        renderer.context.beginPath()
-        renderer.context.moveTo(element.x + step * index, element.y)
-        renderer.context.lineTo(element.x + step * (index + 0.85), element.y + element.height)
-        renderer.context.stroke()
-      })
-    }
+  if (parameters.max) {
+    new PointsNumberGroup({
+      name: 'Максимальная',
+      color: '#D72929',
+      data: parameters.max,
+      maxDaysGap: 3,
+      hitInfo: (el) => {
+        return [`Срок: ${el.startSegment.date}`, `Температура: ${el.value}`, ...el.comment]
+      },
+    })
   }
 
-  private drawSumTempAutumn() {
-    const { renderer } = this.complexGraph
-
-    const group = this.groups.get('sumTempAutumn')
-
-    if (group) {
-      this.drawSum(group, (element, index, step) => {
-        renderer.context.beginPath()
-        renderer.context.moveTo(element.x + step * (index + 0.85), element.y)
-        renderer.context.lineTo(element.x + step * index, element.y + element.height)
-        renderer.context.stroke()
-      })
-    }
+  if (parameters.post) {
+    new PointsNumberGroup({
+      name: 'С поста',
+      color: '#B016C9',
+      data: parameters.post,
+      maxDaysGap: 3,
+      hitInfo: (el) => {
+        return [`Срок: ${el.startSegment.date}`, `Температура: ${el.value}`, ...el.comment]
+      },
+    })
   }
 
-  private drawSumTempAll() {
-    const { renderer } = this.complexGraph
-
-    const group = this.groups.get('sumTempAll')
-
-    if (group) {
-      this.drawSum(group, (element, index, step) => {
-        renderer.context.beginPath()
-        renderer.context.moveTo(element.x + step * index, element.y)
-        renderer.context.lineTo(element.x + step * (index + 0.85), element.y + element.height)
-        renderer.context.moveTo(element.x + step * (index + 0.85), element.y)
-        renderer.context.lineTo(element.x + step * index, element.y + element.height)
-        renderer.context.stroke()
-      })
-    }
+  if (parameters.sumTempAll) {
+    new AirTemperatureSumAllGroup({
+      name: 'CТ: Осень / Весна',
+      color: '#561087',
+      data: parameters.sumTempAll,
+    })
   }
 
-  private drawSum(
-    group: VisualizerGroup<number, AirTemperatureGroupsNames>,
-    callback: (element: VisualizerElement<number>, index: number, step: number) => void
-  ) {
-    const { renderer, scene, calculator } = this.complexGraph
+  if (parameters.sumTempAutumn) {
+    new AirTemperatureSumAutumnGroup({
+      name: 'CТ: Осень',
+      color: '#188A1A',
+      data: parameters.sumTempAutumn,
+    })
+  }
 
-    if (group.isVisible) {
-      renderer.context.strokeStyle = group.color
-
-      group.elements.forEach((element) => {
-        renderer.context.lineWidth = 1 / renderer.pixelRatio
-
-        if (!calculator.isPointVisible(element)) return
-
-        const s = Math.ceil(scene.zoom / 4)
-        const step = element.width / s
-
-        for (let index = 0; index < s; index++) {
-          callback(element, index, step)
-        }
-      })
-    }
+  if (parameters.sumTempSpring) {
+    new AirTemperatureSumSpringGroup({
+      name: 'CТ: Весна',
+      color: '#B0433F',
+      data: parameters.sumTempSpring,
+    })
   }
 }

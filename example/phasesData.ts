@@ -1,9 +1,9 @@
-import { QwikStartPhases, TimelineSegmentDate } from '../src'
+import { QwikStartData, TimelineSegmentDate } from '../src'
 
 export async function phasesData(
   from: TimelineSegmentDate,
   to: TimelineSegmentDate
-): Promise<QwikStartPhases> {
+): Promise<QwikStartData['phases']> {
   return [
     {
       type: 'ОР',

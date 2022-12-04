@@ -6,6 +6,7 @@ export interface PhaseParameters extends ObjectParameters {
 
   start: TimelineSegmentDateWithTime
   end: TimelineSegmentDateWithTime
+  fill?: boolean
 
   fontColor?: string
   backgroundColor?: string
@@ -18,6 +19,7 @@ export class Phase extends Object {
 
   private readonly startParam: PhaseParameters['start']
   private readonly endParam: PhaseParameters['end']
+  private readonly fillParam: PhaseParameters['fill']
 
   public readonly shortName: string
 
@@ -33,24 +35,28 @@ export class Phase extends Object {
 
     this.startParam = parameters.start
     this.endParam = parameters.end
+    this.fillParam = parameters.fill
 
     this.shortName = parameters.shortName || this.name || ''
 
     this.fontColor = parameters.fontColor || 'darkblue'
     this.backgroundColor = parameters.backgroundColor || 'lightblue'
     this.edgeColor = parameters.edgeColor || 'darkgrey'
-  }
 
-  public override onCreate() {
     const start = this.complexGraph.timeline.segments.find((s) => s.date === this.startParam)
+
+    if (!start) {
+      throw new Error(`[Phase] Стартовый сегмент не найден ${this.startParam}`)
+    }
+
     const end = this.complexGraph.timeline.segments.find((s) => s.date === this.endParam)
 
-    if (!start || !end) {
-      throw new Error('Phase: Стартовый или конечный сегмент не найдены')
+    if (!end) {
+      throw new Error(`[Phase] Конечный сегмент не найден ${this.startParam}`)
     }
 
     this.start = start
-    this.end = end
+    this.end = this.fillParam ? end.nextDaySegment : end
   }
 
   public onRender() {
@@ -61,7 +67,7 @@ export class Phase extends Object {
 
       if (!this.complexGraph.calculator.isSegmentVisible(this.start, this.end)) return
 
-      const delta = this.end.x1 - this.start.x1
+      const delta = this.end.x2 - this.start.x1
 
       const middle = this.complexGraph.calculator.area.x1 + this.start.x1 + delta / 2
       const offsetY =
@@ -111,4 +117,54 @@ export class Phase extends Object {
       renderer.context.restore()
     })
   }
+}
+
+const phasesPresets = {
+  ОР: {
+    fontColor: '#C08C50',
+    backgroundColor: '#FEFFD7',
+    name: 'Открытое русло',
+    shortName: 'ОР',
+  },
+  ОПП: {
+    fontColor: '#C86546',
+    backgroundColor: '#FBE9DD',
+    name: 'Осенний переходный',
+    shortName: 'ОПП',
+  },
+  ЛД: {
+    fontColor: '#243372',
+    backgroundColor: '#D5F2FA',
+    name: 'Ледостав',
+    shortName: 'ЛД',
+  },
+  ВПП: {
+    fontColor: '#2F7B3A',
+    backgroundColor: '#E0FFDF',
+    name: 'Весенний переходный',
+    shortName: 'ВПП',
+  },
+  ЗАР: {
+    fontColor: '#128B8C',
+    backgroundColor: '#BFD4D0',
+    name: 'Зарастание',
+    shortName: 'ЗАР',
+  },
+}
+
+export type PhasesParameters = Array<{
+  type: keyof typeof phasesPresets
+  start: PhaseParameters['start']
+  end: PhaseParameters['end']
+}>
+
+export function createPhases(parameters: PhasesParameters) {
+  parameters.forEach((phase, i, arr) => {
+    new Phase({
+      ...phasesPresets[phase.type],
+      start: phase.start,
+      end: phase.end,
+      fill: i === arr.length - 1,
+    })
+  })
 }

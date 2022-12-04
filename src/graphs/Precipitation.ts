@@ -1,90 +1,221 @@
-import { Visualizer, VisualizerParameters } from '../core/Visualizer'
+import { pointRectCollision } from '../utils/collisions/pointRectCollision'
+import { XY } from '../utils/ts'
+import { Visualizer } from '../visualizer'
+import { VisualizerElement, VisualizerElementParameters } from '../visualizer/VisualizerElement'
+import {
+  VisualizerElementsGroup,
+  VisualizerElementsGroupData,
+  VisualizerElementsGroupParameters,
+} from '../visualizer/VisualizerElementsGroup'
 
-export type PrecipitationGroupsNames = 'liquid' | 'solid' | 'mixed'
+export interface PrecipitationMixedElementValue {
+  solid: number
+  liquid: number
+}
 
-export type PrecipitationValue = number | { liquid: number; solid: number }
+export class PrecipitationMixedElement extends VisualizerElement<PrecipitationMixedElementValue> {
+  constructor(parameters: VisualizerElementParameters<PrecipitationMixedElementValue>) {
+    super(parameters)
+  }
+}
 
-export class Precipitation extends Visualizer<PrecipitationValue, PrecipitationGroupsNames> {
-  constructor(parameters: VisualizerParameters<PrecipitationValue, PrecipitationGroupsNames>) {
+export class PrecipitationDefaultGroup extends VisualizerElementsGroup<VisualizerElement<number>> {
+  constructor(parameters: VisualizerElementsGroupParameters<number>) {
     super(parameters)
   }
 
-  protected override renderWithClip() {
-    const { renderer } = this.complexGraph
+  public render(heightStep: number) {
+    const { complexGraph } = this.visualizer
+    const { renderer } = complexGraph
 
     const cornerRound = renderer.minSize * 0.002
-
     const radii = [cornerRound, cornerRound, 0, 0]
 
-    this.groups.forEach((group) => {
-      if (!group.isVisible) return
+    this.elements.forEach((element) => {
+      if (!this.visualizer.complexGraph.calculator.isPointVisible(element)) return
 
-      group.elements.forEach((element) => {
-        if (!this.complexGraph.calculator.isPointVisible(element)) return
-
-        if (typeof element.value === 'object') {
-          const step = element.height / (element.value.solid + element.value.liquid)
-          const liquidHeight = step * element.value.liquid
-          const solidHeight = step * element.value.solid
-          renderer.context.beginPath()
-          renderer.context.fillStyle = this.groups.get('liquid')!.color
-          //@ts-ignore
-          renderer.context.roundRect(
-            element.x,
-            element.y + solidHeight,
-            element.width,
-            liquidHeight,
-            radii
-          )
-          renderer.context.fill()
-
-          renderer.context.beginPath()
-          renderer.context.fillStyle = this.groups.get('solid')!.color
-          //@ts-ignore
-          renderer.context.roundRect(element.x, element.y, element.width, solidHeight, radii)
-          renderer.context.fill()
-        } else {
-          renderer.context.beginPath()
-          renderer.context.fillStyle = group.color
-          //@ts-ignore
-          renderer.context.roundRect(element.x, element.y, element.width, element.height, radii)
-          renderer.context.fill()
-        }
-      })
+      renderer.context.beginPath()
+      renderer.context.fillStyle = this.color
+      //@ts-ignore
+      renderer.context.roundRect(element.x, element.y, element.width, element.height, radii)
+      renderer.context.fill()
     })
   }
 
-  protected override calclulateMinMax() {
-    this.groups.forEach((group) => {
-      group.elements.forEach((element) => {
-        if (typeof element.value === 'object') {
-          const acc = element.value.liquid + element.value.solid
-          this.min = acc < this.min ? acc : this.min
-          this.max = acc > this.max ? acc : this.max
-        } else {
-          this.min = element.value < this.min ? element.value : this.min
-          this.max = element.value > this.max ? element.value : this.max
-        }
-      })
+  public resize(heightStep: number): void {
+    const { complexGraph, row, paddingBottom, min } = this.visualizer
+
+    this.elements.forEach((element) => {
+      element.width = element.endSegment.x1 - element.startSegment.x1
+      element.height = heightStep * (element.value - min)
+      element.x = complexGraph.calculator.area.x1 + element.startSegment.x1
+      element.y = row.y2 - element.height - paddingBottom
     })
   }
 
-  protected resizeElements(heightStep: number) {
-    this.groups.forEach((group) => {
-      if (!group.isVisible) return
-      group.elements.forEach((element) => {
-        element.width = element.endSegment.x1 - element.startSegment.x1
-
-        if (typeof element.value === 'object') {
-          const acc = element.value.liquid + element.value.solid
-          element.height = heightStep * (acc - this.min)
-        } else {
-          element.height = heightStep * (element.value - this.min)
-        }
-
-        element.x = this.complexGraph.calculator.area.x1 + element.startSegment.x1
-        element.y = this.row.y2 - element.height
+  public override hitTest(pointer: XY<number>) {
+    const element = this.elements.find((el) => {
+      return pointRectCollision(pointer, {
+        x: el.x,
+        y: el.y,
+        width: el.width,
+        height: el.height,
       })
+    })
+
+    return element
+  }
+
+  public override hitInfo(element: VisualizerElement<any>) {
+    return [`Срок: ${element.startSegment.date}`, `Уровень: ${element.value}`, ...element.comment]
+  }
+
+  protected createElement(parameters: VisualizerElementParameters<number>) {
+    return new VisualizerElement(parameters)
+  }
+
+  protected override getElementNumberValue(element: VisualizerElement<number>) {
+    return element.value
+  }
+}
+
+export interface PrecipitationMixedGroupParameters
+  extends Omit<VisualizerElementsGroupParameters<PrecipitationMixedElementValue>, 'color'> {
+  liquidColor?: string
+  solidColor?: string
+}
+
+export class PrecipitationMixedGroup extends VisualizerElementsGroup<PrecipitationMixedElement> {
+  private readonly liquidColor: string
+  private readonly solidColor: string
+
+  constructor(parameters: PrecipitationMixedGroupParameters) {
+    super(parameters)
+
+    this.liquidColor = parameters.liquidColor || 'black'
+    this.solidColor = parameters.solidColor || 'black'
+  }
+
+  public render() {
+    const { complexGraph } = this.visualizer
+    const { renderer } = complexGraph
+
+    const cornerRound = renderer.minSize * 0.002
+    const radii = [cornerRound, cornerRound, 0, 0]
+
+    this.elements.forEach((element) => {
+      if (!this.visualizer.complexGraph.calculator.isPointVisible(element)) return
+
+      const step = element.height / (element.value.solid + element.value.liquid)
+      const liquidHeight = step * element.value.liquid
+      const solidHeight = step * element.value.solid
+      renderer.context.beginPath()
+      renderer.context.fillStyle = this.liquidColor
+      //@ts-ignore
+      renderer.context.roundRect(
+        element.x,
+        element.y + solidHeight,
+        element.width,
+        liquidHeight,
+        radii
+      )
+      renderer.context.fill()
+
+      renderer.context.beginPath()
+      renderer.context.fillStyle = this.solidColor
+      //@ts-ignore
+      renderer.context.roundRect(element.x, element.y, element.width, solidHeight, radii)
+      renderer.context.fill()
+    })
+  }
+
+  public override resize(heightStep: number): void {
+    const { complexGraph, row, min } = this.visualizer
+
+    this.elements.forEach((element) => {
+      element.width = element.endSegment.x1 - element.startSegment.x1
+
+      const acc = element.value.liquid + element.value.solid
+      element.height = heightStep * (acc - min)
+
+      element.x = complexGraph.calculator.area.x1 + element.startSegment.x1
+      element.y = row.y2 - element.height
+    })
+  }
+
+  public override hitTest(pointer: XY<number>) {
+    const element = this.elements.find((el) => {
+      return pointRectCollision(pointer, {
+        x: el.x,
+        y: el.y,
+        width: el.width,
+        height: el.height,
+      })
+    })
+
+    return element
+  }
+
+  public override hitInfo(element: VisualizerElement<any>) {
+    return [
+      `Срок: ${element.startSegment.date}`,
+      `Уровни`,
+      `Твердый: ${element.value.solid}`,
+      `Жидкий: ${element.value.liquid}`,
+    ]
+  }
+
+  protected createElement(parameters: VisualizerElementParameters<PrecipitationMixedElementValue>) {
+    return new PrecipitationMixedElement(parameters)
+  }
+
+  protected override getElementNumberValue(element: PrecipitationMixedElement): number {
+    return element.value.liquid + element.value.solid
+  }
+}
+
+export interface PrecipitationParameters {
+  solid?: VisualizerElementsGroupData<number>
+  liquid?: VisualizerElementsGroupData<number>
+  mixed?: VisualizerElementsGroupData<PrecipitationMixedElementValue>
+}
+
+export function createPrecipitationGraph(parameters: PrecipitationParameters) {
+  new Visualizer({
+    name: 'Осадки',
+    row: 1,
+    rowFactor: 0.4,
+    scale: {
+      title: 'Осадки, мм',
+      color: 'darkgreen',
+      gridColor: 'darkgreen',
+      gridActive: true,
+    },
+    // unactive: true,
+  })
+
+  if (parameters.solid) {
+    new PrecipitationDefaultGroup({
+      name: 'Твердые',
+      color: '#00b1ff',
+      data: parameters.solid,
+    })
+  }
+
+  if (parameters.liquid) {
+    new PrecipitationDefaultGroup({
+      name: 'Жидкие',
+      color: '#136945',
+      data: parameters.liquid,
+    })
+  }
+
+  if (parameters.mixed) {
+    new PrecipitationMixedGroup({
+      name: 'Смешанные',
+      liquidColor: '#136945',
+      solidColor: '#00b1ff',
+      data: parameters.mixed,
     })
   }
 }

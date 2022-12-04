@@ -22,14 +22,14 @@ export interface SkipScaleSegmentParameters {
 }
 
 export class Scale {
-  public color: string
-  public gridColor: string | undefined
-  public readonly step: number
-  public readonly abs: boolean
+  private readonly color: string
+  private readonly gridColor: string | undefined
+  private readonly step: number
+  private readonly abs: boolean
   public readonly segments: Array<ScaleSegment>
-  public readonly title: string
-  public readonly position: ScalePosition
-  public scaleScatter: number
+  private readonly title: string
+  private readonly position: ScalePosition
+  private scaleScatter: number
   public gridActive: boolean
 
   constructor(parameters: ScaleParameters) {

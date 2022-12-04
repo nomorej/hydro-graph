@@ -1,24 +1,20 @@
-import { ComplexGraph } from '../core/ComplexGraph'
-import { Visualizer, VisualizerElement, VisualizerGroup } from '../core/Visualizer'
-import { AirTemperature, AirTemperatureGroupsNames } from '../graphs/AirTemperature'
-import { IceRuler, IceRulerFillNames, IceRulerValue } from '../graphs/IceRuler'
-import {
-  Precipitation,
-  PrecipitationGroupsNames,
-  PrecipitationValue,
-} from '../graphs/Precipitation'
-import { SnowIce, SnowIceValue } from '../graphs/SnowIce'
-import { WaterLevel } from '../graphs/WaterLevel'
-import { WaterTemperature } from '../graphs/WaterTemperature'
-import { WaterСonsumption, WaterСonsumptionGroupsNames } from '../graphs/WaterСonsumption'
-import { pointRectCollision } from '../utils/collisions/pointRectCollision'
+import { Extension } from '../core/Extension'
+import { IceRulerGroup } from '../graphs/IceRuler/IceRulerGroup'
+import { cursorPosition } from '../utils/coordinates'
 import { XY } from '../utils/ts'
-import { Plugin } from './Plugin'
+import { Visualizer } from '../visualizer'
+import { VisualizerElementsGroup } from '../visualizer/VisualizerElementsGroup'
 
-export class Tooltip {
-  public readonly element: HTMLElement
+export class Tooltips extends Extension {
+  private readonly element: HTMLElement
+  private visualizers: Array<Visualizer>
 
-  constructor(public readonly complexGraph: ComplexGraph) {
+  private readonly mouse: XY
+  private readonly mouseZoomed: XY
+
+  constructor() {
+    super()
+
     this.element = document.createElement('div')
 
     this.element.style.cssText = `
@@ -28,7 +24,7 @@ export class Tooltip {
       z-index: 3;
       opacity: 0;
       pointer-events: none;
-      font-family: ${complexGraph.font || 'sans-serif'};
+      font-family: ${this.complexGraph.font || 'sans-serif'};
       font-size: 1.5vmin;
       padding: 0.4vmin;
       background-color: white;
@@ -37,14 +33,42 @@ export class Tooltip {
       opacity: 0.8,
     `
 
-    complexGraph.container.appendChild(this.element)
+    this.complexGraph.container.appendChild(this.element)
+
+    this.visualizers = []
+
+    setTimeout(() => {
+      this.visualizers = Array.from(this.complexGraph.scene.objects).filter(
+        (v) => v instanceof Visualizer
+      ) as Array<Visualizer<any>>
+    }, 20)
+
+    this.mouse = { x: 0, y: 0 }
+    this.mouseZoomed = { x: 0, y: 0 }
+
+    this.complexGraph.renderer.canvasElement.addEventListener('pointermove', this.handlePointerMove)
+    this.complexGraph.renderer.canvasElement.addEventListener('click', this.handlePointerMove)
+    this.complexGraph.renderer.canvasElement.addEventListener(
+      'pointerleave',
+      this.handlePointerLeave
+    )
   }
 
-  public destroy() {
+  public override onDestroy() {
     this.complexGraph.container.removeChild(this.element)
+
+    this.complexGraph.renderer.canvasElement.removeEventListener(
+      'pointermove',
+      this.handlePointerMove
+    )
+    this.complexGraph.renderer.canvasElement.removeEventListener('click', this.handlePointerMove)
+    this.complexGraph.renderer.canvasElement.removeEventListener(
+      'pointerleave',
+      this.handlePointerLeave
+    )
   }
 
-  public show(text: string | Array<string>) {
+  private showElement(text: string | Array<string>) {
     text = Array.isArray(text) ? text : [text]
 
     let preparedText = ''
@@ -61,217 +85,54 @@ export class Tooltip {
     this.element.style.opacity = '0.8'
 
     const height = this.element.offsetHeight
-    this.element.style.transform = `translate(${this.complexGraph.mouse.x}px, ${
-      this.complexGraph.mouse.y - height
-    }px)`
+    this.element.style.transform = `translate(${this.mouse.x}px, ${this.mouse.y - height}px)`
   }
 
-  public hide() {
+  private hideElement() {
     this.element.style.opacity = '0'
-  }
-}
-
-export class Tooltips extends Plugin {
-  private tooltip: Tooltip
-  private visualizers: Array<Visualizer<any, any>>
-
-  constructor() {
-    super()
-
-    this.tooltip = null!
-    this.visualizers = []
-  }
-
-  public override onCreate() {
-    this.tooltip = new Tooltip(this.complexGraph)
-    this.visualizers = Array.from(this.complexGraph.scene.objects).filter(
-      (v) => v instanceof Visualizer
-    ) as Array<Visualizer<any>>
-    this.complexGraph.events.listen('pointermove', this.handlePointerMove)
-    this.complexGraph.events.listen('pointerleave', this.handlePointerLeave)
-  }
-
-  public override onDestroy() {
-    this.tooltip.destroy()
-    this.complexGraph.events.unlisten('pointermove', this.handlePointerMove)
-    this.complexGraph.events.unlisten('pointerleave', this.handlePointerLeave)
   }
 
   private handlePointerLeave = () => {
-    this.tooltip.hide()
+    this.hideElement()
   }
 
-  private handlePointerMove = (_mouse: XY<number>, mouseZoomed: XY<number>) => {
+  private handlePointerMove = (event: MouseEvent) => {
+    const { container, calculator } = this.complexGraph
+
+    const c = cursorPosition(event, container)
+
+    this.mouse.x = c.x
+    this.mouse.y = c.y
+
+    this.mouseZoomed.x = c.x + calculator.clipArea.x1 - calculator.area.x1
+    this.mouseZoomed.y = c.y
+
     let collisionsCount = 0
 
     this.visualizers.forEach((visualizer) => {
       const { isActive, row, groups } = visualizer
 
-      if (isActive && mouseZoomed.y > row.y1 && mouseZoomed.y < row.y2) {
+      if (isActive && this.mouseZoomed.y > row.y1 && this.mouseZoomed.y < row.y2) {
         groups.forEach((group) => {
-          if (group?.elements.length && group.isVisible) {
-            group.elements.forEach((el) => {
-              if (visualizer instanceof AirTemperature) {
-                collisionsCount += this.airTemperature(el, group)
-              } else if (visualizer instanceof Precipitation) {
-                collisionsCount += this.precipitation(el, group)
-              } else if (visualizer instanceof IceRuler) {
-                collisionsCount += this.iceRuler(el, group)
-              } else if (visualizer instanceof SnowIce) {
-                collisionsCount += this.snowIce(el, group)
-              } else if (visualizer instanceof WaterTemperature) {
-                collisionsCount += this.waterTemperature(el, group)
-              } else if (visualizer instanceof WaterLevel) {
-                collisionsCount += this.waterLevel(el, group)
-              } else if (visualizer instanceof WaterСonsumption) {
-                collisionsCount += this.waterConsumption(el, group)
-              }
-            })
+          if (
+            (group instanceof VisualizerElementsGroup || group instanceof IceRulerGroup) &&
+            group.hitTest &&
+            group.hitInfo &&
+            group.isVisible
+          ) {
+            const h = group.hitTest(this.mouseZoomed)
+
+            if (h) {
+              collisionsCount++
+              this.showElement(group.hitInfo(h))
+            }
           }
         })
       }
     })
 
     if (!collisionsCount) {
-      this.tooltip.hide()
+      this.hideElement()
     }
-  }
-
-  private graphPointCollision(element: VisualizerElement<number>) {
-    const rectSize = this.complexGraph.renderer.minSize * 0.05
-
-    return pointRectCollision(this.complexGraph.mouseZoomed, {
-      x: element.x - rectSize / 2,
-      y: element.y - rectSize / 2,
-      width: rectSize,
-      height: rectSize,
-    })
-  }
-
-  private airTemperature(
-    el: VisualizerElement<number>,
-    group: VisualizerGroup<number, AirTemperatureGroupsNames>
-  ) {
-    if (
-      group.name === 'max' ||
-      group.name === 'min' ||
-      group.name === 'middle' ||
-      group.name === 'post'
-    ) {
-      if (this.graphPointCollision(el)) {
-        this.tooltip.show([
-          `Срок: ${el.startSegment.date}`,
-          `Температура: ${el.value}`,
-          ...el.comment,
-        ])
-        return 1
-      }
-    } else {
-      if (pointRectCollision(this.complexGraph.mouseZoomed, el)) {
-        this.tooltip.show([`Срок: ${el.startSegment.date}`, `Сумма: ${el.value}`, ...el.comment])
-        return 1
-      }
-    }
-
-    return 0
-  }
-
-  private precipitation(
-    el: VisualizerElement<PrecipitationValue>,
-    group: VisualizerGroup<PrecipitationValue, PrecipitationGroupsNames>
-  ) {
-    if (pointRectCollision(this.complexGraph.mouseZoomed, el)) {
-      if (typeof el.value === 'number') {
-        this.tooltip.show([`Срок: ${el.startSegment.date}`, `Уровень: ${el.value}`, ...el.comment])
-      } else {
-        this.tooltip.show([
-          `Срок: ${el.startSegment.date}`,
-          `Уровни`,
-          `Твердый: ${el.value.solid}`,
-          `Жидкий: ${el.value.liquid}`,
-          ...el.comment,
-        ])
-      }
-      return 1
-    }
-    return 0
-  }
-
-  private iceRuler(
-    el: VisualizerElement<IceRulerValue>,
-    group: VisualizerGroup<IceRulerValue, IceRulerFillNames>
-  ) {
-    let collision = pointRectCollision(this.complexGraph.mouseZoomed, {
-      x: el.x,
-      y: group.dr.row.y1,
-      width: el.width,
-      height: group.dr.row.height,
-    })
-
-    if (el.comment && collision) {
-      this.tooltip.show([`Срок: ${el.startSegment.date}`, ...el.comment])
-      return 1
-    }
-
-    return 0
-  }
-
-  private snowIce(el: VisualizerElement<SnowIceValue>, group: VisualizerGroup<SnowIceValue>) {
-    const columnSize = this.complexGraph.renderer.minSize * 0.05
-
-    if (
-      pointRectCollision(this.complexGraph.mouseZoomed, {
-        x: el.x - columnSize / 2,
-        y: group.dr.row.y1,
-        width: columnSize,
-        height: group.dr.row.height,
-      })
-    ) {
-      this.tooltip.show([
-        `Срок: ${el.startSegment.date}`,
-        `Уровни`,
-        `Снег: ${el.value.snow}`,
-        `Лед: ${el.value.ice}`,
-        ...el.comment,
-      ])
-
-      return 1
-    }
-
-    return 0
-  }
-
-  private waterTemperature(el: VisualizerElement<number>, group: VisualizerGroup<number>) {
-    if (this.graphPointCollision(el)) {
-      this.tooltip.show([
-        `Срок: ${el.startSegment.date}`,
-        `Температура: ${el.value}`,
-        ...el.comment,
-      ])
-      return 1
-    }
-    return 0
-  }
-
-  private waterLevel(
-    el: VisualizerElement<number>,
-    group: VisualizerGroup<number, WaterСonsumptionGroupsNames>
-  ) {
-    if (this.graphPointCollision(el)) {
-      this.tooltip.show([`Срок: ${el.startSegment.date}`, `Уровень: ${el.value}`, ...el.comment])
-      return 1
-    }
-    return 0
-  }
-
-  private waterConsumption(
-    el: VisualizerElement<number>,
-    group: VisualizerGroup<number, WaterСonsumptionGroupsNames>
-  ) {
-    if (this.graphPointCollision(el)) {
-      this.tooltip.show([`Срок: ${el.startSegment.date}`, `Расход: ${el.value}`, ...el.comment])
-      return 1
-    }
-    return 0
   }
 }

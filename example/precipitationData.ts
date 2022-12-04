@@ -1,9 +1,9 @@
-import { QwikStartPrecipitation, TimelineSegmentDate } from '../src'
+import { QwikStartData, TimelineSegmentDate } from '../src'
 
 export async function precipitationData(
   from: TimelineSegmentDate,
   to: TimelineSegmentDate
-): Promise<QwikStartPrecipitation> {
+): Promise<QwikStartData['precipitation']> {
   return {
     liquid: [
       {

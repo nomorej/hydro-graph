@@ -113,7 +113,9 @@ export class Timeline {
       s.widthNormalized = s.x2Normalized - s.x1Normalized
 
       s.nextHourSegment = this.segments[index + 1] || s
-      s.nextDaySegment = this.segments.slice(index + 1).find((s) => s.type === 'day') || s
+      s.nextDaySegment =
+        this.segments.slice(index + 1).find((s) => s.type === 'day') ||
+        this.segments[this.segments.length - 1]
       s.currentDaySegment = this.segments
         .slice(Math.max(index - 23, 0), index + 1)
         .find((s) => s.type === 'day' || s.type === 'month')!

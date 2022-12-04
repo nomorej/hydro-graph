@@ -1,39 +1,41 @@
 import { Primitive } from './Primitive'
 import { Segmentator } from '../tools/Segmentator'
-import { Visualizer } from './Visualizer'
+import { Visualizer } from '../visualizer'
 
 export type RowsFactors = Array<number>
 
 export class Rows {
   private segmentator: Segmentator<number>
   public rows: Array<Primitive>
-  public readonly graphs: Map<number, Set<Visualizer<any, any>>>
+  public readonly visualizers: Map<number, Set<Visualizer<any>>>
 
   constructor() {
     this.segmentator = new Segmentator({ scale: 1, gap: 0.03 })
     this.rows = []
-    this.graphs = new Map()
+    this.visualizers = new Map()
   }
 
-  public addVisualizer(graph: Visualizer<any, any>) {
-    if (!this.rows[graph.rowParameter]) {
-      this.rows[graph.rowParameter] = new Primitive()
+  public addVisualizer(visualizer: Visualizer<any>) {
+    if (!this.rows[visualizer.rowParameter]) {
+      this.rows[visualizer.rowParameter] = new Primitive()
     }
 
-    if (graph.isActive) {
-      if (!this.graphs.has(graph.rowParameter)) {
-        this.graphs.set(graph.rowParameter, new Set([graph]))
+    if (visualizer.isActive) {
+      if (!this.visualizers.has(visualizer.rowParameter)) {
+        this.visualizers.set(visualizer.rowParameter, new Set([visualizer]))
       } else {
-        this.graphs.get(graph.rowParameter)!.add(graph)
+        this.visualizers.get(visualizer.rowParameter)!.add(visualizer)
       }
     }
 
     this.segmentate()
+
+    return this.rows[visualizer.rowParameter]
   }
 
-  public removeVisualizer(graph: Visualizer<any, any>) {
-    if (this.graphs.has(graph.rowParameter)) {
-      this.graphs.get(graph.rowParameter)!.delete(graph)
+  public removeVisualizer(visualizer: Visualizer<any>) {
+    if (this.visualizers.has(visualizer.rowParameter)) {
+      this.visualizers.get(visualizer.rowParameter)!.delete(visualizer)
     }
 
     this.segmentate()
@@ -52,7 +54,7 @@ export class Rows {
 
   private segmentate() {
     for (let index = 0; index < this.rows.length; index++) {
-      const rowVisualizers = this.graphs.get(index)
+      const rowVisualizers = this.visualizers.get(index)
       let maxFactor = 0
       rowVisualizers?.forEach(
         (g) => g.rowFactorParameter > maxFactor && (maxFactor = g.rowFactorParameter)

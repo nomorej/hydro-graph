@@ -1,9 +1,9 @@
-import { QwikStartWaterLevel, TimelineSegmentDate } from '../src'
+import { QwikStartData, TimelineSegmentDate } from '../src'
 
 export async function waterLevelData(
   from: TimelineSegmentDate,
   to: TimelineSegmentDate
-): Promise<QwikStartWaterLevel> {
+): Promise<QwikStartData['waterlevel']> {
   return {
     adverse: 100,
     dangerous: 200,

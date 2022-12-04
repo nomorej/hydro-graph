@@ -1,5 +1,6 @@
 import { clamp } from '../utils/math'
 import { XY } from '../utils/ts'
+import { Events } from './Events'
 
 export type CanvasDrawFunction = (canvasState: Canvas, ...args: any[]) => void
 
@@ -17,9 +18,16 @@ export class Canvas {
   public minSize: number
   public maxSize: number
 
-  private _drawFunction?: CanvasDrawFunction | undefined
   public pixelRatio: number
+
+  public readonly events: Events<{
+    resize(): void
+  }>
+
+  private _drawFunction?: CanvasDrawFunction | undefined
+
   private readonly resizeObserver: ResizeObserver
+
   constructor(parameters: CanvasParameters) {
     this.containerElement = parameters.container
     this.canvasElement = document.createElement('canvas')
@@ -40,6 +48,8 @@ export class Canvas {
     this.maxSize = 0
 
     this.pixelRatio = 1
+
+    this.events = new Events()
 
     this.resizeObserver = new ResizeObserver(this.redraw)
   }
@@ -87,6 +97,8 @@ export class Canvas {
     this.canvasElement.style.height = this.size.y + 'px'
 
     this.context.scale(this.pixelRatio, this.pixelRatio)
+
+    this.events.notify('resize')
   }
 
   public redraw = () => {

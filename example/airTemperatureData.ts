@@ -1,9 +1,9 @@
-import { QwikStartAirTemperature, TimelineSegmentDate } from '../src'
+import { QwikStartData, TimelineSegmentDate } from '../src'
 
 export async function airTemperatureData(
   from: TimelineSegmentDate,
   to: TimelineSegmentDate
-): Promise<QwikStartAirTemperature> {
+): Promise<QwikStartData['airTemperature']> {
   return {
     min: [
       {
@@ -12,6 +12,14 @@ export async function airTemperatureData(
       },
       {
         date: '2021-02-01T00:00:00',
+        value: 30,
+      },
+      {
+        date: '2021-02-03T00:00:00',
+        value: 15,
+      },
+      {
+        date: '2021-02-10T00:00:00',
         value: 30,
       },
     ],
