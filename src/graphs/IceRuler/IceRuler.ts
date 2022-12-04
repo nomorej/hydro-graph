@@ -163,6 +163,22 @@ export class IceRuler extends Visualizer<IceRulerGroup> {
         this.row.y2 - this.row.height * this.segmentator.get((index + 1) as IceRulerLineNumber).a
     }
 
+    const { renderer } = this.complexGraph
+
+    renderer.context.lineWidth = 1 / renderer.pixelRatio
+
+    renderer.context.strokeStyle = '#999999'
+    renderer.context.beginPath()
+    renderer.context.moveTo(this.row.x1, this.lines[1].y)
+    renderer.context.lineTo(this.row.x2, this.lines[1].y)
+    renderer.context.stroke()
+
+    renderer.context.strokeStyle = '#999999'
+    renderer.context.beginPath()
+    renderer.context.moveTo(this.row.x1, this.lines[5].y)
+    renderer.context.lineTo(this.row.x2, this.lines[5].y)
+    renderer.context.stroke()
+
     super.onRender()
   }
 }
