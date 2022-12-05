@@ -53,7 +53,7 @@ export class Print extends Extension {
     if (win) {
       win.document.write(`
         <head>
-          <title>Ледовая линейка</title>
+          <title>Комплексный график</title>
           <style>
             * {
               margin: 0;
