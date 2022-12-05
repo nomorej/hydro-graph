@@ -1,4 +1,4 @@
-import { qwikStart, QwikStartParameters, TimelineSegmentDate } from '../src'
+import { getTimelineData, qwikStart, QwikStartParameters, TimelineSegmentDate } from '../src'
 import { airTemperatureData } from './airTemperatureData'
 import { iceRulerData } from './iceRulerData'
 import { precipitationData } from './precipitationData'
@@ -7,12 +7,11 @@ import { snowIceData } from './snowIceData'
 import { waterLevelData } from './waterLevelData'
 import { waterConsumptionData } from './waterConsumptionData'
 import { phasesData } from './phasesData'
-import { timelineData } from './timelineData'
 
 async function fetchData(from: TimelineSegmentDate, to: TimelineSegmentDate) {
   const graphParameters: QwikStartParameters = {
     wrapper: document.getElementById('graph')!,
-    timeline: await timelineData(from, to),
+    timeline: getTimelineData(new Date(from), new Date(to)),
     data: {
       phases: await phasesData(from, to),
       airTemperature: await airTemperatureData(from, to),
