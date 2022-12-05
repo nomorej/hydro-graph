@@ -45,9 +45,6 @@ export async function createGraph(from: TimelineSegmentDate, to: TimelineSegment
 export async function main() {
   const graph = await createGraph('2021-01-01', '2021-12-31')
 
-  // graph.recteate('2021-01-01', '2021-12-31')
-  // graph.destroy()
-
   addEventListener('keydown', (e) => {
     if (e.key === 'r') {
       graph.recteate('2021-01-01', '2021-12-31')
