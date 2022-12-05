@@ -55,9 +55,7 @@ export abstract class IceRulerIceDamGroup extends IceRulerTriangleGroup {
     const { complexGraph, row } = this.visualizer
     const { renderer, calculator } = complexGraph
 
-    const s =
-      clamp(calculator.area.width * 0.001 + calculator.area.width * 0.0001, 1, row.height * 0.12) /
-      2
+    const s = clamp(calculator.area.width * 0.0011, 1, el.height) / 2
 
     const x = el.x + (type === 'end' ? el.width : 0) + (type === 'end' ? s * -1 : s)
     const o1 = el.height - s

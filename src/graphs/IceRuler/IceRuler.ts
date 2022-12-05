@@ -66,14 +66,14 @@ export class IceRuler extends Visualizer<IceRulerGroup> {
     super(parameters)
 
     this.segmentator = new Segmentator({ scale: 1 })
-    this.segmentator.cut(1, 0.5)
+    this.segmentator.cut(1, 0)
     this.segmentator.cut(2, 1)
     this.segmentator.cut(3, 1)
     this.segmentator.cut(4, 1)
     this.segmentator.cut(5, 1)
     this.segmentator.cut(6, 1)
     this.segmentator.cut(7, 1)
-    this.segmentator.cut(8, 0.5)
+    this.segmentator.cut(8, 0)
 
     this.lines = []
 
@@ -159,11 +159,12 @@ export class IceRuler extends Visualizer<IceRulerGroup> {
 
   public override onRender() {
     for (let index = 0; index < this.lines.length; index++) {
-      this.lines[index].y =
-        this.row.y2 - this.row.height * this.segmentator.get((index + 1) as IceRulerLineNumber).a
-
+      const s = this.segmentator.get((index + 1) as IceRulerLineNumber)
+      this.lines[index].y = this.row.y2 - this.row.height * (s.a + s.s / 2)
       this.lines[index].y = Math.floor(this.lines[index].y) + 0.5
     }
+
+    console.log(this.segmentator)
 
     const { renderer } = this.complexGraph
 

@@ -6,7 +6,7 @@ export class IceRulerIceShoveGroup extends IceRulerGroup {
   }
 
   public render() {
-    const { complexGraph } = this.visualizer
+    const { complexGraph, row } = this.visualizer
     const { renderer, calculator } = complexGraph
 
     renderer.context.fillStyle = this.color
@@ -15,7 +15,6 @@ export class IceRulerIceShoveGroup extends IceRulerGroup {
 
     this.elements.forEach((el) => {
       if (!this.visualizer.complexGraph.calculator.isPointVisible(el)) return
-
       renderer.context.beginPath()
       renderer.context.fillRect(el.x, el.y, width, el.height)
     })

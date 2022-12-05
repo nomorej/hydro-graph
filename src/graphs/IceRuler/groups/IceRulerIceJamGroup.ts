@@ -16,18 +16,14 @@ export class IceRulerIceJamGroup extends IceRulerTriangleGroup {
   }
 
   public render() {
-    const { complexGraph, row } = this.visualizer
+    const { complexGraph } = this.visualizer
     const { calculator } = complexGraph
 
     this.elements.forEach((el) => {
       if (!this.visualizer.complexGraph.calculator.isPointVisible(el)) return
 
       const x = el.x + el.width / 2
-      const s = clamp(
-        calculator.area.width * 0.001 + calculator.area.width * 0.0001,
-        1,
-        row.height * 0.12
-      )
+      const s = clamp(calculator.area.width * 0.0011, 1, el.height)
       const o = el.height - s
 
       this.drawTriangle(x, el.y + o, s, this.color, this.rotate)

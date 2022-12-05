@@ -126,7 +126,7 @@ export const iceRulerGroups: IceRulerGroups = {
   },
   none: {
     startLine: 1,
-    endLine: 8,
+    endLine: 6,
     constructor: IceRulerNoneGroup,
     name: '',
   },
