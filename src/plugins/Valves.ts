@@ -197,7 +197,6 @@ export class Valves extends Extension {
     this.styles.innerText = `
 
       .cg-buttons {
-
         --size: calc(var(--cg-scalar) * 30);
         position: absolute;
         top: calc(var(--size) * -1);
@@ -216,6 +215,7 @@ export class Valves extends Extension {
 
       .cg-button {
         font-size: calc(var(--cg-scalar) * 10);
+        font-weight: bold;
         padding: 0 calc(var(--cg-scalar) * 10);
         height: var(--size);
         background-color: #4C6EF5;
