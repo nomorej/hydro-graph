@@ -21,16 +21,16 @@ export class IceRulerFrazilDriftGroup extends IceRulerGroup {
 
     renderer.context.strokeStyle = this.color
 
-    let offset = 0
+    let fillHeight = 0
 
     if (this.auxLines?.[0]) {
-      offset = this.startLine.y - this.auxLines[0].y
+      fillHeight = this.startLine.y - this.auxLines[0].y
     }
 
     this.elements.forEach((el) => {
       if (!this.visualizer.complexGraph.calculator.isPointVisible(el)) return
 
-      renderer.context.fillRect(el.x, el.y - offset, el.width, el.height + offset)
+      renderer.context.fillRect(el.x, this.startLine.y - fillHeight, el.width, fillHeight)
 
       const s = Math.ceil(scene.zoom / 3)
       const step = el.width / s

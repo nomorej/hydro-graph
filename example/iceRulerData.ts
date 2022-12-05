@@ -9,11 +9,11 @@ export async function iceRulerData(
   let data: QwikStartData['iceRuler'] | undefined
 
   try {
-    data = await requestData<QwikStartData['iceRuler']>(
-      'https://hydro-api.mapmakers.ru/hydrograph-api/ObsData/GetWaterBodyState/12010',
-      from,
-      to
-    )
+    // data = await requestData<QwikStartData['iceRuler']>(
+    //   'https://hydro-api.mapmakers.ru/hydrograph-api/ObsData/GetWaterBodyState/12010',
+    //   from,
+    //   to
+    // )
 
     data = [
       {
@@ -90,7 +90,7 @@ export async function iceRulerData(
       },
       {
         fill: 8,
-        iceShove: false,
+        iceShove: true,
         localTime: '2021-03-09T03:00:00',
         obsTime: '2021-03-09T03:00:00',
         text: ['asdsa'],
@@ -117,7 +117,7 @@ export async function iceRulerData(
       },
       {
         fill: 11,
-        iceShove: true,
+        iceShove: false,
         localTime: '2021-03-12T03:00:00',
         obsTime: '2021-03-12T03:00:00',
         text: ['asdsa'],
