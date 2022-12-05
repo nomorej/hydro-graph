@@ -7,7 +7,11 @@ function build(libraries: Array<LibraryOptions> | LibraryOptions) {
   libraries.forEach(async (lib) => {
     await viteBuild({
       configFile: false,
-      plugins: [dts()],
+      plugins: [
+        dts({
+          include: './src',
+        }),
+      ],
       build: {
         outDir: 'lib',
         lib: {
