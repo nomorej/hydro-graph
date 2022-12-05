@@ -52,11 +52,10 @@ export class Scrollbar extends Object {
   }
 
   public override onDestroy() {
-    const { scene } = this.complexGraph
     this.knob.removeEventListener('pointerdown', this.handlePointerDown)
     this.knob.removeEventListener('pointerenter', this.handlePointerEnter)
     this.knob.removeEventListener('pointerleave', this.handlePointerLeave)
-    scene.renderer.containerElement.removeChild(this.bar)
+    this.complexGraph.container.removeChild(this.bar)
   }
 
   public onRender() {

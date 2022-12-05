@@ -59,8 +59,7 @@ export class Visualizer<T extends VisualizerGroup = VisualizerGroup> extends Obj
     }, 0)
   }
 
-  public override destroy() {
-    super.destroy()
+  public override onDestroy() {
     visualizerPointer.remove(this)
     this.complexGraph.rows.removeVisualizer(this)
   }

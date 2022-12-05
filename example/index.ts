@@ -47,6 +47,14 @@ export async function main() {
 
   // graph.recteate('2021-01-01', '2021-12-31')
   // graph.destroy()
+
+  addEventListener('keydown', (e) => {
+    if (e.key === 'r') {
+      graph.recteate('2021-01-01', '2021-12-31')
+    } else if (e.key === 'd') {
+      graph.destroy()
+    }
+  })
 }
 
 main()

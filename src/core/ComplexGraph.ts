@@ -80,7 +80,7 @@ export class ComplexGraph {
     complexGraphPointer.remove(this)
 
     this.renderer.destroy()
-    this.extensions.forEach((p) => p.onDestroy?.())
+    this.extensions.forEach((p) => p.destroy?.())
 
     this.wrapper.removeChild(this.container)
   }

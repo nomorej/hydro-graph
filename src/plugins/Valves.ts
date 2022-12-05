@@ -293,6 +293,7 @@ export class Valves extends Extension {
   }
 
   public override onDestroy() {
+    this.categories.forEach((c) => c.destroy())
     document.head.removeChild(this.styles)
   }
 }

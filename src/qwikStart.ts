@@ -1,7 +1,6 @@
 import { ComplexGraph, Parameters } from './core/ComplexGraph'
 import { SceneParameters } from './core/Scene'
 import { TimelineParameters } from './core/Timeline'
-import { Visualizer } from './visualizer'
 
 import { TouchControl } from './controls/TouchControl'
 import { WheelControl } from './controls/WheelControl'
@@ -112,6 +111,7 @@ export function qwikStart(parameters: QwikStartParameters) {
     },
     destroy() {
       cg.destroy()
+      console.log(cg)
     },
   }
 

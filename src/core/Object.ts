@@ -17,16 +17,17 @@ export abstract class Object extends Extension {
 
     setTimeout(() => {
       this.complexGraph.scene.addObject(this)
+      this.onObjectReady?.()
       this.complexGraph.renderer.redraw()
     }, 10)
   }
 
-  public override destroy() {
-    super.destroy()
+  public override onDestroy() {
     this.complexGraph.scene.removeObject(this)
     this.complexGraph.renderer.redraw()
   }
 
+  public onObjectReady?(): void
   public abstract onRender(): void
   public onResize?(): void
 }
