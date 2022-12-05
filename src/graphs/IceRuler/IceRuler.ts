@@ -164,8 +164,6 @@ export class IceRuler extends Visualizer<IceRulerGroup> {
       this.lines[index].y = Math.floor(this.lines[index].y) + 0.5
     }
 
-    console.log(this.segmentator)
-
     const { renderer } = this.complexGraph
 
     renderer.context.lineWidth = 1 / renderer.pixelRatio
