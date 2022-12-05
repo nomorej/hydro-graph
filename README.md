@@ -8,4 +8,4 @@
 
 [Пример](/example) создания графика
 
-[Пример](/example/iceRulerWithRealData.ts) линейки с реальными данными
+[Пример](/example/iceRulerWithRealData.ts) получения реальных данных по линейке
