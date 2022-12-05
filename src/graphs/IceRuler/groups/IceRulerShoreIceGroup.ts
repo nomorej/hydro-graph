@@ -3,6 +3,8 @@ import { IceRulerGroup, IceRulerGroupParameters } from '../IceRulerGroup'
 export class IceRulerShoreIceGroup extends IceRulerGroup {
   constructor(parameters: IceRulerGroupParameters) {
     super(parameters)
+    this.hitInfo = undefined
+    this.hitTest = undefined
   }
 
   public render() {

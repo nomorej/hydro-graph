@@ -3,6 +3,9 @@ import { IceRulerGroup, IceRulerGroupParameters } from '../IceRulerGroup'
 export abstract class IceRulerTriangleGroup extends IceRulerGroup {
   constructor(parameters: IceRulerGroupParameters) {
     super(parameters)
+
+    this.hitInfo = undefined
+    this.hitTest = undefined
   }
 
   protected drawTriangle(

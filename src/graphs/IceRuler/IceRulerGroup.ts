@@ -48,7 +48,7 @@ export abstract class IceRulerGroup extends VisualizerGroup {
     })
   }
 
-  public hitTest(pointer: XY) {
+  public hitTest?(pointer: XY) {
     const { row } = this.visualizer
 
     const el = this.elements.find((el) => {
@@ -63,7 +63,7 @@ export abstract class IceRulerGroup extends VisualizerGroup {
     return el
   }
 
-  public hitInfo(element: VisualizerElement<undefined>) {
+  public hitInfo?(element: VisualizerElement<undefined>) {
     return [`Срок: ${element.startSegment.date}`, ...element.comment]
   }
 }

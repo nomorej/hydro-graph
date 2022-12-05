@@ -1,4 +1,3 @@
-import { TimelineSegment } from '../../../core/Timeline'
 import { clamp } from '../../../utils/math'
 import { VisualizerElement } from '../../../visualizer/VisualizerElement'
 import { IceRulerGroupParameters } from '../IceRulerGroup'
