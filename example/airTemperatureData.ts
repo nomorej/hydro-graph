@@ -69,7 +69,7 @@ export async function airTemperatureData(
     ],
     sumTempSpring: [
       {
-        date: '2021-01-07T00:00:00',
+        date: '2021-01-10T00:00:00',
         value: 5,
         fillDay: true,
       },

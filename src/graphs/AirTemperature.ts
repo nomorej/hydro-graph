@@ -38,7 +38,7 @@ abstract class AirTemperatureSumGroup<T = number> extends VisualizerElementsGrou
     this.elements.forEach((element) => {
       if (!calculator.isPointVisible(element)) return
       const db = element.endSegment.daysBefore - element.startSegment.daysBefore
-      const s = Math.ceil(scene.zoom / 8) * db
+      const s = Math.ceil(scene.zoom / 4) * db
       const step = element.width / s
 
       for (let index = 0; index < s; index++) {
