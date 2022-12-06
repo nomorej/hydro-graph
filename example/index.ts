@@ -1,6 +1,6 @@
 import { getTimelineData, qwikStart, QwikStartParameters, TimelineSegmentDate } from '../src'
 import { airTemperatureData } from './airTemperatureData'
-import { iceRulerWithRealData } from './iceRulerWithRealData'
+import { iceRulerData } from './iceRulerData'
 import { precipitationData } from './precipitationData'
 import { waterTemperatureData } from './waterTemperatureData'
 import { snowIceData } from './snowIceData'
@@ -19,7 +19,7 @@ async function fetchData(from: TimelineSegmentDate, to: TimelineSegmentDate) {
       waterTemperature: await waterTemperatureData(from, to),
       snowIce: await snowIceData(from, to),
       waterlevel: await waterLevelData(from, to),
-      iceRuler: await iceRulerWithRealData(from, to),
+      iceRuler: await iceRulerData(from, to),
       waterСonsumption: await waterConsumptionData(from, to),
     },
   }
