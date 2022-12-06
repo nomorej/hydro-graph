@@ -161,7 +161,7 @@ export class IceRuler extends Visualizer<IceRulerGroup> {
     for (let index = 0; index < this.lines.length; index++) {
       const s = this.segmentator.get((index + 1) as IceRulerLineNumber)
       this.lines[index].y = this.row.y2 - this.row.height * (s.a + s.s / 2)
-      this.lines[index].y = Math.floor(this.lines[index].y) + 0.5
+      this.lines[index].y = Math.floor(this.lines[index].y)
     }
 
     const { renderer } = this.complexGraph

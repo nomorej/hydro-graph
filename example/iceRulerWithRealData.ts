@@ -2,7 +2,7 @@ import { QwikStartData, TimelineSegmentDate } from '../src'
 
 import { requestData } from './requestData'
 
-export async function iceRulerData(
+export async function iceRulerWithRealData(
   from: TimelineSegmentDate,
   to: TimelineSegmentDate
 ): Promise<QwikStartData['iceRuler']> {
