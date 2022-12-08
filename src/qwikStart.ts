@@ -36,7 +36,6 @@ export interface QwikStartData {
 
 export interface QwikStartParameters
   extends Pick<Parameters, 'wrapper' | 'font' | keyof SceneParameters> {
-  leapYear?: boolean
   timeline: TimelineParameters
   data: QwikStartData
 }
