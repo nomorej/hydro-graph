@@ -35,7 +35,7 @@ export async function createGraph(from: TimelineSegmentDate, to: TimelineSegment
       graph.destroy()
     },
 
-    async recteate(from: TimelineSegmentDate, to: TimelineSegmentDate) {
+    async recreate(from: TimelineSegmentDate, to: TimelineSegmentDate) {
       graph.recreate(await fetchData(from, to), true)
     },
   }
@@ -46,7 +46,7 @@ export async function main() {
 
   addEventListener('keydown', (e) => {
     if (e.key === 'r') {
-      graph.recteate('2021-01-01', '2021-12-31')
+      graph.recreate('2021-01-01', '2021-12-31')
     } else if (e.key === 'd') {
       graph.destroy()
     }

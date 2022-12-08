@@ -111,7 +111,6 @@ export function qwikStart(parameters: QwikStartParameters) {
     },
     destroy() {
       cg.destroy()
-      console.log(cg)
     },
   }
 
